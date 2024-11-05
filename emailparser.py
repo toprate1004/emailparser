@@ -88,12 +88,21 @@ def get_container_data():
     try:
         with conn.cursor() as cursor:
             # SQL query to fetch data
-            fetch_query = "SELECT location, quantity FROM container"
+            fetch_query = "SELECT * FROM container"
             cursor.execute(fetch_query)
 
             # Fetch all results
             container_data = cursor.fetchall()
-            container_json_data = [{"location": row[0], "quantity": row[1]} for row in container_data]
+            container_json_data = [{"location": row[1], "quantity": row[2],
+                                    "size": row[3], "type": row[4],
+                                    "term": row[5], "grade": row[6],
+                                    "price": row[7], "feature": row[8],
+                                    "depot": row[10], "eta": row[11],
+                                    "provider": row[12], "vendor": row[13],
+                                    "received_date": row[14], "created_date": row[15],
+                                    "full_line": row[9]} for row in container_data]
+
+            print(container_json_data)
     
     except Exception as e:
         print("Error fetching data:", e)
@@ -2135,6 +2144,8 @@ def main():
     # Authenticate and build the service
     service = authenticate_gmail()
 
+    get_container_data()
+
     # query = 'from:john@americanacontainers.com after:2024/10/23'
     # query = 'from:tine@americanacontainers.com after:2024/10/28'
     # query = 'from:johannes@oztradingltd.com after:2024/10/28'
@@ -2215,25 +2226,25 @@ def main():
     #     for message in messages:
     #         get_message_content_html(service, message['id'])
 
-    for query_html_list in query_html_lists:
-        # Get the messages matching the query
-        messages = get_messages(service, query=query_html_list)
-        if messages:
-            for message in messages:
-                get_message_content_html(service, message['id'])
-            # if "magui.cheung@northatlanticcontainer.com" in query:
-            #     for i in range(0, len(messages)):
-            #         get_message_content_html(service, messages[i]['id'])
+    # for query_html_list in query_html_lists:
+    #     # Get the messages matching the query
+    #     messages = get_messages(service, query=query_html_list)
+    #     if messages:
+    #         for message in messages:
+    #             get_message_content_html(service, message['id'])
+    #         # if "magui.cheung@northatlanticcontainer.com" in query:
+    #         #     for i in range(0, len(messages)):
+    #         #         get_message_content_html(service, messages[i]['id'])
 
-    for query_plain_list in query_plain_lists:
-        # Get the messages matching the query
-        messages = get_messages(service, query=query_plain_list)
-        if messages:
-            for message in messages:
-                get_message_content_plain(service, message['id'])
-            # if "jenny@icc-solution.com" in query:
-            #     for i in range(0, len(messages)):
-            #         get_message_content_plain(service, messages[i]['id'])
+    # for query_plain_list in query_plain_lists:
+    #     # Get the messages matching the query
+    #     messages = get_messages(service, query=query_plain_list)
+    #     if messages:
+    #         for message in messages:
+    #             get_message_content_plain(service, message['id'])
+    #         # if "jenny@icc-solution.com" in query:
+    #         #     for i in range(0, len(messages)):
+    #         #         get_message_content_plain(service, messages[i]['id'])
 
 if __name__ == '__main__':
     main()
