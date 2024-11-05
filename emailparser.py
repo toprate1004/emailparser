@@ -31,6 +31,33 @@ def create_connection(host_name, user_name, user_password, db_name):
             database=db_name
         )
         print("Connection to MySQL DB successful")
+        with connection.cursor() as cursor:
+            # SQL query to create the table
+            create_table_query = """
+            CREATE TABLE IF NOT EXISTS container (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                location VARCHAR(255),
+                quantity VARCHAR(255),
+                size VARCHAR(255),
+                type VARCHAR(255),
+                term VARCHAR(255),
+                grade VARCHAR(255),
+                price VARCHAR(255),
+                feature VARCHAR(255),
+                full_line VARCHAR(255),
+                depot VARCHAR(255),
+                ETA VARCHAR(255),
+                provider VARCHAR(255),
+                vendor VARCHAR(255),
+                received_date VARCHAR(255),
+                created_date VARCHAR(255)
+            );
+            """
+            cursor.execute(create_table_query)
+            print("Table 'container' created successfully!")
+        
+        # Commit changes
+        connection.commit()
     except Exception as e:
         print(f"The error {str(e)} occurred")
 
