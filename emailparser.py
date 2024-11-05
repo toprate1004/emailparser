@@ -12,6 +12,10 @@ from email import message_from_bytes
 from datetime import datetime, timedelta
 from pymysql import Error
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 # from flask import Flask, jsonify, request
 # app = Flask(__name__)
 
@@ -94,7 +98,7 @@ def get_message_content_html(service, message_id):
     # Replace the following variables with your database credentials
     host = "localhost"
     user = "root"
-    password = ""
+    password = os.getenv("MYSQL_PASSWORD")
     database = "container"
 
     # Create a connection
