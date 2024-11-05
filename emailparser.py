@@ -183,7 +183,7 @@ def get_message_content_html(service, message_id):
 
     print(subject)
     print(vendor_email[0])
-    # parse_html_content(body)
+    parse_html_content(body)
 
     # Find all <tr> elements
     rows = soup.find_all('tr')
@@ -1280,7 +1280,7 @@ def get_message_content_html(service, message_id):
                 cell_data = [cell.get_text() for cell in cells]
 
                 # Check for specific cases early to set the location
-                if len(cell_data) == 5 and "Market" in cell_data[0]:
+                if len(cell_data) <= 7 and len(cell_data) >= 5 and "Market" in cell_data[0]:
                     location = "CANADA"
 
                 # Continue if basic criteria aren't met
@@ -1294,10 +1294,7 @@ def get_message_content_html(service, message_id):
                     size = cell_data[1].split(" ")[0].replace("'", "&#39;") + cell_data[1].split(" ")[1]
                     term = cell_data[1].split(" ")[-1].strip()
 
-                    grade = ""
-                    if "USED" in cell_data[1]:
-                        grade = "USED"
-
+                    grade = "USED" if "USED" in cell_data[1] else ""
                     quantity, price = cell_data[2], cell_data[3].replace('$', '').replace(',', '')
                     feature = cell_data[4].replace('\xa0', '')
 
@@ -2163,7 +2160,7 @@ def main():
     # query = 'from:magui.cheung@northatlanticcontainer.com after:2024/10/28'
     # query = 'from:jeff@lummid.com after:2024/7/8'
     # query = 'from:eastcoast@lummid.com after:2024/10/7'
-    # query = 'from:westcoast@lummid.com after:2024/10/29'
+    # query = 'from:westcoast@lummid.com after:2024/11/5'
     # query = 'from:rolly@oceanbox.cn after:2024/11/4'
     # query = 'from:Bryan@scontainers.com subject:Units available after:2024/7/1'
     # query = 'from:jenny@icc-solution.com subject:Halloween SALE/ after:2023/10/31'
@@ -2216,7 +2213,7 @@ def main():
     # messages = get_messages(service, query=query)
     # if messages:
     #     for message in messages:
-    #         get_message_content_plain(service, message['id'])
+    #         get_message_content_html(service, message['id'])
 
     for query_html_list in query_html_lists:
         # Get the messages matching the query
