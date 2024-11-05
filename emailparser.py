@@ -74,6 +74,40 @@ def execute_query(connection, query):
     except Error as e:
         print(f"The error '{e}' occurred")
 
+
+def get_container_data():
+    # Connect to the MySQL database
+    host = "localhost"
+    user = "root"
+    password = os.getenv("MYSQL_PASSWORD")
+    database = "container"
+
+    # Create a connection
+    conn = create_connection(host, user, password, database)
+    
+    try:
+        with conn.cursor() as cursor:
+            # SQL query to fetch data
+            fetch_query = "SELECT location, quantity FROM container"
+            cursor.execute(fetch_query)
+
+            # Fetch all results
+            results = cursor.fetchall()
+            
+            # Process results
+            for row in results:
+                print(f"Location: {row[0]}, Quantity: {row[1]}")
+    
+    except Exception as e:
+        print("Error fetching data:", e)
+
+    # Close the connection
+    if conn:
+        conn.close()
+
+    return results
+
+
 # If modifying these SCOPES, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
@@ -123,6 +157,7 @@ def get_message_content_html(service, message_id):
     email_message = message_from_bytes(msg_raw)
 
     # Replace the following variables with your database credentials
+    # Connect to the MySQL database
     host = "localhost"
     user = "root"
     password = os.getenv("MYSQL_PASSWORD")

@@ -16,5 +16,13 @@ def run():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/get_data', methods=['GET'])
+def get_container_data():
+    try:
+        container_data = emailparser.get_container_data()
+        return container_data
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == "__main__":
     app.run(debug=True)
