@@ -183,7 +183,7 @@ def get_message_content_html(service, message_id):
 
     print(subject)
     print(vendor_email[0])
-    parse_html_content(body)
+    # parse_html_content(body)
 
     # Find all <tr> elements
     rows = soup.find_all('tr')
