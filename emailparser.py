@@ -1351,7 +1351,7 @@ def get_message_content_plain(service, message_id):
     # Replace the following variables with your database credentials
     host = "localhost"
     user = "root"
-    password = ""
+    password = os.getenv("MYSQL_PASSWORD")
     database = "container"
 
     # Create a connection
@@ -2171,12 +2171,12 @@ def main():
     # query = 'from:ryanchoi@muwon.com after:2023/10/2'
 
     query_html_lists = [    
-                            "from:john@americanacontainers.com after:2024/10/28",
+                            "from:john@americanacontainers.com after:2024/11/5",
                             "from:tine@americanacontainers.com after:2024/10/28",
                             "from:johannes@oztradingltd.com after:2024/11/4",
                             "from:steven.gao@cgkinternational.com after:2024/7/8",
                             "from:sales@isr-containers.com subject:ISR Containers: Monday Blast! after:2023/5/15",
-                            "from:wayne.vandenburg@dutchcontainers.com after:2024/10/22",
+                            "from:wayne.vandenburg@dutchcontainers.com after:2024/11/5",
                             "from:wayne.vandenburg@trident-containers.com after:2023/10/16",
                             "from:ryan@trident-containers.com after:2024/7/8",
                             "from:e4.mevtnhrict@gcc2011.com after:2024/10/22",
@@ -2196,14 +2196,14 @@ def main():
                             "from:magui.cheung@northatlanticcontainer.com after:2024/11/1",
                             "from:jeff@lummid.com after:2024/7/8",
                             "from:eastcoast@lummid.com after:2024/11/4",
-                            "from:westcoast@lummid.com after:2024/10/29",
+                            "from:westcoast@lummid.com after:2024/11/5",
                             "from:ryanchoi@muwon.com after:2023/10/16"
                         ]
 
     query_plain_lists = [   
                             "from:rolly@oceanbox.cn after:2024/11/4",
                             "from:Bryan@scontainers.com subject:Units available after:2024/7/1",
-                            "from:jenny@icc-solution.com subject:Halloween SALE/ after:2024/10/31"
+                            "from:jenny@icc-solution.com subject:Fall Back Sale/ after:2024/11/5"
                         ]
 
     # get_today_emails()

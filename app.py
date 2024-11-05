@@ -10,7 +10,6 @@ def home():
 @app.route('/run', methods=['POST'])
 def run():
     try:
-        print(" ========================= >>>>>>>>>>>>>>>>>>>")
         emailparser.main()  # Call the main function in emailparser if it exists
         return "Email parser ran successfully!"
     except Exception as e:
