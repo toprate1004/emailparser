@@ -201,9 +201,8 @@ def get_message_content_html(service, message_id):
                 term = cell_data[2]
                 quantity = cell_data[3]
                 price = re.sub(r'[^\d]', '', cell_data[4])
-                full_line = location + ", " + size + ", " + term + ", " + quantity + ", " + cell_data[4]
 
-                insert = f"INSERT INTO container (size, quantity, type, term, location, grade, price, feature, depot, ETA, full_line, provider, vendor, received_date, created_date) VALUES ('{size}', '{quantity}', '', '{term}', '{location}', '{grade}', '{price}', '', '', '', '{full_line}', 'John Rupert, Americana Containers Distribution Chain', '{vendor_email[0]}', '{received_date}', '{created_date}')"
+                insert = f"INSERT INTO container (size, quantity, type, term, location, grade, price, feature, depot, ETA, full_line, provider, vendor, received_date, created_date) VALUES ('{size}', '{quantity}', '', '{term}', '{location}', '{grade}', '{price}', '', '', '', '', 'John Rupert, Americana Containers Distribution Chain', '{vendor_email[0]}', '{received_date}', '{created_date}')"
                 execute_query(conn, insert)
             
             return
@@ -221,9 +220,8 @@ def get_message_content_html(service, message_id):
                     term = cell_data[2]
                     quantity = cell_data[3]
                     price = re.sub(r'[^\d]', '', cell_data[4])
-                    full_line = location + ", " + size + ", " + term + ", " + quantity + ", " + cell_data[4]
 
-                    insert = f"INSERT INTO container (size, quantity, type, term, location, grade, price, feature, depot, ETA, full_line, provider, vendor, received_date, created_date) VALUES ('{size}', '{quantity}', '', '{term}', '{location}', '{grade}', '{price}', '', '', '', '{full_line}', 'Tine Patterson, Americana Containers Distribution Chain', '{vendor_email[0]}', '{received_date}', '{created_date}')"
+                    insert = f"INSERT INTO container (size, quantity, type, term, location, grade, price, feature, depot, ETA, full_line, provider, vendor, received_date, created_date) VALUES ('{size}', '{quantity}', '', '{term}', '{location}', '{grade}', '{price}', '', '', '', '', 'Tine Patterson, Americana Containers Distribution Chain', '{vendor_email[0]}', '{received_date}', '{created_date}')"
                     execute_query(conn, insert)
             
             return
@@ -263,9 +261,9 @@ def get_message_content_html(service, message_id):
                 quantity = cell_data[2]
                 price = cell_data[3]
                 feature = cell_data[6] + " YOM:" + cell_data[4]
-                full_line = size + ", " + location + ", " + quantity + ", " + price + ", " + cell_data[4] + ", " + term + ", " + cell_data[6]
+                
                 if quantity.isdigit():
-                    insert = f"INSERT INTO container (size, quantity, type, term, location, grade, price, feature, depot, ETA, full_line, provider, vendor, received_date, created_date) VALUES ('{size}', '{quantity}', '', '{term}', '{location}', '', '{price}', '{feature}', '', '', '{full_line}', 'Steven Gao, CGK International Limited', '{vendor_email[0]}', '{received_date}', '{created_date}')"
+                    insert = f"INSERT INTO container (size, quantity, type, term, location, grade, price, feature, depot, ETA, full_line, provider, vendor, received_date, created_date) VALUES ('{size}', '{quantity}', '', '{term}', '{location}', '', '{price}', '{feature}', '', '', '', 'Steven Gao, CGK International Limited', '{vendor_email[0]}', '{received_date}', '{created_date}')"
                     execute_query(conn, insert)
                 else:
                     i += 1
@@ -285,8 +283,8 @@ def get_message_content_html(service, message_id):
                 term = cell_data[3]
                 grade = cell_data[4].replace("'", '&#39;')
                 quantity = cell_data[5]
-                full_line = state + ", " + city + ", " + size + ", " + term + ", " + grade + ", " + quantity
-                insert = f"INSERT INTO container (size, quantity, type, term, location, grade, price, feature, depot, ETA, full_line, provider, vendor, received_date, created_date) VALUES ('{size}', '{quantity}', '', '{term}', '{location}', '{grade}', '', '', '', '', '{full_line}', 'Zarah M', '{vendor_email[0]}', '{received_date}', '{created_date}')"
+                
+                insert = f"INSERT INTO container (size, quantity, type, term, location, grade, price, feature, depot, ETA, full_line, provider, vendor, received_date, created_date) VALUES ('{size}', '{quantity}', '', '{term}', '{location}', '{grade}', '', '', '', '', '', 'Zarah M', '{vendor_email[0]}', '{received_date}', '{created_date}')"
                 execute_query(conn, insert)
             
             return
@@ -304,9 +302,8 @@ def get_message_content_html(service, message_id):
                     quantity = cell_data[1].replace('\n', '')
                     feature = cell_data[4].replace('\n', '')
                     eta = cell_data[5].replace('\n', '')
-                    full_line = location + ", " + quantity + ", " + size + ", " + type + ", " + feature + ", " + eta
 
-                    insert = f"INSERT INTO container (size, quantity, type, term, location, grade, price, feature, depot, ETA, full_line, provider, vendor, received_date, created_date) VALUES ('{size}', '{quantity}', '{type}', '', '{location}', '', '', '{feature}', '', '{eta}', '{full_line}', 'Wayne van den Burg, Dutch Container Merchants B.V.', '{vendor_email[0]}', '{received_date}', '{created_date}')"
+                    insert = f"INSERT INTO container (size, quantity, type, term, location, grade, price, feature, depot, ETA, full_line, provider, vendor, received_date, created_date) VALUES ('{size}', '{quantity}', '{type}', '', '{location}', '', '', '{feature}', '', '{eta}', '', 'Wayne van den Burg, Dutch Container Merchants B.V.', '{vendor_email[0]}', '{received_date}', '{created_date}')"
                     execute_query(conn, insert)
 
             elif "Inventory" in subject: 
@@ -326,9 +323,9 @@ def get_message_content_html(service, message_id):
                         price = cell_data[6].replace('\n', '').split(',')[0]
                         depot = cell_data[5].replace('\n', '')
                         feature = cell_data[4].replace('\n', '')
-                        full_line = location + ", " + quantity + ", " + size + ", " + type + ", " + feature + ", " + depot + ", " + cell_data[6].replace('\n', '')
+
                         if quantity.isdigit():
-                            insert = f"INSERT INTO container (size, quantity, type, term, location, grade, price, feature, depot, ETA, full_line, provider, vendor, received_date, created_date) VALUES ('{size}', '{quantity}', '{type}', '', '{location}', '', '{price}', '{feature}', '{depot}', '', '{full_line}', 'Wayne van den Burg, Dutch Container Merchants B.V.', '{vendor_email[0]}', '{received_date}', '{created_date}')"
+                            insert = f"INSERT INTO container (size, quantity, type, term, location, grade, price, feature, depot, ETA, full_line, provider, vendor, received_date, created_date) VALUES ('{size}', '{quantity}', '{type}', '', '{location}', '', '{price}', '{feature}', '{depot}', '', '', 'Wayne van den Burg, Dutch Container Merchants B.V.', '{vendor_email[0]}', '{received_date}', '{created_date}')"
                             execute_query(conn, insert)
                         else:
                             i += 1
@@ -351,16 +348,16 @@ def get_message_content_html(service, message_id):
                 price = cell_data[6].replace('\n', '').split(',')[0]
                 feature = cell_data[4].replace('\n', '')
                 depot = cell_data[5].replace('\n', '')
-                full_line = location + ", " + quantity + ", " + size + ", " + type + ", " + feature + ", " + depot + ", " + cell_data[6].replace('\n', '')
+                
                 if status:
                     if quantity.isdigit():
-                        insert = f"INSERT INTO container (size, quantity, type, term, location, grade, price, feature, depot, ETA, full_line, provider, vendor, received_date, created_date) VALUES ('{size}', '{quantity}', '{type}', '', '{location}', '', '{price}', '{feature}', '', '{depot}', '{full_line}', 'Wayne van den Burg, Trident Container Leasing B.V.', '{vendor_email[0]}', '{received_date}', '{created_date}')"
+                        insert = f"INSERT INTO container (size, quantity, type, term, location, grade, price, feature, depot, ETA, full_line, provider, vendor, received_date, created_date) VALUES ('{size}', '{quantity}', '{type}', '', '{location}', '', '{price}', '{feature}', '', '{depot}', '', 'Wayne van den Burg, Trident Container Leasing B.V.', '{vendor_email[0]}', '{received_date}', '{created_date}')"
                         execute_query(conn, insert)
                     else:
                         i += 1
                 else:
                     if quantity.isdigit():
-                        insert = f"INSERT INTO container (size, quantity, type, term, location, grade, price, feature, depot, ETA, full_line, provider, vendor, received_date, created_date) VALUES ('{size}', '{quantity}', '{type}', '', '{location}', '', '{price}', '{feature}', '{depot}', '', '{full_line}', 'Wayne van den Burg, Trident Container Leasing B.V.', '{vendor_email[0]}', '{received_date}', '{created_date}')"
+                        insert = f"INSERT INTO container (size, quantity, type, term, location, grade, price, feature, depot, ETA, full_line, provider, vendor, received_date, created_date) VALUES ('{size}', '{quantity}', '{type}', '', '{location}', '', '{price}', '{feature}', '{depot}', '', '', 'Wayne van den Burg, Trident Container Leasing B.V.', '{vendor_email[0]}', '{received_date}', '{created_date}')"
                         execute_query(conn, insert)
                     else:
                         i += 1
@@ -385,9 +382,9 @@ def get_message_content_html(service, message_id):
                     price = cell_data[6].replace('\n', '').split(',')[0]
                     depot = cell_data[5].replace('\n', '')
                     feature = cell_data[4].replace('\n', '')
-                    full_line = location + ", " + quantity + ", " + size + ", " + type + ", " + feature + ", " + depot + ", " + cell_data[6].replace('\n', '')
+                    
                     if quantity.isdigit():
-                        insert = f"INSERT INTO container (size, quantity, type, term, location, grade, price, feature, depot, ETA, full_line, provider, vendor, received_date, created_date) VALUES ('{size}', '{quantity}', '{type}', '', '{location}', '', '{price}', '{feature}', '{depot}', '', '{full_line}', 'Ryan Garrido, Trident Container Leasing B.V.', '{vendor_email[0]}', '{received_date}', '{created_date}')"
+                        insert = f"INSERT INTO container (size, quantity, type, term, location, grade, price, feature, depot, ETA, full_line, provider, vendor, received_date, created_date) VALUES ('{size}', '{quantity}', '{type}', '', '{location}', '', '{price}', '{feature}', '{depot}', '', '', 'Ryan Garrido, Trident Container Leasing B.V.', '{vendor_email[0]}', '{received_date}', '{created_date}')"
                         execute_query(conn, insert)
                     else:
                         i += 1
@@ -799,9 +796,7 @@ def get_message_content_html(service, message_id):
                             execute_query(conn, insert)      
 
             return
-        
-         # ---------------  Parsing for  c6.wi@gcc2011.com (Jeohnel Erfe, Global Container & Chassis) --------------- #
-        
+
         # ---------------  Parsing for  c6.wi@gcc2011.com (Jeohnel Erfe, Global Container & Chassis) --------------- #
         case "c6.wi@gcc2011.com":
             if "Containers" in subject:
@@ -916,8 +911,6 @@ def get_message_content_html(service, message_id):
                             execute_query(conn, insert) 
 
             return
-
-            # ---------------  Parsing for  e4.mevtnhrict@gcc2011.com (Oliver Egonio, Global Container & Chassis) --------------- #
         
         # ---------------  Parsing for  m1.ntab@gcc2011.com (Rey Dawana, Global Container & Chassis) --------------- #
         case "m1.ntab@gcc2011.com":
@@ -1396,6 +1389,7 @@ def get_message_content_plain(service, message_id):
                     if len(content_data[i].split(",")) < 3:
                         location = content_data[i]
                     else:
+                        content_data[i] = content_data[i].replace("，", ",")
                         if len(content_data[i].split(",")) == 5:
                             if "$" in content_data[i].split(",")[3] and "," in content_data[i].split("$")[1]:
                                 grade = ''
@@ -1639,33 +1633,18 @@ def get_message_content_plain(service, message_id):
                             eta = ''
                             feature = ''
                             if "RAL" in content_data[i]:
-                                if "，" in content_data[i]:
-                                    quantity = content_data[i].split(" x ")[0]
-                                    size = content_data[i].split("，")[0].split(" x ")[1]
-                                    if "DD" in size:
-                                        grade = "DD"
-                                        size = size.replace("DD", '')
-                                    if "OS" in size:
-                                        grade = "OS"
-                                        size = size.replace("OS", '')
-                                    term = content_data[i].split(",")[0].split("，")[1].replace(" ", "", 1)
-                                    depot = content_data[i].split(",")[3].replace(" ", "", 1)
-                                    feature = content_data[i].split(",")[1].replace(" ", "", 1)
-                                    price = content_data[i].split(",")[2].replace("$", '').replace(" ", "", 1)
-                                    full_line = content_data[i]
-                                else:
-                                    quantity = content_data[i].split(" x ")[0]
-                                    size = content_data[i].split(",")[0].split(" x ")[1]
-                                    if "DD" in size:
-                                        grade = "DD"
-                                        size = size.replace("DD", '')
-                                    if "OS" in size:
-                                        grade = "OS"
-                                        size = size.replace("OS", '')
-                                    depot = content_data[i].split(",")[3].replace(" ", "", 1)
-                                    feature = content_data[i].split(",")[1].replace(" ", "", 1)
-                                    price = content_data[i].split(",")[2].replace("$", '').replace(" ", "", 1)
-                                    full_line = content_data[i]
+                                quantity = content_data[i].split(" x ")[0]
+                                size = content_data[i].split(",")[0].split(" x ")[1]
+                                if "DD" in size:
+                                    grade = "DD"
+                                    size = size.replace("DD", '')
+                                if "OS" in size:
+                                    grade = "OS"
+                                    size = size.replace("OS", '')
+                                depot = content_data[i].split(",")[3].replace(" ", "", 1)
+                                feature = content_data[i].split(",")[1].replace(" ", "", 1)
+                                price = content_data[i].split(",")[2].replace("$", '').replace(" ", "", 1)
+                                full_line = content_data[i]
                             else:
                                 quantity = content_data[i].split(" x ")[0]
                                 size = content_data[i].split(",")[0].split(" x ")[1]
@@ -1706,11 +1685,8 @@ def get_message_content_plain(service, message_id):
                                 grade = "OS"
                                 size = size.replace("OS", '')
 
-                            if "，" in content_data[i]:
-                                depot = content_data[i].split("，")[1].replace(" ", "", 1)
-                                price = content_data[i].split(",")[3].split("，")[0].replace("$", '').replace(" ", "", 1)
-                            else:
-                                price = content_data[i].split(",")[3].replace("$", '').replace(" ", "", 1)
+                            
+                            price = content_data[i].split(",")[3].replace("$", '').replace(" ", "", 1)
 
                             term = content_data[i].split(",")[1].replace(" ", "", 1) 
                             feature = content_data[i].split(",")[2].replace(" ", "", 1)
@@ -2188,7 +2164,7 @@ def main():
     # query = 'from:jeff@lummid.com after:2024/7/8'
     # query = 'from:eastcoast@lummid.com after:2024/10/7'
     # query = 'from:westcoast@lummid.com after:2024/10/29'
-    # query = 'from:rolly@oceanbox.cn after:2024/7/8'
+    # query = 'from:rolly@oceanbox.cn after:2024/11/4'
     # query = 'from:Bryan@scontainers.com subject:Units available after:2024/7/1'
     # query = 'from:jenny@icc-solution.com subject:Halloween SALE/ after:2023/10/31'
     # query = 'from:alex@icc-solution.com subject:Halloween SALE/ after:2023/10/31'
@@ -2240,7 +2216,7 @@ def main():
     # messages = get_messages(service, query=query)
     # if messages:
     #     for message in messages:
-    #         get_message_content_html(service, message['id'])
+    #         get_message_content_plain(service, message['id'])
 
     for query_html_list in query_html_lists:
         # Get the messages matching the query
