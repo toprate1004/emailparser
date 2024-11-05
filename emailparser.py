@@ -92,11 +92,8 @@ def get_container_data():
             cursor.execute(fetch_query)
 
             # Fetch all results
-            results = cursor.fetchall()
-            
-            # Process results
-            for row in results:
-                print(f"Location: {row[0]}, Quantity: {row[1]}")
+            container_data = cursor.fetchall()
+            container_json_data = [{"location": row[0], "quantity": row[1]} for row in container_data]
     
     except Exception as e:
         print("Error fetching data:", e)
@@ -105,7 +102,7 @@ def get_container_data():
     if conn:
         conn.close()
 
-    return results
+    return container_json_data
 
 
 # If modifying these SCOPES, delete the file token.json.
@@ -186,7 +183,7 @@ def get_message_content_html(service, message_id):
 
     print(subject)
     print(vendor_email[0])
-    parse_html_content(body)
+    # parse_html_content(body)
 
     # Find all <tr> elements
     rows = soup.find_all('tr')
@@ -1392,7 +1389,7 @@ def get_message_content_plain(service, message_id):
     match vendor_email[0]:
         # ---------------  Parsing for rolly@oceanbox.cn (Rolly, Oceanbox logistic limited) --------------- #
         case "rolly@oceanbox.cn":
-            if "Inventory" in subject:
+            if "inventory" in subject:
                 content_data = content.split("Thank you!")[1].split("Container expert from China")[0].split("Note")[0].split("\n")
                 location = ''
                 for i in range(0, len(content_data)):
@@ -2195,19 +2192,19 @@ def main():
     # query = 'from:Bryan@scontainers.com subject:Units available after:2024/7/1'
     # query = 'from:jenny@icc-solution.com subject:Halloween SALE/ after:2023/10/31'
     # query = 'from:alex@icc-solution.com subject:Halloween SALE/ after:2023/10/31'
-    query = 'from:ryanchoi@muwon.com after:2023/10/2'
+    # query = 'from:ryanchoi@muwon.com after:2023/10/2'
 
     query_html_lists = [    
-                            "from:john@americanacontainers.com after:2024/10/23",
+                            "from:john@americanacontainers.com after:2024/10/28",
                             "from:tine@americanacontainers.com after:2024/10/28",
-                            "from:johannes@oztradingltd.com after:2024/10/28",
+                            "from:johannes@oztradingltd.com after:2024/11/4",
                             "from:steven.gao@cgkinternational.com after:2024/7/8",
                             "from:sales@isr-containers.com subject:ISR Containers: Monday Blast! after:2023/5/15",
                             "from:wayne.vandenburg@dutchcontainers.com after:2024/10/22",
                             "from:wayne.vandenburg@trident-containers.com after:2023/10/16",
                             "from:ryan@trident-containers.com after:2024/7/8",
-                            "from:e4.mevtnhrict@gcc2011.com after:2024/10/21",
-                            "from:e8.pa@gcc2011.com after:2022/12/1",
+                            "from:e4.mevtnhrict@gcc2011.com after:2024/10/22",
+                            "from:e8.pa@gcc2011.com after:2024/10/25",
                             "from:e61.md@gcc2011.com after:2023/10/17",
                             "from:W3.Wa@gcc2011.com after:2024/10/24",
                             "from:W6.CaLgb@gcc2011.com after:2023/10/16",
@@ -2215,21 +2212,22 @@ def main():
                             "from:c6.wi@gcc2011.com after:2023/10/17",
                             "from:c17.txelp@gcc2011.com after:2024/10/21",
                             "from:m1.ntab@gcc2011.com after:2023/10/17",
-                            "from:ash@container-xchange.com after:2024/10/21",
-                            "from:Saquib.amiri@sadecontainers.com after:2024/10/22",
-                            "JAnguish@ism247.com after:2024/10/28",
+                            "from:ash@container-xchange.com after:2024/11/5",
+                            "from:Saquib.amiri@sadecontainers.com after:2024/10/28",
+                            "from:JAnguish@ism247.com after:2024/11/4",
                             "from:sales@tritoncontainersales.com after:2024/10/21",
-                            "from:thomas@fulidacontainer.com after:2024/7/2",
-                            "from:magui.cheung@northatlanticcontainer.com after:2024/10/28",
+                            "from:thomas@fulidacontainer.com after:2024/11/5",
+                            "from:magui.cheung@northatlanticcontainer.com after:2024/11/1",
                             "from:jeff@lummid.com after:2024/7/8",
-                            "from:eastcoast@lummid.com after:2024/10/7",
-                            "from:westcoast@lummid.com after:2024/10/29"
+                            "from:eastcoast@lummid.com after:2024/11/4",
+                            "from:westcoast@lummid.com after:2024/10/29",
+                            "from:ryanchoi@muwon.com after:2023/10/16"
                         ]
 
     query_plain_lists = [   
-                            "from:rolly@oceanbox.cn after:2024/7/8",
+                            "from:rolly@oceanbox.cn after:2024/11/4",
                             "from:Bryan@scontainers.com subject:Units available after:2024/7/1",
-                            "from:jenny@icc-solution.com subject:Halloween SALE/ after:2023/10/31"
+                            "from:jenny@icc-solution.com subject:Halloween SALE/ after:2024/10/31"
                         ]
 
     # get_today_emails()
@@ -2239,34 +2237,30 @@ def main():
     # yesterday_str = yesterday.strftime("%Y/%m/%d")
     # query = f"after:{yesterday_str}"
     
-    messages = get_messages(service, query=query)
-    if messages:
-        for message in messages:
-            get_message_content_html(service, message['id'])
+    # messages = get_messages(service, query=query)
+    # if messages:
+    #     for message in messages:
+    #         get_message_content_html(service, message['id'])
 
-    # for query_html_list in query_html_lists:
-    #     # Get the messages matching the query
-    #     messages = get_messages(service, query=query_html_list)
-    #     if messages:
-    #         for message in messages:
-    #             get_message_content_html(service, message['id'])
-    #         # if "magui.cheung@northatlanticcontainer.com" in query:
-    #         #     for i in range(0, len(messages)):
-    #         #         get_message_content_html(service, messages[i]['id'])
-            
-    # for query_plain_list in query_plain_lists:
-    #     # Get the messages matching the query
-    #     messages = get_messages(service, query=query_plain_list)
-    #     if messages:
-    #         for message in messages:
-    #             get_message_content_plain(service, message['id'])
-    #         # if "jenny@icc-solution.com" in query:
-    #         #     for i in range(0, len(messages)):
-    #         #         get_message_content_plain(service, messages[i]['id'])
+    for query_html_list in query_html_lists:
+        # Get the messages matching the query
+        messages = get_messages(service, query=query_html_list)
+        if messages:
+            for message in messages:
+                get_message_content_html(service, message['id'])
+            # if "magui.cheung@northatlanticcontainer.com" in query:
+            #     for i in range(0, len(messages)):
+            #         get_message_content_html(service, messages[i]['id'])
 
-# @app.route('/')
-# def home():
-#     return "Welcome to the Flask server!"
+    for query_plain_list in query_plain_lists:
+        # Get the messages matching the query
+        messages = get_messages(service, query=query_plain_list)
+        if messages:
+            for message in messages:
+                get_message_content_plain(service, message['id'])
+            # if "jenny@icc-solution.com" in query:
+            #     for i in range(0, len(messages)):
+            #         get_message_content_plain(service, messages[i]['id'])
 
 if __name__ == '__main__':
     main()

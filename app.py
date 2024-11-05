@@ -20,7 +20,7 @@ def run():
 def get_container_data():
     try:
         container_data = emailparser.get_container_data()
-        return container_data
+        return jsonify(container_data), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
