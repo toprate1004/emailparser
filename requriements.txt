@@ -6,3 +6,5 @@ google-api-python-client
 pymysql
 beautifulsoup4
 flask
+pandas
+mysql-connector-python

@@ -22,6 +22,16 @@ def get_container_data():
         return jsonify(container_data), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@app.route('/get_csv', methods=['GET'])
+def get_container_csv():
+    try:
+        filename = "container_list.csv"
+        emailparser.export_to_csv(filename)
+        
+        return "CSV file was exported successfully!"
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
