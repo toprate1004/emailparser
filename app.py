@@ -58,7 +58,7 @@ def download_file():
         filename = "container_list.csv"
         emailparser.export_to_csv(filename)
 
-        file_path = "/emailparser/container_list.csv"
+        file_path = "./container_list.csv"
         return send_file(file_path, as_attachment=True)
     except FileNotFoundError:
         return "File not found", 404
