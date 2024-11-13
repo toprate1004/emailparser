@@ -51,7 +51,7 @@ def export_container_csv():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/download_csv', methods=['POST'])
+@app.route('/download_csv', methods=['GET'])
 def download_file():
     # Ensure that the file exists in the specified path
     try:
