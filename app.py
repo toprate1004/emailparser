@@ -1,10 +1,13 @@
 from flask import Flask, jsonify, send_file, request
+from flask_cors import CORS
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
 
 import emailparser
 
 app = Flask(__name__)
+CORS(app)
 
 # Define the function to run once a day
 def daily_emailparser():

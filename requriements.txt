@@ -9,3 +9,4 @@ flask
 pandas
 mysql-connector-python
 apscheduler
+flask-cors
