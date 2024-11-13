@@ -1,11 +1,29 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, send_file, request
+from apscheduler.schedulers.background import BackgroundScheduler
+from datetime import datetime
+
 import emailparser
 
 app = Flask(__name__)
 
+# Define the function to run once a day
+def daily_emailparser():
+    emailparser.main()
+    
+# Configure APScheduler in Flask
+def start_scheduler():
+    scheduler = BackgroundScheduler()
+    # Schedule the function to run once a day at a specific time
+    scheduler.add_job(daily_emailparser, 'cron', hour=0, minute=0, id="daily_emailparser_job")
+    scheduler.start()
+
 @app.route('/')
 def home():
     return "Welcome to the Flask server!"
+
+# Start the scheduler when the app starts
+with app.app_context():
+    start_scheduler()
 
 @app.route('/run', methods=['POST'])
 def run():
@@ -23,8 +41,8 @@ def get_container_data():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@app.route('/get_csv', methods=['GET'])
-def get_container_csv():
+@app.route('/export_csv', methods=['GET'])
+def export_container_csv():
     try:
         filename = "container_list.csv"
         emailparser.export_to_csv(filename)
@@ -32,6 +50,16 @@ def get_container_csv():
         return "CSV file was exported successfully!"
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route('/download_csv', methods=['GET'])
+def download_file():
+    # Ensure that the file exists in the specified path
+    # file_path = "/root/emailparser/container_list.csv"
+    file_path = "D:/Project/Python/Container/container_list.csv"
+    try:
+        return send_file(file_path, as_attachment=True)
+    except FileNotFoundError:
+        return "File not found", 404
 
 if __name__ == "__main__":
     app.run(debug=True)

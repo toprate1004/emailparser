@@ -8,3 +8,4 @@ beautifulsoup4
 flask
 pandas
 mysql-connector-python
+apscheduler

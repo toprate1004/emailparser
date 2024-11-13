@@ -106,8 +106,6 @@ def get_container_data():
                                     "provider": row[9], "vendor": row[10],
                                     "received_date": row[11], "created_date": row[12]
                                     } for row in container_data]
-
-            print(container_json_data)
     
     except Exception as e:
         print("Error fetching data:", e)
@@ -117,6 +115,40 @@ def get_container_data():
         connection.close()
 
     return container_json_data
+
+def clear_container_data(email):
+    # Connect to the MySQL database
+    host = "localhost"
+    user = "root"
+    password = os.getenv("MYSQL_PASSWORD")
+    database = "container"
+
+    # Create a connection
+    connection = create_connection(host, user, password, database)
+    
+    try:
+        with connection.cursor() as cursor:
+            # SQL query to fetch data
+            query = f"SELECT COUNT(*) FROM container WHERE vendor = '{email}'"
+            cursor.execute(query)            
+            count = cursor.fetchone()[0]
+
+            if count > 0:
+                query = "DELETE FROM container WHERE vendor = %s"
+                cursor.execute(query, (email,))
+
+                # Commit changes
+                connection.commit()
+                print("Rows deleted successfully.")
+    
+    except Exception as e:
+        print("Error deleting data:", e)
+
+    # Close the connection
+    if connection:
+        connection.close()
+
+    return
 
 def export_to_csv(filename):
     # Connect to the MySQL database
@@ -143,10 +175,6 @@ def export_to_csv(filename):
             modified_rows = []
             for row in rows:
                 row = list(row)  # Convert tuple to list for mutability
-
-                if "&#39;" in row[3]:  # Adjust index as per your table structure
-                    row[3] = row[3].replace("&#39;", "'")
-                    
                 modified_rows.append(row)
             
             # Write to CSV
@@ -249,7 +277,7 @@ def get_message_content_html(service, message_id):
     location_data = var_data['location_data']
     size_data = var_data['size_data']
     term_data = var_data['term_data']
-
+    
     print(subject)
     print(vendor_email[0])
     # parse_html_content(body)
@@ -258,6 +286,7 @@ def get_message_content_html(service, message_id):
         # ---------------  Parsing for john@americanacontainers.com (John Rupert, Americana Containers Distribution Chain) --------------- #
         case "john@americanacontainers.com":
             provider = "John Rupert, Americana Containers Distribution Chain"
+            clear_container_data(vendor_email[0])
             for i in range(1, len(rows)):
                 cells = rows[i].find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
@@ -2284,10 +2313,6 @@ def get_today_emails():
     # Connect to Gmail API
     service = build('gmail', 'v1', credentials=creds)
 
-    # current_datetime = datetime.now()
-    # today = current_datetime.strftime("%Y/%m/%d")
-    # query = f"after:{today}"
-
     current_datetime = datetime.now()
     yesterday = current_datetime - timedelta(days=1)
     yesterday_str = yesterday.strftime("%Y/%m/%d")
@@ -2319,53 +2344,25 @@ def main():
     # Authenticate and build the service
     service = authenticate_gmail()
 
-    query_html_lists = [    
-                            "from:john@americanacontainers.com after:2024/11/5",
-                            "from:chris@americanacontainers.com after:2024/11/13",
-                            "from:tine@americanacontainers.com after:2024/11/12",
-                            "from:johannes@oztradingltd.com after:2024/11/8",
-                            "from:steven.gao@cgkinternational.com after:2024/7/8",
-                            "from:sales@isr-containers.com after:2024/11/5",
-                            "from:wayne.vandenburg@dutchcontainers.com after:2024/11/5",
-                            "from:wayne.vandenburg@trident-containers.com after:2023/10/16",
-                            "from:ryan@trident-containers.com after:2024/7/8",
-                            "from:e4.mevtnhrict@gcc2011.com after:2024/10/22",
-                            "from:e8.pa@gcc2011.com after:2024/10/25",
-                            "from:e61.md@gcc2011.com after:2023/10/17",
-                            "from:W3.Wa@gcc2011.com after:2024/11/6",
-                            "from:W6.CaLgb@gcc2011.com after:2023/10/16",
-                            "from:W8.CaLgb@gcc2011.com after:2023/10/9",
-                            "from:c6.wi@gcc2011.com after:2023/10/17",
-                            "from:c17.txelp@gcc2011.com after:2024/10/21",
-                            "from:m1.ntab@gcc2011.com after:2023/10/17",
-                            "from:ash@container-xchange.com after:2024/11/5",
-                            "from:Saquib.amiri@sadecontainers.com after:2024/10/28",
-                            "from:JAnguish@ism247.com after:2024/11/11",
-                            "from:sales@tritoncontainersales.com after:2024/10/21",
-                            "from:thomas@fulidacontainer.com after:2024/11/12",
-                            "from:magui.cheung@northatlanticcontainer.com after:2024/11/7",
-                            "from:jeff@lummid.com after:2024/7/8",
-                            "from:eastcoast@lummid.com after:2024/11/4",
-                            "from:westcoast@lummid.com after:2024/11/5",
-                            "from:ryanchoi@muwon.com after:2023/10/16",
-                            "from:jenny@icc-solution.com after:2024/11/12",
-                            "from:erica@icc-solution.com after:2024/11/8"
-                        ]
+    with open('variable.json', 'r') as f:
+        var_data = json.load(f)
+    email_html_lists = var_data['email_html_data']
+    email_plain_lists = var_data['email_plain_data']
 
-    query_plain_lists = [   
-                            "from:rolly@oceanbox.cn after:2024/11/11",
-                            "from:Bryan@scontainers.com subject:Units available after:2024/7/1",
-                            "from:jenny@icc-solution.com subject:Fall Back Sale/ after:2024/11/5",
-                        ]
+    current_datetime = datetime.now()
+    yesterday = current_datetime - timedelta(days=1)
+    yesterday_str = yesterday.strftime("%Y/%m/%d")
     
-    for query_html_list in query_html_lists:
-        messages = get_messages(service, query=query_html_list)
+    for email_html_list in email_html_lists:
+        query = f"from:{email_html_list} after:{yesterday_str}"
+        messages = get_messages(service, query=query)
         if messages:
             for message in messages:
                 get_message_content_html(service, message['id'])
 
-    for query_plain_list in query_plain_lists:
-        messages = get_messages(service, query=query_plain_list)
+    for email_plain_list in email_plain_lists:
+        query = f"from:{email_plain_list} after:{yesterday_str}"
+        messages = get_messages(service, query=query)
         if messages:
             for message in messages:
                 get_message_content_plain(service, message['id'])
