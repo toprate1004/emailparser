@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, send_file, request
 from flask_cors import CORS
+from flask import make_response
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
@@ -7,7 +8,8 @@ from datetime import datetime
 import emailparser
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/download_csv": {"origins": "*"}})
+
 
 # Define the function to run once a day
 def daily_emailparser():
@@ -62,6 +64,10 @@ def download_file():
         emailparser.export_to_csv(filename)
 
         file_path = "./container_list.csv"
+        # response = make_response(send_file(file_path), as_attachment=True)
+        # response.headers["Access-Control-Allow-Origin"] = "*"
+        # return response
+
         return send_file(file_path, as_attachment=True)
     except FileNotFoundError:
         return "File not found", 404
