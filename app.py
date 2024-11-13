@@ -54,8 +54,7 @@ def export_container_csv():
 @app.route('/download_csv', methods=['GET'])
 def download_file():
     # Ensure that the file exists in the specified path
-    # file_path = "/root/emailparser/container_list.csv"
-    file_path = "D:/Project/Python/Container/container_list.csv"
+    file_path = "/root/emailparser/container_list.csv"
     try:
         return send_file(file_path, as_attachment=True)
     except FileNotFoundError:
