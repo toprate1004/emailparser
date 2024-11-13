@@ -65,7 +65,7 @@ def download_file():
 
         file_path = "./container_list.csv"
         response = make_response(send_file(file_path), as_attachment=True)
-        response.headers["Access-Control-Allow-Origin"] = "*"
+        # response.headers["Access-Control-Allow-Origin"] = "*"
         return response
 
         # return send_file(file_path, as_attachment=True)
