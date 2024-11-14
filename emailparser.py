@@ -292,7 +292,7 @@ def get_message_content_html(service, message_id):
                 cell_data = [cell.get_text() for cell in cells]
 
                 if len(cell_data) >= 5:
-                    location = cell_data[0].split(",")[0].upper()
+                    location = cell_data[0].split(",")[0].upper().strip()
                     for key, value in location_data.items():
                         if key == location:
                             location = value
@@ -308,11 +308,9 @@ def get_message_content_html(service, message_id):
                             term = value    
 
                     feature, depot, eta = "", "", ""
-                    quantity = int(cell_data[3].replace("+", "").strip())
-                    if cell_data[4]:
-                        price = int(cell_data[4].replace("$", "").replace(",", "").strip())
-                    else:
-                        price = 0
+                    
+                    quantity = int(cell_data[3].replace("+", "").strip()) if cell_data[3] else 0
+                    price = int(cell_data[4].replace("$", "").replace(",", "").strip()) if cell_data[4] else 0
 
                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
             
@@ -325,7 +323,7 @@ def get_message_content_html(service, message_id):
                 cells = rows[i].find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
 
-                location = cell_data[0].split(",")[0].upper()
+                location = cell_data[0].split(",")[0].upper().strip()
                 for key, value in location_data.items():
                     if key == location:
                         location = value
@@ -342,11 +340,8 @@ def get_message_content_html(service, message_id):
 
                 eta = ""
                 feature, depot = cell_data[6], cell_data[5]
-                quantity = int(cell_data[3].replace("+", "").strip())
-                if cell_data[4]:
-                    price = int(cell_data[4].replace("$", "").replace(",", "").strip())
-                else:
-                    price = 0
+                quantity = int(cell_data[3].replace("+", "").strip()) if cell_data[3] else 0
+                price = int(cell_data[4].replace("$", "").replace(",", "").strip()) if cell_data[4] else 0
 
                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
             
@@ -360,7 +355,7 @@ def get_message_content_html(service, message_id):
                 cell_data = [cell.get_text() for cell in cells]
 
                 if len(cell_data) >= 5:
-                    location = cell_data[0].split(",")[0].upper()
+                    location = cell_data[0].split(",")[0].upper().strip()
                     for key, value in location_data.items():
                         if key == location:
                             location = value
@@ -376,7 +371,7 @@ def get_message_content_html(service, message_id):
                             term = value    
 
                     feature, depot, eta = "", "", ""
-                    quantity = int(cell_data[3].replace("+", "").strip())
+                    quantity = int(cell_data[3].replace("+", "").strip()) if cell_data[3] else 0
                     price = int(cell_data[4].replace("$", "").replace(",", "").strip())
 
                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
@@ -390,7 +385,7 @@ def get_message_content_html(service, message_id):
                 cells = rows[i].find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
 
-                location = cell_data[3].split(",")[0].upper().replace("\n", "").replace("  ", " ")
+                location = cell_data[3].split(",")[0].upper().replace("\n", "").replace("  ", " ").strip()
                 for key, value in location_data.items():
                     if key == location:
                         location = value
@@ -402,7 +397,7 @@ def get_message_content_html(service, message_id):
 
                 feature, depot = "", ""
                 eta = "ETA: " + cell_data[4]
-                quantity = int(cell_data[2].replace("+", "").strip())
+                quantity = int(cell_data[2].replace("+", "").strip()) if cell_data[2] else 0
                 price = int(cell_data[6].replace("$", "").replace(",", "").strip())
 
                 if "NEW" in cell_data[5]:
@@ -423,7 +418,7 @@ def get_message_content_html(service, message_id):
                 cell_data = [cell.get_text() for cell in cells]
 
                 if cell_data[2].isdigit():
-                    location = cell_data[1].split(",")[0].upper()
+                    location = cell_data[1].split(",")[0].upper().strip()
                     for key, value in location_data.items():
                         if key == location:
                             location = value
@@ -436,7 +431,7 @@ def get_message_content_html(service, message_id):
                     depot, eta = "", ""
                     term = cell_data[5].replace(" ", "")   
                     feature = cell_data[6] + ", YOM: " + cell_data[4]
-                    quantity = int(cell_data[2].replace("+", "").strip())
+                    quantity = int(cell_data[2].replace("+", "").strip()) if cell_data[2] else 0
                     price = int(cell_data[3].replace("$", "").replace(",", "").strip())
 
                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
@@ -451,7 +446,7 @@ def get_message_content_html(service, message_id):
                     cells = rows[i].find_all('td')
                     cell_data = [cell.get_text() for cell in cells]
 
-                    location = cell_data[1].split(",")[0].upper()
+                    location = cell_data[1].split(",")[0].upper().strip()
                     for key, value in location_data.items():
                         if key == location:
                             location = value
@@ -467,7 +462,7 @@ def get_message_content_html(service, message_id):
                             term = value
                                 
                     price, feature, depot, eta = 0, "", "", ""
-                    quantity = int(cell_data[4].replace("+", "").strip())
+                    quantity = int(cell_data[4].replace("+", "").strip()) if cell_data[4] else 0
 
                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
             
@@ -481,7 +476,7 @@ def get_message_content_html(service, message_id):
                     cells = rows[i].find_all('td')
                     cell_data = [cell.get_text() for cell in cells]
 
-                    location = cell_data[0].split(",")[0].upper().replace("\n", "")
+                    location = cell_data[0].split(",")[0].upper().replace("\n", "").strip()
                     for key, value in location_data.items():
                             if key == location:
                                 location = value
@@ -499,7 +494,7 @@ def get_message_content_html(service, message_id):
                     price, depot = 0, ""
                     feature = cell_data[4].replace("\n", "")
                     eta = "ETA: " + cell_data[5].replace("\n", "")
-                    quantity = int(cell_data[1].replace("\n", "").strip())
+                    quantity = int(cell_data[1].replace("\n", "").strip()) if cell_data[1] else 0
 
                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
@@ -509,7 +504,7 @@ def get_message_content_html(service, message_id):
                     cell_data = [cell.get_text() for cell in cells]
 
                     if cell_data[1].replace('\n', '').isdigit():
-                        location = cell_data[0].split(",")[0].upper().replace("\n", "")
+                        location = cell_data[0].split(",")[0].upper().replace("\n", "").strip()
                         for key, value in location_data.items():
                             if key == location:
                                 location = value
@@ -527,7 +522,7 @@ def get_message_content_html(service, message_id):
                         eta = ""
                         feature = cell_data[4].replace("\n", "")
                         depot= cell_data[5].replace('\n', '')
-                        quantity = int(cell_data[1].replace("\n", "").strip())
+                        quantity = int(cell_data[1].replace("\n", "").strip()) if cell_data[1] else 0
                         price = cell_data[6].replace('\n', '').split(',')[0]
                         if not price.isdigit():
                             price = 0
@@ -548,7 +543,7 @@ def get_message_content_html(service, message_id):
                     status = "ARRIVING"
 
                 if cell_data[1].replace("\n", "").isdigit():
-                    location = cell_data[0].split(",")[0].upper().replace("\n", "")
+                    location = cell_data[0].split(",")[0].upper().replace("\n", "").strip()
                     for key, value in location_data.items():
                         if key == location:
                             location = value
@@ -564,7 +559,7 @@ def get_message_content_html(service, message_id):
                             term = value    
 
                     feature = cell_data[4].replace("\n", "")
-                    quantity = int(cell_data[1].replace("\n", "").strip())
+                    quantity = int(cell_data[1].replace("\n", "").strip()) if cell_data[1] else 0
                     price = int(cell_data[6].replace("\n", "").split(",")[0])
                 
                     if status:
@@ -586,7 +581,7 @@ def get_message_content_html(service, message_id):
                 cell_data = [cell.get_text() for cell in cells]
 
                 if cell_data[1].replace("\n", "").isdigit():
-                    location = cell_data[0].split(",")[0].upper().replace("\n", "")
+                    location = cell_data[0].split(",")[0].upper().replace("\n", "").strip()
                     for key, value in location_data.items():
                             if key == location:
                                 location = value
@@ -604,7 +599,7 @@ def get_message_content_html(service, message_id):
                     eta = ""
                     feature = cell_data[4].replace("\n", "")
                     depot = cell_data[5].replace("\n", "")
-                    quantity = int(cell_data[1].replace("\n", "").strip())
+                    quantity = int(cell_data[1].replace("\n", "").strip()) if cell_data[1] else 0
                     price = int(cell_data[6].replace("\n", "").split(",")[0])
 
                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
@@ -622,7 +617,7 @@ def get_message_content_html(service, message_id):
                     cells = rows[i].find_all('td')
                     cell_data = [cell.get_text() for cell in cells]
 
-                    location = cell_data[1].split(",")[0].upper()
+                    location = cell_data[1].split(",")[0].upper().strip()
                     for key, value in location_data.items():
                         if key == location:
                             location = value
@@ -645,8 +640,8 @@ def get_message_content_html(service, message_id):
 
                             if grade:
                                 size = size + " " + grade.upper()
-                            
-                            quantity = int(cell_data[j].replace("+", "").strip())
+
+                            quantity = int(cell_data[j].replace("+", "").strip()) if cell_data[j] else 0
                             price = int(cell_data[j+1].replace("$", "").replace(",", "").strip())
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
@@ -664,7 +659,7 @@ def get_message_content_html(service, message_id):
                     cells = rows[i].find_all('td')
                     cell_data = [cell.get_text() for cell in cells]
 
-                    location = cell_data[1].split(",")[0].upper()
+                    location = cell_data[1].split(",")[0].upper().strip()
                     for key, value in location_data.items():
                         if key == location:
                             location = value
@@ -687,8 +682,8 @@ def get_message_content_html(service, message_id):
 
                             if grade:
                                 size = size + " " + grade.upper()
-                            
-                            quantity = int(cell_data[j].replace("+", "").strip())
+
+                            quantity = int(cell_data[j].replace("+", "").strip()) if cell_data[j] else 0
                             price = int(cell_data[j+1].replace("$", "").replace(",", "").strip())
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
@@ -706,7 +701,7 @@ def get_message_content_html(service, message_id):
                     cells = rows[i].find_all('td')
                     cell_data = [cell.get_text() for cell in cells]
 
-                    location = cell_data[1].split(",")[0].upper()
+                    location = cell_data[1].split(",")[0].upper().strip()
                     for key, value in location_data.items():
                         if key == location:
                             location = value
@@ -729,8 +724,8 @@ def get_message_content_html(service, message_id):
 
                             if grade:
                                 size = size + " " + grade.upper()
-                            
-                            quantity = int(cell_data[j].replace("+", "").strip())
+
+                            quantity = int(cell_data[j].replace("+", "").strip()) if cell_data[j] else 0
                             price = int(cell_data[j+1].replace("$", "").replace(",", "").strip())
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
@@ -748,7 +743,7 @@ def get_message_content_html(service, message_id):
                     cells = rows[i].find_all('td')
                     cell_data = [cell.get_text() for cell in cells]
 
-                    location = cell_data[1].split(",")[0].upper()
+                    location = cell_data[1].split(",")[0].upper().strip()
                     for key, value in location_data.items():
                         if key == location:
                             location = value
@@ -771,8 +766,8 @@ def get_message_content_html(service, message_id):
 
                             if grade:
                                 size = size + " " + grade.upper()
-                            
-                            quantity = int(cell_data[j].replace("+", "").strip())
+
+                            quantity = int(cell_data[j].replace("+", "").strip()) if cell_data[j] else 0
                             price = int(cell_data[j+1].replace("$", "").replace(",", "").strip())
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
@@ -789,7 +784,7 @@ def get_message_content_html(service, message_id):
                     cells = rows[i].find_all('td')
                     cell_data = [cell.get_text() for cell in cells]
 
-                    location = cell_data[1].split(",")[0].upper()
+                    location = cell_data[1].split(",")[0].upper().strip()
                     for key, value in location_data.items():
                         if key == location:
                             location = value
@@ -812,8 +807,8 @@ def get_message_content_html(service, message_id):
 
                             if grade:
                                 size = size + " " + grade.upper()
-                            
-                            quantity = int(cell_data[j].replace("+", "").strip())
+
+                            quantity = int(cell_data[j].replace("+", "").strip()) if cell_data[j] else 0
                             price = int(cell_data[j+1].replace("$", "").replace(",", "").strip())
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
@@ -831,7 +826,7 @@ def get_message_content_html(service, message_id):
                     cells = rows[i].find_all('td')
                     cell_data = [cell.get_text() for cell in cells]
 
-                    location = cell_data[1].split(",")[0].upper()
+                    location = cell_data[1].split(",")[0].upper().strip()
                     for key, value in location_data.items():
                         if key == location:
                             location = value
@@ -854,8 +849,8 @@ def get_message_content_html(service, message_id):
 
                             if grade:
                                 size = size + " " + grade.upper()
-                            
-                            quantity = int(cell_data[j].replace("+", "").strip())
+
+                            quantity = int(cell_data[j].replace("+", "").strip()) if cell_data[j] else 0
                             price = int(cell_data[j+1].replace("$", "").replace(",", "").strip())
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
@@ -873,7 +868,7 @@ def get_message_content_html(service, message_id):
                     cells = rows[i].find_all('td')
                     cell_data = [cell.get_text() for cell in cells]
 
-                    location = cell_data[1].split(",")[0].upper()
+                    location = cell_data[1].split(",")[0].upper().strip()
                     for key, value in location_data.items():
                         if key == location:
                             location = value
@@ -896,8 +891,8 @@ def get_message_content_html(service, message_id):
 
                             if grade:
                                 size = size + " " + grade.upper()
-                            
-                            quantity = int(cell_data[j].replace("+", "").strip())
+
+                            quantity = int(cell_data[j].replace("+", "").strip()) if cell_data[j] else 0
                             price = int(cell_data[j+1].replace("$", "").replace(",", "").strip())
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
@@ -915,7 +910,7 @@ def get_message_content_html(service, message_id):
                     cells = rows[i].find_all('td')
                     cell_data = [cell.get_text() for cell in cells]
 
-                    location = cell_data[1].split(",")[0].upper()
+                    location = cell_data[1].split(",")[0].upper().strip()
                     for key, value in location_data.items():
                         if key == location:
                             location = value
@@ -938,8 +933,8 @@ def get_message_content_html(service, message_id):
 
                             if grade:
                                 size = size + " " + grade.upper()
-                            
-                            quantity = int(cell_data[j].replace("+", "").strip())
+
+                            quantity = int(cell_data[j].replace("+", "").strip()) if cell_data[j] else 0
                             price = int(cell_data[j+1].replace("$", "").replace(",", "").strip())
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
@@ -957,7 +952,7 @@ def get_message_content_html(service, message_id):
                     cells = rows[i].find_all('td')
                     cell_data = [cell.get_text() for cell in cells]
 
-                    location = cell_data[1].split(",")[0].upper()
+                    location = cell_data[1].split(",")[0].upper().strip()
                     for key, value in location_data.items():
                         if key == location:
                             location = value
@@ -980,8 +975,8 @@ def get_message_content_html(service, message_id):
 
                             if grade:
                                 size = size + " " + grade.upper()
-                            
-                            quantity = int(cell_data[j].replace("+", "").strip())
+
+                            quantity = int(cell_data[j].replace("+", "").strip()) if cell_data[j] else 0
                             price = int(cell_data[j+1].replace("$", "").replace(",", "").strip())
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
@@ -998,7 +993,7 @@ def get_message_content_html(service, message_id):
                 cells = rows[i].find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
                 if "\n\xa0\n" not in cell_data[0]:
-                    location = cell_data[0].split(",")[0].upper().replace("\n", "")
+                    location = cell_data[0].split(",")[0].upper().replace("\n", "").strip()
                     for key, value in location_data.items():
                         if key == location:
                             location = value
@@ -1034,7 +1029,7 @@ def get_message_content_html(service, message_id):
                     cells = rows[i].find_all('td')
                     cell_data = [cell.get_text() for cell in cells]
 
-                    location = cell_data[0].split(",")[0].upper().replace("\n", "")
+                    location = cell_data[0].split(",")[0].upper().replace("\n", "").strip()
                     for key, value in location_data.items():
                         if key == location:
                             location = value
@@ -1052,7 +1047,8 @@ def get_message_content_html(service, message_id):
 
                     feature, eta = "", ""
                     depot = cell_data[2].replace("\n", "")
-                    quantity = int(cell_data[3].replace("\n", "").strip())
+
+                    quantity = int(cell_data[3].replace("\n", "").strip()) if cell_data[3] else 0
                     price = int(cell_data[4].replace("$", "").replace(",", "").strip().replace("\n", ""))
 
                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
@@ -1074,13 +1070,13 @@ def get_message_content_html(service, message_id):
                         if "Location" in cell_data[0]:
                             i += 1
                         else:
-                            location = cell_data[0].split(",")[0].upper().replace("\n", "").replace(" ", "")
+                            location = cell_data[0].split(",")[0].upper().replace("\n", "").replace(" ", "").strip()
                             for key, value in location_data.items():
                                 if key == location:
                                     location = value
 
                     elif len(cell_data) == 5:
-                        location = cell_data[0].split(",")[0].upper().replace("\n", "").replace(" ", "")
+                        location = cell_data[0].split(",")[0].upper().replace("\n", "").replace(" ", "").strip()
                         for key, value in location_data.items():
                             if key == location:
                                 location = value
@@ -1101,7 +1097,8 @@ def get_message_content_html(service, message_id):
                         depot, eta = "", ""
                         feature = cell_data[3].replace("\n", "").replace("\r", "").replace("\xa0", "") + ", " + cell_data[4].replace("\n", "").replace("\r", "").replace("\xa0", "")
                         feature = feature.replace("N, N", "")
-                        quantity = int(cell_data[0].replace("\n", "").replace("\r", "").strip())
+
+                        quantity = int(cell_data[0].replace("\n", "").replace("\r", "").strip()) if cell_data[0] else 0
                         price = int(cell_data[5].replace("$", "").replace(",", "").replace("\n", "").replace("\r", "").replace("\xa0", "").split("(")[0].strip())
 
                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
@@ -1111,7 +1108,7 @@ def get_message_content_html(service, message_id):
                         for key, value in size_data.items():
                             if key == size:
                                 size = value
-                        
+
                         term = cell_data[2].replace("\n", "").replace("\r", "").replace("\xa0", "")
                         for key, value in term_data.items():
                             if key in term:
@@ -1121,8 +1118,8 @@ def get_message_content_html(service, message_id):
                         eta = cell_data[5].replace("\n", "").replace("\r", "").replace("\xa0", "")
                         feature = cell_data[3].replace("\n", "").replace("\r", "").replace("\xa0", "") + ", " + cell_data[4].replace("\n", "").replace("\r", "").replace("\xa0", "")
                         feature = feature.replace("N, N", "")
-                        quantity = int(cell_data[0].replace("\n", "").replace("\r", "").strip())
-                        
+                        quantity = int(cell_data[0].replace("\n", "").replace("\r", "").strip()) if cell_data[0] else 0
+
                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
             
             return
@@ -1134,7 +1131,7 @@ def get_message_content_html(service, message_id):
                 cells = rows[i].find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
 
-                location = cell_data[0].split(",")[0].upper().replace("\n", "").replace("\r", "")
+                location = cell_data[0].split(",")[0].upper().replace("\n", "").replace("\r", "").strip()
                 for key, value in location_data.items():
                     if key == location:
                         location = value
@@ -1160,7 +1157,7 @@ def get_message_content_html(service, message_id):
                 cell_data = [cell.get_text() for cell in cells]
 
                 if cell_data[0] != "LOCATION" and cell_data[0] != "" and cell_data[1] != "\u3000":
-                    location = cell_data[0].split(",")[0].upper()
+                    location = cell_data[0].split(",")[0].upper().strip()
                     for key, value in location_data.items():
                         if key == location:
                             location = value
@@ -1179,7 +1176,8 @@ def get_message_content_html(service, message_id):
                     feature = cell_data[3] + " " + cell_data[4]
                     depot = cell_data[5]
                     eta = "ETA: " + cell_data[8]
-                    quantity = int(cell_data[6].replace("+", "").strip())
+
+                    quantity = int(cell_data[6].replace("+", "").strip()) if cell_data[6] else 0
                     price = int(cell_data[7].replace("$", "").replace(",", "").strip())
 
                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
@@ -1197,16 +1195,17 @@ def get_message_content_html(service, message_id):
                 cell_data = [cell.get_text() for cell in cells]
 
                 if len(cell_data) > 3:
-                    location = cell_data[0].split(",")[0].upper()
+                    location = cell_data[0].split(",")[0].upper().strip()
                     for key, value in location_data.items():
                         if key == location:
                             location = value
-                    quantity = int(cell_data[2].replace("-", "").strip())
+
+                    quantity = int(cell_data[2].replace("-", "").strip()) if cell_data[2] else 0
                     price = int(cell_data[3].replace("$", "").replace(",", "").strip())
                     item = cell_data[1]
                 
                 if len(cell_data) == 3:
-                    quantity = int(cell_data[1].replace("-", "").strip()) if cell_data[1] != "" else 0
+                    quantity = int(cell_data[1].replace("-", "").strip()) if cell_data[1] else 0
                     price = int(cell_data[2].replace("$", "").replace(",", "").strip())
                     item = cell_data[0]
 
@@ -1258,7 +1257,7 @@ def get_message_content_html(service, message_id):
 
                 if location and cell_data.count("\xa0") < 4 and len(cell_data) > 3 and "@" in cell_data[3]:
                     if "\xa0" not in cell_data[0]:
-                        location = cell_data[0].split(",")[0].upper()
+                        location = cell_data[0].split(",")[0].upper().strip()
                         for key, value in location_data.items():
                             if key == location:
                                 location = value
@@ -1312,7 +1311,7 @@ def get_message_content_html(service, message_id):
 
                 if location and cell_data.count("\xa0") < 4 and len(cell_data) > 3 and "@" in cell_data[3]:
                     if "\xa0" not in cell_data[0]:
-                        location = cell_data[0].split(",")[0].upper()
+                        location = cell_data[0].split(",")[0].upper().strip()
                         for key, value in location_data.items():
                             if key == location:
                                 location = value
@@ -1366,7 +1365,7 @@ def get_message_content_html(service, message_id):
 
                 if location and cell_data.count("\xa0") < 5 and len(cell_data) > 4 and len(cell_data[2]) < 3:
                     if "\xa0" not in cell_data[0]:
-                        location = cell_data[0].split("@")[0].strip().upper()
+                        location = cell_data[0].split("@")[0].upper().strip()
                         for key, value in location_data.items():
                             if key == location:
                                 location = value
@@ -1384,7 +1383,7 @@ def get_message_content_html(service, message_id):
 
                     depot, eta = "", ""
                     feature = cell_data[4].replace("\xa0", "")
-                    quantity = int(cell_data[2].replace("+", "").strip())
+                    quantity = int(cell_data[2].replace("+", "").strip()) if cell_data[2] else 0
                     price = int(cell_data[3].replace("$", "").replace(",", "").strip()) if "$" in cell_data[3] else 0
 
                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
@@ -1403,7 +1402,7 @@ def get_message_content_html(service, message_id):
 
                 feature, depot = "", ""
                 if len(cell_data) > 5:
-                    location = cell_data[1].split(",")[0].upper()
+                    location = cell_data[1].split(",")[0].upper().strip()
                     for key, value in location_data.items():
                         if key == location:
                             location = value
@@ -1412,7 +1411,7 @@ def get_message_content_html(service, message_id):
                     start_index = 3 if len(cell_data) > 7 else 2
                     for j in range(start_index, len(cell_data)):
                         if "\xa0" not in cell_data[j]:
-                            quantity = int(cell_data[j].replace("(", "").replace(")", "").replace("$", "").strip())
+                            quantity = int(cell_data[j].replace("(", "").replace(")", "").replace("$", "").strip()) if cell_data[j] else 0
                             eta = "GATE BUY Available" if "(" in cell_data[j] else ""
                             size = size_list[j].replace(" ", "").replace("'", "")
                             for key, value in size_data.items():
@@ -1433,7 +1432,7 @@ def get_message_content_html(service, message_id):
                 cell_data = [cell.get_text() for cell in cells]
                 
                 if len(cell_data) == 6:
-                    location = cell_data[0].split(",")[0].upper()
+                    location = cell_data[0].split(",")[0].upper().strip()
                     for key, value in location_data.items():
                         if key == location:
                             location = value
@@ -1449,7 +1448,7 @@ def get_message_content_html(service, message_id):
                             term = value    
 
                     depot = cell_data[4]
-                    quantity = int(cell_data[3].replace("+", "").strip())
+                    quantity = int(cell_data[3].replace("+", "").strip()) if cell_data[3] else 0
                     price = int(cell_data[5].replace("$", "").replace(",", "").strip())
 
                 if len(cell_data) == 5:
@@ -1464,7 +1463,7 @@ def get_message_content_html(service, message_id):
                             term = value    
 
                     depot = cell_data[3]
-                    quantity = int(cell_data[2].replace("+", "").strip())
+                    quantity = int(cell_data[2].replace("+", "").strip()) if cell_data[2] else 0
                     price = int(cell_data[4].replace("$", "").replace(",", "").strip())
 
                 if len(cell_data) == 4:
@@ -1478,7 +1477,7 @@ def get_message_content_html(service, message_id):
                         if key in term:
                             term = value    
 
-                    quantity = int(cell_data[2].replace("+", "").strip())
+                    quantity = int(cell_data[2].replace("+", "").strip()) if cell_data[2] else 0
                     price = int(cell_data[3].replace("$", "").replace(",", "").strip())
                 
                 if len(cell_data) >= 4:
@@ -1495,7 +1494,7 @@ def get_message_content_html(service, message_id):
                 cell_data = [cell.get_text() for cell in cells]
                 
                 if len(cell_data) == 6:
-                    location = cell_data[0].split(",")[0].upper()
+                    location = cell_data[0].split(",")[0].upper().strip()
                     for key, value in location_data.items():
                         if key == location:
                             location = value
@@ -1511,7 +1510,7 @@ def get_message_content_html(service, message_id):
                             term = value    
 
                     depot = cell_data[4]
-                    quantity = int(cell_data[3].replace("+", "").strip())
+                    quantity = int(cell_data[3].replace("+", "").strip()) if cell_data[3] else 0
                     price = int(cell_data[5].replace("$", "").replace(",", "").strip())
 
                 if len(cell_data) == 5:
@@ -1526,7 +1525,7 @@ def get_message_content_html(service, message_id):
                             term = value    
 
                     depot = cell_data[3]
-                    quantity = int(cell_data[2].replace("+", "").strip())
+                    quantity = int(cell_data[2].replace("+", "").strip()) if cell_data[2] else 0
                     price = int(cell_data[4].replace("$", "").replace(",", "").strip())
 
                 if len(cell_data) == 4:
@@ -1540,7 +1539,7 @@ def get_message_content_html(service, message_id):
                         if key in term:
                             term = value    
 
-                    quantity = int(cell_data[2].replace("+", "").strip())
+                    quantity = int(cell_data[2].replace("+", "").strip()) if cell_data[2] else 0
                     price = int(cell_data[3].replace("$", "").replace(",", "").strip())
                 
                 if len(cell_data) >= 4:
@@ -1613,7 +1612,7 @@ def get_message_content_plain(service, message_id):
                     else:
                         content_data[i] = content_data[i].replace("，", ",")
                         feature, depot, eta, term = "", "", "", ""
-                        quantity = int(content_data[i].split(" x ")[0].strip())
+                        quantity = int(content_data[i].split(" x ")[0].strip()) if content_data[i] else 0
                         size = content_data[i].split(",")[0].split(" x ")[1]
                         for key, value in size_data.items():
                                     if key == size:
