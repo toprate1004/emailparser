@@ -7,6 +7,7 @@ from datetime import datetime
 
 import emailparser
 
+
 app = Flask(__name__)
 CORS(app, resources={r"/download_csv": {"origins": "*"}})
 
@@ -57,7 +58,7 @@ def export_container_csv():
         return jsonify({"error": str(e)}), 500
 
 @app.route('/download_csv', methods=['GET'])
-def download_file():
+def download_csv():
     # Ensure that the file exists in the specified path
     try:
         filename = "container_list.csv"
@@ -67,6 +68,18 @@ def download_file():
         return send_file(file_path, as_attachment=True)
     except FileNotFoundError:
         return "File not found", 404
+
+@app.route('/redirect_to_download', methods=['GET'])
+def redirect_to_download():
+    return '''
+    <html>
+        <body>
+            <script>
+                window.location.href = "/download_csv";
+            </script>
+        </body>
+    </html>
+    '''
 
 if __name__ == "__main__":
     app.run(debug=True)
