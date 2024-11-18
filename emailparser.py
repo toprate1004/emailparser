@@ -18,9 +18,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# from flask import Flask, jsonify, request
-# app = Flask(__name__)
-
 # Function create_connection() - Connect to database
 def create_connection(host_name, user_name, user_password, db_name):
     """Create a connection to the MySQL database."""
@@ -72,7 +69,7 @@ def execute_query(connection, query):
         print("Query executed successfully")
     except Error as e:
         print(f"The error '{e}' occurred")
-        
+
 def insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email, received_date, created_date):
 
     insert = f"""
@@ -285,13 +282,13 @@ def get_message_content_html(service, message_id):
     match vendor_email[0]:
         # ---------------  Parsing for john@americanacontainers.com (John Rupert, Americana Containers Distribution Chain) --------------- #
         case "john@americanacontainers.com":
-            provider = "John Rupert, Americana Containers Distribution Chain"
             clear_container_data(vendor_email[0])
+            provider = "John Rupert, Americana Containers Distribution Chain"
             for i in range(1, len(rows)):
                 cells = rows[i].find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
 
-                if len(cell_data) >= 5:
+                if len(cell_data) >= 5 and cell_data[0] != "":
                     location = cell_data[0].split(",")[0].upper().strip()
                     for key, value in location_data.items():
                         if key == location:
@@ -309,8 +306,10 @@ def get_message_content_html(service, message_id):
 
                     feature, depot, eta = "", "", ""
                     
-                    quantity = int(cell_data[3].replace("+", "").strip()) if cell_data[3] else 0
-                    price = int(cell_data[4].replace("$", "").replace(",", "").strip()) if cell_data[4] else 0
+                    quantity = cell_data[3].replace("+", "").strip()
+                    quantity = int(quantity) if quantity.isdigit() else 1
+                    price = cell_data[4].replace("$", "").replace(",", "").strip()
+                    price = int(price) if price.isdigit() else 0
 
                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
             
@@ -318,6 +317,7 @@ def get_message_content_html(service, message_id):
 
         # ---------------  Parsing for chris@americanacontainers.com (Chris Miller, Americana Containers Distribution Chain) --------------- #
         case "chris@americanacontainers.com":
+            clear_container_data(vendor_email[0])
             provider = "Chris Miller, Americana Containers Distribution Chain"
             for i in range(1, len(rows)):
                 cells = rows[i].find_all('td')
@@ -340,8 +340,10 @@ def get_message_content_html(service, message_id):
 
                 eta = ""
                 feature, depot = cell_data[6], cell_data[5]
-                quantity = int(cell_data[3].replace("+", "").strip()) if cell_data[3] else 0
-                price = int(cell_data[4].replace("$", "").replace(",", "").strip()) if cell_data[4] else 0
+                quantity = cell_data[3].replace("+", "").strip()
+                quantity = int(quantity) if quantity.isdigit() else 1
+                price = cell_data[4].replace("$", "").replace(",", "").strip()
+                price = int(price) if price.isdigit() else 0
 
                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
             
@@ -349,12 +351,13 @@ def get_message_content_html(service, message_id):
 
         # ---------------  Parsing for tine@americanacontainers.com (Tine Patterson, Americana Containers Distribution Chain) --------------- #
         case "tine@americanacontainers.com":
+            clear_container_data(vendor_email[0])
             provider = "Tine Patterson, Americana Containers Distribution Chain"
             for i in range(1, len(rows)):
                 cells = rows[i].find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
 
-                if len(cell_data) >= 5:
+                if len(cell_data) >= 5 and cell_data[0] != "":
                     location = cell_data[0].split(",")[0].upper().strip()
                     for key, value in location_data.items():
                         if key == location:
@@ -371,15 +374,52 @@ def get_message_content_html(service, message_id):
                             term = value    
 
                     feature, depot, eta = "", "", ""
-                    quantity = int(cell_data[3].replace("+", "").strip()) if cell_data[3] else 0
-                    price = int(cell_data[4].replace("$", "").replace(",", "").strip())
+                    quantity = cell_data[3].replace("+", "").strip()
+                    quantity = int(quantity) if quantity.isdigit() else 1
+                    price = cell_data[4].replace("$", "").replace(",", "").strip()
+                    price = int(price) if price.isdigit() else 0
 
                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
             
             return
+        
+        # ---------------  Parsing for jason@americanacontainers.com (Jason Clyde, Americana Containers Distribution Chain) --------------- #
+        case "jason@americanacontainers.com":
+            clear_container_data(vendor_email[0])
+            provider = "Jason Clyde, Americana Containers Distribution Chain"
+            for i in range(1, len(rows)):
+                cells = rows[i].find_all('td')
+                cell_data = [cell.get_text() for cell in cells]
+
+                if len(cell_data) >= 5 and cell_data[0] != "":
+                    location = cell_data[0].split(",")[0].upper().strip()
+                    for key, value in location_data.items():
+                        if key == location:
+                            location = value
+
+                    size = cell_data[1].replace(" ", "").replace("'", "")
+                    for key, value in size_data.items():
+                        if key == size:
+                            size = value
+                    
+                    term = cell_data[2]
+                    for key, value in term_data.items():
+                        if key in term:
+                            term = value    
+
+                    feature, depot, eta = cell_data[6], cell_data[5], ""
+                    quantity = cell_data[3].replace("+", "").strip()
+                    quantity = int(quantity) if quantity.isdigit() else 1
+                    price = cell_data[4].replace("$", "").replace(",", "").strip()
+                    price = int(price) if price.isdigit() else 0
+
+                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
             
+            return
+        
         # ---------------  Parsing for johannes@oztradingltd.com (Johannes, OZ Trading Limited) --------------- #
         case "johannes@oztradingltd.com":
+            clear_container_data(vendor_email[0])
             provider = "Johannes, OZ Trading Limited"
             for i in range(1, len(rows)):
                 cells = rows[i].find_all('td')
@@ -397,8 +437,10 @@ def get_message_content_html(service, message_id):
 
                 feature, depot = "", ""
                 eta = "ETA: " + cell_data[4]
-                quantity = int(cell_data[2].replace("+", "").strip()) if cell_data[2] else 0
-                price = int(cell_data[6].replace("$", "").replace(",", "").strip())
+                quantity = cell_data[2].replace("+", "").strip()
+                quantity = int(quantity) if quantity.isdigit() else 1
+                price = cell_data[6].replace("$", "").replace(",", "").strip()
+                price = int(price) if price.isdigit() else 0
 
                 if "NEW" in cell_data[5]:
                     term = "1Trip"
@@ -412,6 +454,7 @@ def get_message_content_html(service, message_id):
         
         # ---------------  Parsing for steven.gao@cgkinternational.com (Steven Gao, CGK International Limited) --------------- #
         case "steven.gao@cgkinternational.com":
+            clear_container_data(vendor_email[0])
             provider = "Steven Gao, CGK International Limited"
             for i in range(1, len(rows)):
                 cells = rows[i].find_all('td')
@@ -431,17 +474,20 @@ def get_message_content_html(service, message_id):
                     depot, eta = "", ""
                     term = cell_data[5].replace(" ", "")   
                     feature = cell_data[6] + ", YOM: " + cell_data[4]
-                    quantity = int(cell_data[2].replace("+", "").strip()) if cell_data[2] else 0
-                    price = int(cell_data[3].replace("$", "").replace(",", "").strip())
+                    quantity = cell_data[2].replace("+", "").strip()
+                    quantity = int(quantity) if quantity.isdigit() else 1
+                    price = cell_data[3].replace("$", "").replace(",", "").strip()
+                    price = int(price) if price.isdigit() else 0
 
                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
             return
 
-        # ---------------  Parsing for sales@isr-containers.com (Zarah M) --------------- #
+        # ---------------  Parsing for sales@isr-containers.com (Zarah Moore, ISR CONTAINERS) --------------- #
         case "sales@isr-containers.com":
-            provider = "Zarah M"
+            provider = "Zarah Moore, ISR CONTAINERS"
             if "SHIPPING CONTAINERS FOR SALE" in subject:
+                clear_container_data(vendor_email[0])
                 for i in range(1, len(rows)):
                     cells = rows[i].find_all('td')
                     cell_data = [cell.get_text() for cell in cells]
@@ -462,7 +508,8 @@ def get_message_content_html(service, message_id):
                             term = value
                                 
                     price, feature, depot, eta = 0, "", "", ""
-                    quantity = int(cell_data[4].replace("+", "").strip()) if cell_data[4] else 0
+                    quantity = cell_data[4].replace("+", "").strip()
+                    quantity = int(quantity) if quantity.isdigit() else 1
 
                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
             
@@ -472,6 +519,7 @@ def get_message_content_html(service, message_id):
         case "wayne.vandenburg@dutchcontainers.com":
             provider = "Wayne van den Burg, Dutch Container Merchants B.V."
             if "Arrival" in subject:
+                clear_container_data(vendor_email[0])
                 for i in range(2, len(rows)):
                     cells = rows[i].find_all('td')
                     cell_data = [cell.get_text() for cell in cells]
@@ -494,11 +542,13 @@ def get_message_content_html(service, message_id):
                     price, depot = 0, ""
                     feature = cell_data[4].replace("\n", "")
                     eta = "ETA: " + cell_data[5].replace("\n", "")
-                    quantity = int(cell_data[1].replace("\n", "").strip()) if cell_data[1] else 0
+                    quantity = cell_data[1].replace("\n", "").strip()
+                    quantity = int(quantity) if quantity.isdigit() else 1
 
                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
-            elif "Inventory" in subject: 
+            elif "Inventory" in subject:
+                clear_container_data(vendor_email[0])
                 for i in range(1, len(rows)):
                     cells = rows[i].find_all('td')
                     cell_data = [cell.get_text() for cell in cells]
@@ -509,7 +559,7 @@ def get_message_content_html(service, message_id):
                             if key == location:
                                 location = value
 
-                        size = cell_data[2].replace(" ", "").replace("\n", "")
+                        size = cell_data[2].replace(" ", "").replace("'", "").replace("\n", "")
                         for key, value in size_data.items():
                             if key == size:
                                 size = value
@@ -522,94 +572,101 @@ def get_message_content_html(service, message_id):
                         eta = ""
                         feature = cell_data[4].replace("\n", "")
                         depot= cell_data[5].replace('\n', '')
-                        quantity = int(cell_data[1].replace("\n", "").strip()) if cell_data[1] else 0
+                        quantity = cell_data[1].replace("\n", "").strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
                         price = cell_data[6].replace('\n', '').split(',')[0]
-                        if not price.isdigit():
-                            price = 0
+                        price = int(price) if price.isdigit() else 0
 
                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
             
             return
         
-        # ---------------  Parsing for  wayne.vandenburg@trident-containers.com (Wayne van den Burg, Trident Container Leasing B.V.) --------------- #
+        # ---------------  Parsing for wayne.vandenburg@trident-containers.com (Wayne van den Burg, Trident Container Leasing B.V.) --------------- #
         case "wayne.vandenburg@trident-containers.com":
             provider = "Wayne van den Burg, Trident Container Leasing B.V."
             status = ""
-            for i in range(1, len(rows)):
-                cells = rows[i].find_all('td')
-                cell_data = [cell.get_text() for cell in cells]
+            if "INVENTORY" in subject:
+                clear_container_data(vendor_email[0])
+                for i in range(1, len(rows)):
+                    cells = rows[i].find_all('td')
+                    cell_data = [cell.get_text() for cell in cells]
 
-                if "ARRIVING" in cell_data[0]:
-                    status = "ARRIVING"
+                    if "ARRIVING" in cell_data[0]:
+                        status = "ARRIVING"
 
-                if cell_data[1].replace("\n", "").isdigit():
-                    location = cell_data[0].split(",")[0].upper().replace("\n", "").strip()
-                    for key, value in location_data.items():
-                        if key == location:
-                            location = value
-
-                    size = cell_data[2].replace(" ", "").replace("'", "").replace("\n", "")
-                    for key, value in size_data.items():
-                            if key == size:
-                                size = value
-                    
-                    term = cell_data[3].replace("\n", "")
-                    for key, value in term_data.items():
-                        if key in term:
-                            term = value    
-
-                    feature = cell_data[4].replace("\n", "")
-                    quantity = int(cell_data[1].replace("\n", "").strip()) if cell_data[1] else 0
-                    price = int(cell_data[6].replace("\n", "").split(",")[0])
-                
-                    if status:
-                        depot = ""
-                        eta = "ETA: " + cell_data[5].replace("\n", "")
-                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-                    else:
-                        depot = cell_data[5].replace("\n", "")
-                        eta = ""
-                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-            
-            return
-
-        # ---------------  Parsing for  ryan@trident-containers.com (Ryan Garrido, Trident Container Leasing B.V.) --------------- #
-        case "ryan@trident-containers.com":
-            provider = "Ryan Garrido, Trident Container Leasing B.V."
-            for i in range(1, len(rows)):
-                cells = rows[i].find_all('td')
-                cell_data = [cell.get_text() for cell in cells]
-
-                if cell_data[1].replace("\n", "").isdigit():
-                    location = cell_data[0].split(",")[0].upper().replace("\n", "").strip()
-                    for key, value in location_data.items():
+                    if cell_data[1].replace("\n", "").isdigit():
+                        location = cell_data[0].split(",")[0].upper().replace("\n", "").strip()
+                        for key, value in location_data.items():
                             if key == location:
                                 location = value
 
-                    size = cell_data[2].replace(" ", "").replace("'", "").replace("\n", "").replace("\r", "")
-                    for key, value in size_data.items():
-                        if key == size:
-                            size = value
+                        size = cell_data[2].replace(" ", "").replace("'", "").replace("\n", "")
+                        for key, value in size_data.items():
+                                if key == size:
+                                    size = value
+                        
+                        term = cell_data[3].replace("\n", "")
+                        for key, value in term_data.items():
+                            if key in term:
+                                term = value    
+
+                        feature = cell_data[4].replace("\n", "")
+                        quantity = cell_data[1].replace("\n", "").strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = cell_data[6].replace("\n", "").split(",")[0]
+                        price = int(price) if price.isdigit() else 0
                     
-                    term = cell_data[3].replace("\n", "")
-                    for key, value in term_data.items():
-                        if key in term:
-                            term = value    
+                        if status:
+                            depot = ""
+                            eta = "ETA: " + cell_data[5].replace("\n", "")
+                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                        else:
+                            depot = cell_data[5].replace("\n", "")
+                            eta = ""
+                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+            
+            return
 
-                    eta = ""
-                    feature = cell_data[4].replace("\n", "")
-                    depot = cell_data[5].replace("\n", "")
-                    quantity = int(cell_data[1].replace("\n", "").strip()) if cell_data[1] else 0
-                    price = int(cell_data[6].replace("\n", "").split(",")[0])
+        # ---------------  Parsing for ryan@trident-containers.com (Ryan Garrido, Trident Container Leasing B.V.) --------------- #
+        case "ryan@trident-containers.com":
+            provider = "Ryan Garrido, Trident Container Leasing B.V."
+            if "INVENTORY" in subject:
+                clear_container_data(vendor_email[0])
+                for i in range(1, len(rows)):
+                    cells = rows[i].find_all('td')
+                    cell_data = [cell.get_text() for cell in cells]
 
-                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                    if cell_data[1].replace("\n", "").isdigit():
+                        location = cell_data[0].split(",")[0].upper().replace("\n", "").strip()
+                        for key, value in location_data.items():
+                                if key == location:
+                                    location = value
+
+                        size = cell_data[2].replace(" ", "").replace("'", "").replace("\n", "").replace("\r", "")
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
+                        
+                        term = cell_data[3].replace("\n", "")
+                        for key, value in term_data.items():
+                            if key in term:
+                                term = value    
+
+                        feature, depot, eta = cell_data[4].replace("\n", ""), cell_data[5].replace("\n", ""), ""
+                        quantity = cell_data[1].replace("\n", "").strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = cell_data[6].replace("\n", "").split(",")[0]
+                        price = int(price) if price.isdigit() else 0
+
+                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
             return
         
-        # ---------------  Parsing for  e4.mevtnhrict@gcc2011.com (Oliver Egonio, Global Container & Chassis) --------------- #
+        # ---------------  Parsing for e4.mevtnhrict@gcc2011.com (Oliver Egonio, Global Container & Chassis) --------------- #
         case "e4.mevtnhrict@gcc2011.com":
             provider = "Oliver Egonio, Global Container & Chassis"
             if "Inventory" in subject:
+                clear_container_data(vendor_email[0])
                 sizes = rows[0].find_all('td')
                 size_list = [size.get_text() for size in sizes]
 
@@ -641,17 +698,20 @@ def get_message_content_html(service, message_id):
                             if grade:
                                 size = size + " " + grade.upper()
 
-                            quantity = int(cell_data[j].replace("+", "").strip()) if cell_data[j] else 0
-                            price = int(cell_data[j+1].replace("$", "").replace(",", "").strip())
+                            quantity = cell_data[j].replace("+", "").strip()
+                            quantity = int(quantity) if quantity.isdigit() else 1
+                            price = cell_data[j+1].replace("$", "").replace(",", "").strip()
+                            price = int(price) if price.isdigit() else 0
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
             return
         
-        # ---------------  Parsing for  e8.pa@gcc2011.com (Gerone Rustia, Global Container & Chassis) --------------- #
+        # ---------------  Parsing for e8.pa@gcc2011.com (Gerone Rustia, Global Container & Chassis) --------------- #
         case "e8.pa@gcc2011.com":
             provider = "Gerone Rustia, Global Container & Chassis"
             if "Inventory" in subject:
+                clear_container_data(vendor_email[0])
                 sizes = rows[0].find_all('td')
                 size_list = [size.get_text() for size in sizes]
 
@@ -683,8 +743,10 @@ def get_message_content_html(service, message_id):
                             if grade:
                                 size = size + " " + grade.upper()
 
-                            quantity = int(cell_data[j].replace("+", "").strip()) if cell_data[j] else 0
-                            price = int(cell_data[j+1].replace("$", "").replace(",", "").strip())
+                            quantity = cell_data[j].replace("+", "").strip()
+                            quantity = int(quantity) if quantity.isdigit() else 1
+                            price = cell_data[j+1].replace("$", "").replace(",", "").strip()
+                            price = int(price) if price.isdigit() else 0
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
@@ -694,6 +756,7 @@ def get_message_content_html(service, message_id):
         case "e61.md@gcc2011.com":    
             provider = "Jeni Bobias, Global Container & Chassis"
             if "Inventory" in subject:
+                clear_container_data(vendor_email[0])
                 sizes = rows[0].find_all('td')
                 size_list = [size.get_text() for size in sizes]
 
@@ -725,17 +788,20 @@ def get_message_content_html(service, message_id):
                             if grade:
                                 size = size + " " + grade.upper()
 
-                            quantity = int(cell_data[j].replace("+", "").strip()) if cell_data[j] else 0
-                            price = int(cell_data[j+1].replace("$", "").replace(",", "").strip())
+                            quantity = cell_data[j].replace("+", "").strip()
+                            quantity = int(quantity) if quantity.isdigit() else 1
+                            price = cell_data[j+1].replace("$", "").replace(",", "").strip()
+                            price = int(price) if price.isdigit() else 0
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
             
             return
         
-        # ---------------  Parsing for  W3.Wa@gcc2011.com (Eddie Pamplona Jr, Global Container & Chassis) --------------- #
+        # ---------------  Parsing for W3.Wa@gcc2011.com (Eddie Pamplona Jr, Global Container & Chassis) --------------- #
         case "W3.Wa@gcc2011.com":
             provider = "Eddie Pamplona Jr, Global Container & Chassis"
-            if "Looking forward to hearing from you soon" in subject:
+            if "List" in subject and "ventory" in subject:
+                clear_container_data(vendor_email[0])
                 sizes = rows[0].find_all('td')
                 size_list = [size.get_text() for size in sizes]
 
@@ -767,16 +833,19 @@ def get_message_content_html(service, message_id):
                             if grade:
                                 size = size + " " + grade.upper()
 
-                            quantity = int(cell_data[j].replace("+", "").strip()) if cell_data[j] else 0
-                            price = int(cell_data[j+1].replace("$", "").replace(",", "").strip())
+                            quantity = cell_data[j].replace("+", "").strip()
+                            quantity = int(quantity) if quantity.isdigit() else 1
+                            price = cell_data[j+1].replace("$", "").replace(",", "").strip()
+                            price = int(price) if price.isdigit() else 0
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
             return
         
-        # ---------------  Parsing for  W6.CaLgb@gcc2011.com (Caryn Saringo, Global Container & Chassis) --------------- #
+        # ---------------  Parsing for W6.CaLgb@gcc2011.com (Caryn Saringo, Global Container & Chassis) --------------- #
         case "W6.CaLgb@gcc2011.com":
             provider = "Caryn Saringo, Global Container & Chassis"
             if "Containers" in subject:
+                clear_container_data(vendor_email[0])
                 sizes = rows[0].find_all('td')
                 size_list = [size.get_text() for size in sizes]
 
@@ -808,17 +877,20 @@ def get_message_content_html(service, message_id):
                             if grade:
                                 size = size + " " + grade.upper()
 
-                            quantity = int(cell_data[j].replace("+", "").strip()) if cell_data[j] else 0
-                            price = int(cell_data[j+1].replace("$", "").replace(",", "").strip())
+                            quantity = cell_data[j].replace("+", "").strip()
+                            quantity = int(quantity) if quantity.isdigit() else 1
+                            price = cell_data[j+1].replace("$", "").replace(",", "").strip()
+                            price = int(price) if price.isdigit() else 0
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
             
             return
                 
-        # ---------------  Parsing for  W8.CaLgb@gcc2011.com (Jayvie Hernaez, Global Container & Chassis) --------------- #
+        # ---------------  Parsing for W8.CaLgb@gcc2011.com (Jayvie Hernaez, Global Container & Chassis) --------------- #
         case "W8.CaLgb@gcc2011.com":
             provider = "Jayvie Hernaez, Global Container & Chassis"
             if "Inventory" in subject:
+                clear_container_data(vendor_email[0])
                 sizes = rows[0].find_all('td')
                 size_list = [size.get_text() for size in sizes]
 
@@ -850,17 +922,20 @@ def get_message_content_html(service, message_id):
                             if grade:
                                 size = size + " " + grade.upper()
 
-                            quantity = int(cell_data[j].replace("+", "").strip()) if cell_data[j] else 0
-                            price = int(cell_data[j+1].replace("$", "").replace(",", "").strip())
+                            quantity = cell_data[j].replace("+", "").strip()
+                            quantity = int(quantity) if quantity.isdigit() else 1
+                            price = cell_data[j+1].replace("$", "").replace(",", "").strip()
+                            price = int(price) if price.isdigit() else 0
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
             return
 
-        # ---------------  Parsing for  c6.wi@gcc2011.com (Jeohnel Erfe, Global Container & Chassis) --------------- #
+        # ---------------  Parsing for c6.wi@gcc2011.com (Jeohnel Erfe, Global Container & Chassis) --------------- #
         case "c6.wi@gcc2011.com":
             provider = "Jeohnel Erfe, Global Container & Chassis"
             if "Containers" in subject:
+                clear_container_data(vendor_email[0])
                 sizes = rows[0].find_all('td')
                 size_list = [size.get_text() for size in sizes]
 
@@ -892,17 +967,20 @@ def get_message_content_html(service, message_id):
                             if grade:
                                 size = size + " " + grade.upper()
 
-                            quantity = int(cell_data[j].replace("+", "").strip()) if cell_data[j] else 0
-                            price = int(cell_data[j+1].replace("$", "").replace(",", "").strip())
+                            quantity = cell_data[j].replace("+", "").strip()
+                            quantity = int(quantity) if quantity.isdigit() else 1
+                            price = cell_data[j+1].replace("$", "").replace(",", "").strip()
+                            price = int(price) if price.isdigit() else 0
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
             return
         
-        # ---------------  Parsing for  c17.txelp@gcc2011.com (Raffy Santos, Global Container & Chassis) --------------- #
+        # ---------------  Parsing for c17.txelp@gcc2011.com (Raffy Santos, Global Container & Chassis) --------------- #
         case "c17.txelp@gcc2011.com":
             provider = "Raffy Santos, Global Container & Chassis"
             if "containers" in subject:
+                clear_container_data(vendor_email[0])
                 sizes = rows[0].find_all('td')
                 size_list = [size.get_text() for size in sizes]
 
@@ -934,17 +1012,20 @@ def get_message_content_html(service, message_id):
                             if grade:
                                 size = size + " " + grade.upper()
 
-                            quantity = int(cell_data[j].replace("+", "").strip()) if cell_data[j] else 0
-                            price = int(cell_data[j+1].replace("$", "").replace(",", "").strip())
+                            quantity = cell_data[j].replace("+", "").strip()
+                            quantity = int(quantity) if quantity.isdigit() else 1
+                            price = cell_data[j+1].replace("$", "").replace(",", "").strip()
+                            price = int(price) if price.isdigit() else 0
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
             return
         
-        # ---------------  Parsing for  m1.ntab@gcc2011.com (Rey Dawana, Global Container & Chassis) --------------- #
+        # ---------------  Parsing for m1.ntab@gcc2011.com (Rey Dawana, Global Container & Chassis) --------------- #
         case "m1.ntab@gcc2011.com":
             provider = "Rey Dawana, Global Container & Chassis"
             if "Container" in subject:
+                clear_container_data(vendor_email[0])
                 sizes = rows[0].find_all('td')
                 size_list = [size.get_text() for size in sizes]
 
@@ -976,8 +1057,100 @@ def get_message_content_html(service, message_id):
                             if grade:
                                 size = size + " " + grade.upper()
 
-                            quantity = int(cell_data[j].replace("+", "").strip()) if cell_data[j] else 0
-                            price = int(cell_data[j+1].replace("$", "").replace(",", "").strip())
+                            quantity = cell_data[j].replace("+", "").strip()
+                            quantity = int(quantity) if quantity.isdigit() else 1
+                            price = cell_data[j+1].replace("$", "").replace(",", "").strip()
+                            price = int(price) if price.isdigit() else 0
+
+                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+            return
+
+        # ---------------  Parsing for m2.id@gcc2011.com (Jerry Devit, Global Container & Chassis) --------------- #
+        case "m2.id@gcc2011.com":
+            provider = "Jerry Devit, Global Container & Chassis"
+            if "Container" in subject:
+                clear_container_data(vendor_email[0])
+                sizes = rows[0].find_all('td')
+                size_list = [size.get_text() for size in sizes]
+
+                for i in range(2, len(rows)):
+                    cells = rows[i].find_all('td')
+                    cell_data = [cell.get_text() for cell in cells]
+
+                    location = cell_data[1].split(",")[0].upper().strip()
+                    for key, value in location_data.items():
+                        if key == location:
+                            location = value
+
+                    term = cell_data[3]
+                    for key, value in term_data.items():
+                        if key in term:
+                            term = value
+
+                    feature, depot, eta = "", "", ""
+                    grade = cell_data[2].replace("DC", "").replace("'", "")
+
+                    for j in range(4, len(cell_data), 2):
+                        if j+1 < len(cell_data) and cell_data[j] and cell_data[j+1]:
+                            size = size_list[int(j / 2) + 2]
+                            size = size.replace(" ", "").replace("'", "")
+                            for key, value in size_data.items():
+                                if key == size:
+                                    size = value
+
+                            if grade:
+                                size = size + " " + grade.upper()
+
+                            quantity = cell_data[j].replace("+", "").strip()
+                            quantity = int(quantity) if quantity.isdigit() else 1
+                            price = cell_data[j+1].replace("$", "").replace(",", "").strip()
+                            price = int(price) if price.isdigit() else 0
+
+                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+            return
+
+        # ---------------  Parsing for c6.wi@gcc2011.com (Jeohnel Erfe, Global Container & Chassis) --------------- #
+        case "c6.wi@gcc2011.com":
+            provider = "Jeohnel Erfe, Global Container & Chassis"
+            if "Container" in subject:
+                clear_container_data(vendor_email[0])
+                sizes = rows[0].find_all('td')
+                size_list = [size.get_text() for size in sizes]
+
+                for i in range(2, len(rows)):
+                    cells = rows[i].find_all('td')
+                    cell_data = [cell.get_text() for cell in cells]
+
+                    location = cell_data[1].split(",")[0].upper().strip()
+                    for key, value in location_data.items():
+                        if key == location:
+                            location = value
+
+                    term = cell_data[3]
+                    for key, value in term_data.items():
+                        if key in term:
+                            term = value
+
+                    feature, depot, eta = "", "", ""
+                    grade = cell_data[2].replace("DC", "").replace("'", "")
+
+                    for j in range(4, len(cell_data), 2):
+                        if j+1 < len(cell_data) and cell_data[j] and cell_data[j+1]:
+                            size = size_list[int(j / 2) + 2]
+                            size = size.replace(" ", "").replace("'", "")
+                            for key, value in size_data.items():
+                                if key == size:
+                                    size = value
+
+                            if grade:
+                                size = size + " " + grade.upper()
+
+                            quantity = cell_data[j].replace("+", "").strip()
+                            quantity = int(quantity) if quantity.isdigit() else 1
+                            price = cell_data[j+1].replace("$", "").replace(",", "").strip()
+                            price = int(price) if price.isdigit() else 0
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
@@ -985,6 +1158,7 @@ def get_message_content_html(service, message_id):
 
         # ---------------  Parsing for ash@container-xchange.com (Ashish Sharma, XChange) --------------- #
         case "ash@container-xchange.com":
+            clear_container_data(vendor_email[0])
             provider = "Ashish Sharma, XChange"
             size_list = ["20'", "20'", "20'", "20'", "40'HC", "40'HC", "40'HC", "40'HC",]
             grade_list = ['', '', 'Double Door', 'Side Door', '', '', 'Double Door', 'Side Door']
@@ -1015,7 +1189,8 @@ def get_message_content_html(service, message_id):
 
                         feature, depot, eta = "", "", ""
                         quantity = 1
-                        price = int(cell_data[j].replace("$", "").replace(",", "").strip().replace("\n", ""))
+                        price = cell_data[j].replace("$", "").replace(",", "").strip().replace("\n", "")
+                        price = int(price) if price.isdigit() else 0
 
                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
                 
@@ -1025,6 +1200,7 @@ def get_message_content_html(service, message_id):
         case "Saquib.amiri@sadecontainers.com":
             provider = "Saquib Amiri, SADE Containers GmbH"
             if "Inventory" in subject:
+                clear_container_data(vendor_email[0])
                 for i in range(1, len(rows)):
                     cells = rows[i].find_all('td')
                     cell_data = [cell.get_text() for cell in cells]
@@ -1048,8 +1224,10 @@ def get_message_content_html(service, message_id):
                     feature, eta = "", ""
                     depot = cell_data[2].replace("\n", "")
 
-                    quantity = int(cell_data[3].replace("\n", "").strip()) if cell_data[3] else 0
-                    price = int(cell_data[4].replace("$", "").replace(",", "").strip().replace("\n", ""))
+                    quantity = cell_data[3].replace("\n", "").strip()
+                    quantity = int(quantity) if quantity.isdigit() else 1
+                    price = cell_data[4].replace("$", "").replace(",", "").strip().replace("\n", "")
+                    price = int(price) if price.isdigit() else 0
 
                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
             
@@ -1059,6 +1237,7 @@ def get_message_content_html(service, message_id):
         case "JAnguish@ism247.com":
             provider = "Jack Anguish, ISM"
             if "Inventory" in subject:
+                clear_container_data(vendor_email[0])
                 location, status = "", ""
                 for i in range(1, len(rows)):
                     cells = rows[i].find_all('td')
@@ -1098,8 +1277,10 @@ def get_message_content_html(service, message_id):
                         feature = cell_data[3].replace("\n", "").replace("\r", "").replace("\xa0", "") + ", " + cell_data[4].replace("\n", "").replace("\r", "").replace("\xa0", "")
                         feature = feature.replace("N, N", "")
 
-                        quantity = int(cell_data[0].replace("\n", "").replace("\r", "").strip()) if cell_data[0] else 0
-                        price = int(cell_data[5].replace("$", "").replace(",", "").replace("\n", "").replace("\r", "").replace("\xa0", "").split("(")[0].strip())
+                        quantity = cell_data[0].replace("\n", "").replace("\r", "").strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = cell_data[5].replace("$", "").replace(",", "").replace("\n", "").replace("\r", "").replace("\xa0", "").split("(")[0].strip()
+                        price = int(price) if price.isdigit() else 0
 
                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
@@ -1118,7 +1299,8 @@ def get_message_content_html(service, message_id):
                         eta = cell_data[5].replace("\n", "").replace("\r", "").replace("\xa0", "")
                         feature = cell_data[3].replace("\n", "").replace("\r", "").replace("\xa0", "") + ", " + cell_data[4].replace("\n", "").replace("\r", "").replace("\xa0", "")
                         feature = feature.replace("N, N", "")
-                        quantity = int(cell_data[0].replace("\n", "").replace("\r", "").strip()) if cell_data[0] else 0
+                        quantity = cell_data[0].replace("\n", "").replace("\r", "").strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
 
                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
             
@@ -1126,6 +1308,7 @@ def get_message_content_html(service, message_id):
 
         # ---------------  Parsing for sales@tritoncontainersales.com (TRITON) --------------- #
         case "sales@tritoncontainersales.com":
+            clear_container_data(vendor_email[0])
             provider = "TRITON"
             for i in range(6, len(rows)-2):
                 cells = rows[i].find_all('td')
@@ -1151,6 +1334,7 @@ def get_message_content_html(service, message_id):
     
         # ---------------  Parsing for thomas@fulidacontainer.com (Thomas, Fulida Container Limited) --------------- #
         case "thomas@fulidacontainer.com":
+            clear_container_data(vendor_email[0])
             provider = "Thomas, Fulida Container Limited"
             for i in range(0, len(rows)):
                 cells = rows[i].find_all('td')
@@ -1177,8 +1361,10 @@ def get_message_content_html(service, message_id):
                     depot = cell_data[5]
                     eta = "ETA: " + cell_data[8]
 
-                    quantity = int(cell_data[6].replace("+", "").strip()) if cell_data[6] else 0
-                    price = int(cell_data[7].replace("$", "").replace(",", "").strip())
+                    quantity = cell_data[6].replace("+", "").strip()
+                    quantity = int(quantity) if quantity.isdigit() else 1
+                    price = cell_data[7].replace("$", "").replace(",", "").strip()
+                    price = int(price) if price.isdigit() else 0
 
                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
             
@@ -1186,6 +1372,7 @@ def get_message_content_html(service, message_id):
 
         # ---------------  Parsing for magui.cheung@northatlanticcontainer.com (ThomaMagui Cheungs, Account Management Associate) --------------- #
         case "magui.cheung@northatlanticcontainer.com":
+            clear_container_data(vendor_email[0])
             provider = "ThomaMagui Cheungs, Account Management Associate"
             size_list = ["20' STD", "20 STD", "40' STD", "40 STD", "20' HC", "20 HC", "40' HC", "40 HC", "45' HC", "45 HC", "53' HC", "53 HC"]
             grade_list = ["DOUBLE DOOR", "OPEN SIDE", "DUOCON", "FLAT RACK", "OPEN TOP"]
@@ -1200,13 +1387,17 @@ def get_message_content_html(service, message_id):
                         if key == location:
                             location = value
 
-                    quantity = int(cell_data[2].replace("-", "").strip()) if cell_data[2] else 0
-                    price = int(cell_data[3].replace("$", "").replace(",", "").strip())
+                    quantity = cell_data[2].replace("-", "").strip()
+                    quantity = int(quantity) if quantity.isdigit() else 1
+                    price = cell_data[3].replace("$", "").replace(",", "").strip()
+                    price = int(price) if price.isdigit() else 0
                     item = cell_data[1]
                 
                 if len(cell_data) == 3:
-                    quantity = int(cell_data[1].replace("-", "").strip()) if cell_data[1] else 0
-                    price = int(cell_data[2].replace("$", "").replace(",", "").strip())
+                    quantity = cell_data[1].replace("-", "").strip()
+                    quantity = int(quantity) if quantity.isdigit() else 1
+                    price = cell_data[2].replace("$", "").replace(",", "").strip()
+                    price = int(price) if price.isdigit() else 0
                     item = cell_data[0]
 
                 size, term, grade, feature, depot, eta = "", "", "", "", "", ""
@@ -1246,6 +1437,7 @@ def get_message_content_html(service, message_id):
     
         # ---------------  Parsing for jeff@lummid.com (Jeff Young, Lummid Containers) --------------- #
         case "jeff@lummid.com":
+            clear_container_data(vendor_email[0])
             provider = "Jeff Young, Lummid Containers"
             location = ""
             for row in rows:
@@ -1287,10 +1479,13 @@ def get_message_content_html(service, message_id):
                             term = value
 
                     if "$" in cell_data[2]:
-                        quantity = int((cell_data[2].split("x")[0]).strip())
-                        price = int(cell_data[2].split("x")[1].replace("$", "").strip())
+                        quantity = cell_data[2].split("x")[0].strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = cell_data[2].split("x")[1].replace("$", "").strip()
+                        price = int(price) if price.isdigit() else 0
                     else:
-                        quantity, price = int(cell_data[2].strip()), 0
+                        quantity, price = cell_data[2].strip(), 0
+                        quantity = int(quantity) if quantity.isdigit() else 1
 
                     feature, depot = cell_data[3].split("@")[0], cell_data[3].split("@")[1]
 
@@ -1298,8 +1493,45 @@ def get_message_content_html(service, message_id):
 
             return
 
+        # ---------------  Parsing for mjs@lummid.com (Michael Stangel, Lummid Containers) --------------- #
+        case "mjs@lummid.com":
+            clear_container_data(vendor_email[0])
+            provider = "Michael Stangel, Lummid Containers"
+            location = ""
+            for row in rows:
+                cells = row.find_all('td')
+                cell_data = [cell.get_text() for cell in cells]
+
+                if len(cell_data) == 6 and "Location" in cell_data[0]:
+                    location = "USA"
+
+                if location and len(cell_data) > 5 and cell_data[5].isdigit():
+
+                    location = cell_data[0].split(",")[0].upper().strip()
+                    for key, value in location_data.items():
+                        if key == location:
+                            location = value
+
+                    size = cell_data[1].replace(" ", "").replace("'", "").split("-")[0]
+                    for key, value in size_data.items():
+                        if key == size:
+                            size = value
+                    
+                    term, depot = "", ""
+                    feature = cell_data[4]
+                    eta = "ETA: " + cell_data[2]
+                    quantity = cell_data[5].replace("+", "").strip()
+                    quantity = int(quantity) if quantity.isdigit() else 1
+                    price = cell_data[3].replace("$", "").replace(",", "").strip()
+                    price = int(price) if price.isdigit() else 0
+
+                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+            return
+
         # ---------------  Parsing for eastcoast@lummid.com (Jeff Young, Lummid Containers) --------------- #
         case "eastcoast@lummid.com":
+            clear_container_data(vendor_email[0])
             provider = "Jeff Young, Lummid Containers"
             location = ""
             for row in rows:
@@ -1341,10 +1573,13 @@ def get_message_content_html(service, message_id):
                             term = value
 
                     if "$" in cell_data[2]:
-                        quantity = int((cell_data[2].split("x")[0]).strip())
-                        price = int(cell_data[2].split("x")[1].replace("$", "").strip())
+                        quantity = cell_data[2].split("x")[0].strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = cell_data[2].split("x")[1].replace("$", "").strip()
+                        price = int(price) if price.isdigit() else 0
                     else:
-                        quantity, price = int(cell_data[2].strip()), 0
+                        quantity, price = cell_data[2].strip(), 0
+                        quantity = int(quantity) if quantity.isdigit() else 1
 
                     feature, depot = cell_data[3].split("@")[0], cell_data[3].split("@")[1]
 
@@ -1354,6 +1589,7 @@ def get_message_content_html(service, message_id):
 
         # ---------------  Parsing for westcoast@lummid.com (Daniel Callaway, Lummid Containers) --------------- #
         case "westcoast@lummid.com":
+            clear_container_data(vendor_email[0])
             provider = "Daniel Callaway, Lummid Containers"
             location = ""
             for row in rows:
@@ -1383,8 +1619,10 @@ def get_message_content_html(service, message_id):
 
                     depot, eta = "", ""
                     feature = cell_data[4].replace("\xa0", "")
-                    quantity = int(cell_data[2].replace("+", "").strip()) if cell_data[2] else 0
-                    price = int(cell_data[3].replace("$", "").replace(",", "").strip()) if "$" in cell_data[3] else 0
+                    quantity = cell_data[2].replace("+", "").strip()
+                    quantity = int(quantity) if quantity.isdigit() else 1
+                    price = cell_data[3].replace("$", "").replace(",", "").strip()
+                    price = int(price) if price.isdigit() else 0
 
                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
             
@@ -1392,6 +1630,7 @@ def get_message_content_html(service, message_id):
         
         # ---------------  Parsing for ryanchoi@muwon.com (Ryan Jongwon Choi, MUWON USA) --------------- #
         case "ryanchoi@muwon.com":
+            clear_container_data(vendor_email[0])
             provider = "Ryan Jongwon Choi, MUWON USA"
             sizes = rows[1].find_all('td')
             size_list = [size.get_text() for size in sizes]
@@ -1411,7 +1650,8 @@ def get_message_content_html(service, message_id):
                     start_index = 3 if len(cell_data) > 7 else 2
                     for j in range(start_index, len(cell_data)):
                         if "\xa0" not in cell_data[j]:
-                            quantity = int(cell_data[j].replace("(", "").replace(")", "").replace("$", "").strip()) if cell_data[j] else 0
+                            quantity = cell_data[j].replace("(", "").replace(")", "").replace("$", "").strip()
+                            quantity = int(quantity) if quantity.isdigit() else 1
                             eta = "GATE BUY Available" if "(" in cell_data[j] else ""
                             size = size_list[j].replace(" ", "").replace("'", "")
                             for key, value in size_data.items():
@@ -1426,6 +1666,7 @@ def get_message_content_html(service, message_id):
 
         # ---------------  Parsing for erica@icc-solution.com (Erica Medina, International Container & Chassis Solution) --------------- #
         case "erica@icc-solution.com":
+            clear_container_data(vendor_email[0])
             provider = "Erica Medina, International Container & Chassis Solution"
             for i in range(2, len(rows)):
                 cells = rows[i].find_all('td')
@@ -1448,8 +1689,10 @@ def get_message_content_html(service, message_id):
                             term = value    
 
                     depot = cell_data[4]
-                    quantity = int(cell_data[3].replace("+", "").strip()) if cell_data[3] else 0
-                    price = int(cell_data[5].replace("$", "").replace(",", "").strip())
+                    quantity = cell_data[3].replace("+", "").strip()
+                    quantity = int(quantity) if quantity.isdigit() else 1
+                    price = cell_data[5].replace("$", "").replace(",", "").strip()
+                    price = int(price) if price.isdigit() else 0
 
                 if len(cell_data) == 5:
                     size = cell_data[0].replace(" ", "").replace("'", "")
@@ -1463,8 +1706,10 @@ def get_message_content_html(service, message_id):
                             term = value    
 
                     depot = cell_data[3]
-                    quantity = int(cell_data[2].replace("+", "").strip()) if cell_data[2] else 0
-                    price = int(cell_data[4].replace("$", "").replace(",", "").strip())
+                    quantity = cell_data[2].replace("+", "").strip()
+                    quantity = int(quantity) if quantity.isdigit() else 1
+                    price = cell_data[4].replace("$", "").replace(",", "").strip()
+                    price = int(price) if price.isdigit() else 0
 
                 if len(cell_data) == 4:
                     size = cell_data[0].replace(" ", "").replace("'", "")
@@ -1477,8 +1722,10 @@ def get_message_content_html(service, message_id):
                         if key in term:
                             term = value    
 
-                    quantity = int(cell_data[2].replace("+", "").strip()) if cell_data[2] else 0
-                    price = int(cell_data[3].replace("$", "").replace(",", "").strip())
+                    quantity = cell_data[2].replace("+", "").strip()
+                    quantity = int(quantity) if quantity.isdigit() else 1
+                    price = cell_data[3].replace("$", "").replace(",", "").strip()
+                    price = int(price) if price.isdigit() else 0
                 
                 if len(cell_data) >= 4:
                     feature, eta = "", ""
@@ -1488,7 +1735,8 @@ def get_message_content_html(service, message_id):
 
         # ---------------  Parsing for jenny@icc-solution.com (Jenny Roberts, International Container & Chassis Solution) --------------- #
         case "jenny@icc-solution.com":
-            provider = "Jenny Roberts,, International Container & Chassis Solution"
+            clear_container_data(vendor_email[0])
+            provider = "Jenny Roberts, International Container & Chassis Solution"
             for i in range(2, len(rows)):
                 cells = rows[i].find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
@@ -1510,8 +1758,10 @@ def get_message_content_html(service, message_id):
                             term = value    
 
                     depot = cell_data[4]
-                    quantity = int(cell_data[3].replace("+", "").strip()) if cell_data[3] else 0
-                    price = int(cell_data[5].replace("$", "").replace(",", "").strip())
+                    quantity = cell_data[3].replace("+", "").strip()
+                    quantity = int(quantity) if quantity.isdigit() else 1
+                    price = cell_data[5].replace("$", "").replace(",", "").strip()
+                    price = int(price) if price.isdigit() else 0
 
                 if len(cell_data) == 5:
                     size = cell_data[0].replace(" ", "").replace("'", "")
@@ -1525,8 +1775,10 @@ def get_message_content_html(service, message_id):
                             term = value    
 
                     depot = cell_data[3]
-                    quantity = int(cell_data[2].replace("+", "").strip()) if cell_data[2] else 0
-                    price = int(cell_data[4].replace("$", "").replace(",", "").strip())
+                    quantity = cell_data[2].replace("+", "").strip()
+                    quantity = int(quantity) if quantity.isdigit() else 1
+                    price = cell_data[4].replace("$", "").replace(",", "").strip()
+                    price = int(price) if price.isdigit() else 0
 
                 if len(cell_data) == 4:
                     size = cell_data[0].replace(" ", "").replace("'", "")
@@ -1539,8 +1791,10 @@ def get_message_content_html(service, message_id):
                         if key in term:
                             term = value    
 
-                    quantity = int(cell_data[2].replace("+", "").strip()) if cell_data[2] else 0
-                    price = int(cell_data[3].replace("$", "").replace(",", "").strip())
+                    quantity = cell_data[2].replace("+", "").strip()
+                    quantity = int(quantity) if quantity.isdigit() else 1
+                    price = cell_data[3].replace("$", "").replace(",", "").strip()
+                    price = int(price) if price.isdigit() else 0
                 
                 if len(cell_data) >= 4:
                     feature, eta = "", ""
@@ -1548,6 +1802,106 @@ def get_message_content_html(service, message_id):
 
             return
 
+        # ---------------  Parsing for olaf@marinecw.com (Marine Container World) --------------- #
+        case "olaf@marinecw.com":
+            clear_container_data(vendor_email[0])
+            provider = "Marine Container World"
+            for row in rows:
+                cells = row.find_all('td')
+                cell_data = [cell.get_text() for cell in cells]
+            
+                if cell_data[0] != "LOCATION":
+                    if cell_data[0] != "\xa0":
+                        location = cell_data[0].split(",")[0].upper().strip()
+                        for key, value in location_data.items():
+                            if key == location:
+                                location = value
+
+                    size = cell_data[1].replace(" ", "").replace("'", "")
+                    for key, value in size_data.items():
+                        if key == size:
+                            size = value
+                    
+                    term, feature, depot, eta = "", "", "", ""
+                    if "1-trip" in cell_data[2] or "NEW" in cell_data[2]:
+                        term = "1Trip"
+                    if "Used" in cell_data[2] or "Cargo Worthy" in cell_data[2]:
+                        term = "Used CW"
+                    if len(cell_data[2].split(",")) > 2:
+                        depot = cell_data[2].split(",")[2].strip()
+
+                    quantity, price = 1, 0
+
+                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+            return
+
+        # ---------------  Parsing for yansen@megaconusa.com (Yansen C. LO, MEGA CONTAINER SALES) --------------- #
+        case "yansen@megaconusa.com":
+            clear_container_data(vendor_email[0])
+            provider = "Yansen C. LO, MEGA CONTAINER SALES"
+            sizes = rows[2].find_all('td')
+            size_list = [size.get_text() for size in sizes]
+            for i in range(3, len(rows)):
+                cells = rows[i].find_all('td')
+                cell_data = [cell.get_text() for cell in cells]
+
+                if cell_data[0] != "":
+                    location = cell_data[0].split(",")[0].upper().strip()
+                    for key, value in location_data.items():
+                        if key == location:
+                            location = value
+
+                    feature, depot, eta, price = "", "", "", 0
+                    for j in range(1, len(cell_data) - 1):
+                        if cell_data[j]:
+                            size = size_list[j-1]
+                            size = size.replace(" ", "").replace("'", "")
+                            for key, value in size_data.items():
+                                if key == size:
+                                    size = value
+
+                            term = "Used" if j > 3 else "1Trip"
+                            quantity = cell_data[j].replace("+", "").strip()
+                            quantity = int(quantity) if quantity.isdigit() else 1
+
+                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+            return
+
+        # ---------------  Parsing for wayneterry@florens.com (Wayne Terry, Florens Asset Management) --------------- #
+        case "wayneterry@florens.com":
+            clear_container_data(vendor_email[0])
+            provider = "Wayne Terry, Florens Asset Management"
+            sizes = rows[1].find_all('td')
+            size_list = [size.get_text() for size in sizes]
+            for i in range(2, len(rows)):
+                cells = rows[i].find_all('td')
+                cell_data = [cell.get_text() for cell in cells]
+
+                location = cell_data[1].split(",")[0].replace("\n", "").upper().strip()
+                for key, value in location_data.items():
+                    if key == location:
+                        location = value
+
+                depot = cell_data[2].replace("\n", "")
+                feature, eta, price = "", "", 0
+                for j in range(3, len(cell_data)):
+                    if "\xa0" not in cell_data[j]:
+                        size = size_list[j-3]
+                        size = size.replace(" ", "").replace("'", "").replace(".", "").replace("\n", "")
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
+
+                        term = "Used WWT"
+                        quantity = cell_data[j].replace("+", "").strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+
+                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+            return
+    
     # Close the connection
     if connection:
         connection.close()
@@ -1601,6 +1955,7 @@ def get_message_content_plain(service, message_id):
         case "rolly@oceanbox.cn":
             provider = "Rolly, Oceanbox logistic limited"
             if "inventory" in subject:
+                clear_container_data(vendor_email[0])
                 content_data = content.split("Thank you!")[1].split("Container expert from China")[0].split("Note")[0].split("\n")
                 location = ''
                 for i in range(0, len(content_data)):
@@ -1612,7 +1967,8 @@ def get_message_content_plain(service, message_id):
                     else:
                         content_data[i] = content_data[i].replace("，", ",")
                         feature, depot, eta, term = "", "", "", ""
-                        quantity = int(content_data[i].split(" x ")[0].strip()) if content_data[i] else 0
+                        quantity = content_data[i].split(" x ")[0].strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
                         size = content_data[i].split(",")[0].split(" x ")[1]
                         for key, value in size_data.items():
                                     if key == size:
@@ -1633,7 +1989,8 @@ def get_message_content_plain(service, message_id):
 
                                 if "gatebuy" in content_data[i].split(",")[3] and depot == "":
                                     depot = "gatebuy"
-                                price = int(content_data[i].split(",")[3].split("$")[1].strip())
+                                price = content_data[i].split(",")[3].split("$")[1].strip()
+                                price = int(price) if price.isdigit() else 0
 
                                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
@@ -1662,13 +2019,13 @@ def get_message_content_plain(service, message_id):
 
                                 if "gatebuy" in content_data[i].split(",")[3]:
                                     depot = "gatebuy"
-                                price = int(content_data[i].split(",")[3].split("$")[1].strip())
+                                price = content_data[i].split(",")[3].split("$")[1].strip()
+                                price = int(price) if price.isdigit() else 0
 
                                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                             else:
                                 if "Full open side" in content_data[i].split(",")[4]:
-                                    size = size + " OPEN SIDE"
                                     depot = content_data[i].split(",")[5].strip()
                                 else:
                                     depot = content_data[i].split(",")[4].strip().replace("(", "")
@@ -1678,7 +2035,8 @@ def get_message_content_plain(service, message_id):
 
                                 if "gatebuy" in content_data[i].split(",")[3] and depot == "":
                                     depot = "gatebuy"
-                                price = int(content_data[i].split(",")[3].split("$")[1].strip())
+                                price = content_data[i].split(",")[3].split("$")[1].strip()
+                                price = int(price) if price.isdigit() else 0
 
                                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
@@ -1731,7 +2089,9 @@ def get_message_content_plain(service, message_id):
 
                             if "gatebuy" in content_data[i].split(",")[4] and depot == "":
                                 depot = "gatebuy"
-                            price = int(content_data[i].split(",")[4].split("$")[1].strip())
+
+                            price = content_data[i].split(",")[4].split("$")[1].strip()
+                            price = int(price) if price.isdigit() else 0
                             
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
@@ -1754,7 +2114,9 @@ def get_message_content_plain(service, message_id):
 
                                 if "gatebuy" in content_data[i].split(",")[3] and depot == "":
                                     depot = "gatebuy"
-                                price = int(content_data[i].split(",")[3].split("$")[1].strip())
+
+                                price = content_data[i].split(",")[3].split("$")[1].strip()
+                                price = int(price) if price.isdigit() else 0
                                 
                                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
@@ -1778,7 +2140,9 @@ def get_message_content_plain(service, message_id):
 
                                 if "gatebuy" in content_data[i].split(",")[4] and depot == "":
                                     depot = "gatebuy"
-                                price = int(content_data[i].split(",")[4].split("$")[1].strip())
+
+                                price = content_data[i].split(",")[4].split("$")[1].strip()
+                                price = int(price) if price.isdigit() else 0
                                 
                                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
@@ -1802,7 +2166,9 @@ def get_message_content_plain(service, message_id):
 
                                 if "gatebuy" in content_data[i].split(",")[6] and depot == "":
                                     depot = "gatebuy"
-                                price = int(content_data[i].split(",")[6].split("$")[1].strip())
+
+                                price = content_data[i].split(",")[6].split("$")[1].strip()
+                                price = int(price) if price.isdigit() else 0
                                 
                                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
@@ -1828,7 +2194,9 @@ def get_message_content_plain(service, message_id):
                                 
                                 if "gatebuy" in content_data[i].split(",")[2] and depot == "":
                                     depot = "gatebuy"
-                                price = int(content_data[i].split(",")[2].split("$")[1].strip())
+
+                                price = content_data[i].split(",")[2].split("$")[1].strip()
+                                price = int(price) if price.isdigit() else 0
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
@@ -1842,7 +2210,9 @@ def get_message_content_plain(service, message_id):
 
                             if "gatebuy" in content_data[i].split(",")[3] and depot == "":
                                     depot = "gatebuy"
-                            price = int(content_data[i].split(",")[3].split("$")[1].strip())
+
+                            price = content_data[i].split(",")[3].split("$")[1].strip()
+                            price = int(price) if price.isdigit() else 0
                             
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
@@ -1876,7 +2246,9 @@ def get_message_content_plain(service, message_id):
 
                             if "gatebuy" in content_data[i].split(",")[4] and depot == "":
                                     depot = "gatebuy"
-                            price = int(content_data[i].split(",")[4].split("$")[1].strip())
+
+                            price = content_data[i].split(",")[4].split("$")[1].strip()
+                            price = int(price) if price.isdigit() else 0
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)                            
 
@@ -1899,7 +2271,9 @@ def get_message_content_plain(service, message_id):
 
                             if "gatebuy" in content_data[i].split(",")[5] and depot == "":
                                     depot = "gatebuy"
-                            price = int(content_data[i].split(",")[5].split("$")[1].strip())
+
+                            price = content_data[i].split(",")[5].split("$")[1].strip()
+                            price = int(price) if price.isdigit() else 0
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
@@ -1929,6 +2303,7 @@ def get_message_content_plain(service, message_id):
 
         # ---------------  Parsing for Bryan@scontainers.com (Bryan Lucas, STAR CONTAINER SOLUTION) --------------- #
         case "Bryan@scontainers.com":
+            clear_container_data(vendor_email[0])
             provider = "Bryan Lucas, STAR CONTAINER SOLUTION"
             content_data = content.split("\n")
             location = ''
@@ -1941,7 +2316,8 @@ def get_message_content_plain(service, message_id):
                     
                 if "$" in content_data[i]:
                     feature, depot, eta, = "", "", ""
-                    quantity = int(content_data[i].replace("*", "").split("X")[0].strip())
+                    quantity = content_data[i].replace("*", "").split("X")[0].strip()
+                    quantity = int(quantity) if quantity.isdigit() else 1
                     if "CW" in content_data[i]:
                         size = content_data[i].replace("*", "").split("X")[1].split("CW")[0].replace("'", "").replace(" ", "")
                         for key, value in size_data.items():
@@ -1949,7 +2325,8 @@ def get_message_content_plain(service, message_id):
                                 size = value
                         feature = content_data[i].split(" - ")[0].split("CW")[1]
                         term = "CW"
-                        price = int(content_data[i].replace("*", "").split(" - ")[1].replace("$", "").replace(",", "").replace("EACH", "").strip())
+                        price = content_data[i].replace("*", "").split(" - ")[1].replace("$", "").replace(",", "").replace("EACH", "").strip()
+                        price = int(price) if price.isdigit() else 0
                         
                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
@@ -1968,7 +2345,8 @@ def get_message_content_plain(service, message_id):
 
                         term = "1Trip"
                         feature = content_data[i].split("(")[1].split(")")[0]
-                        price = int(content_data[i].replace("*", "").split(" - ")[1].replace("$", "").replace(",", "").replace("EACH", "").strip())
+                        price = content_data[i].replace("*", "").split(" - ")[1].replace("$", "").replace(",", "").replace("EACH", "").strip()
+                        price = int(price) if price.isdigit() else 0
                         
                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
                         
@@ -1979,7 +2357,8 @@ def get_message_content_plain(service, message_id):
                             if key == size:
                                 size = value
                         term = "IICL"
-                        price = int(content_data[i].replace("*", "").split(" - ")[1].replace("$", "").replace(",", "").replace("EACH", "").strip())
+                        price = content_data[i].replace("*", "").split(" - ")[1].replace("$", "").replace(",", "").replace("EACH", "").strip()
+                        price = int(price) if price.isdigit() else 0
                         
                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
@@ -1997,7 +2376,8 @@ def get_message_content_plain(service, message_id):
                             term_temp = "WWT "
                         
                         feature = content_data[i].split(term_temp)[1].split(" - ")[0].replace(" ", '')
-                        price = int(content_data[i].replace("*", "").split(" - ")[1].replace("$", "").replace(",", "").replace("EACH", "").strip())
+                        price = content_data[i].replace("*", "").split(" - ")[1].replace("$", "").replace(",", "").replace("EACH", "").strip()
+                        price = int(price) if price.isdigit() else 0
                         
                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
@@ -2005,6 +2385,7 @@ def get_message_content_plain(service, message_id):
         
         # ---------------  Parsing for jenny@icc-solution.com (Jenny Roberts, International Container & Chassis Solution) --------------- #
         case "jenny@icc-solution.com":
+            clear_container_data(vendor_email[0])
             provider = "Jenny Roberts, International Container & Chassis Solution"
             content_data_temp = content.split("Regards,")[0].split("\n")
             content_data = []
@@ -2037,7 +2418,8 @@ def get_message_content_plain(service, message_id):
                     feature, depot, eta = "", "", ""
                     if "CW" in item or "WWT" in item or "IICL" in item:
                         if "x" in item:
-                            quantity = int(item.split("x")[0])
+                            quantity = item.split("x")[0]
+                            quantity = int(quantity) if quantity.isdigit() else 1
                             size = item.split("x")[1].lstrip().split(" ")[0].replace("'", "").replace(" ", "")
                         else:
                             quantity = 1
@@ -2052,7 +2434,8 @@ def get_message_content_plain(service, message_id):
 
                         terms = ["CW", "WWT", "IICL"]
                         term = next((t for t in terms if t in item), None)
-                        price = int(item.split("$")[1].replace(",", "").replace("each", "").strip())
+                        price = item.split("$")[1].replace(",", "").replace("each", "").strip()
+                        price = int(price) if price.isdigit() else 0
 
                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
@@ -2060,12 +2443,14 @@ def get_message_content_plain(service, message_id):
                         if len(item.split(";")) == 2:
                             size = ""
                             if " x" in item:
-                                quantity = int(item.split(" x")[0])
+                                quantity = item.split(" x")[0]
+                                quantity = int(quantity) if quantity.isdigit() else 1
                                 if "New" in item:
                                     size = item.split(" x")[1].split("New")[0].strip().replace("'", "").replace(" ", "")
                             elif "+" in item:
                                 size = item.split(")")[1].split("New")[0].strip().replace("'", "").replace(" ", "")
-                                quantity = int(item.split(")")[0].replace("(", ""))
+                                quantity = item.split(")")[0].replace("(", "")
+                                quantity = int(quantity) if quantity.isdigit() else 1
 
                             if size:
                                 for key, value in size_data.items():
@@ -2073,12 +2458,14 @@ def get_message_content_plain(service, message_id):
                                         size = value
 
                             term = "1Trip"
-                            price = int(item.split("$")[1].replace(",", "").replace("each", "").strip())
+                            price = item.split("$")[1].replace(",", "").replace("each", "").strip()
+                            price = int(price) if price.isdigit() else 0
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                         if len(item.split(";")) == 3:
-                            quantity = int(item.split(" x")[0])
+                            quantity = item.split(" x")[0]
+                            quantity = int(quantity) if quantity.isdigit() else 1
                             size = item.split(" x")[1].split("New")[0].strip().replace("'", "").replace(" ", "").replace("standard", "")
                             for key, value in size_data.items():
                                 if key == size:
@@ -2091,13 +2478,15 @@ def get_message_content_plain(service, message_id):
                             if len(item.split(";")[0].split("Trip")[1]) > 3:
                                 feature = feature + item.split(";")[0].split("Trip")[1]
                             
-                            price = int(item.split("$")[1].replace(",", "").replace("each", "").strip())
+                            price = item.split("$")[1].replace(",", "").replace("each", "").strip()
+                            price = int(price) if price.isdigit() else 0
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
                         
                         if len(item.split(";")) == 4:
                             if " x" in item:
-                                quantity = int(item.split(" x")[0])
+                                quantity = item.split(" x")[0]
+                                quantity = int(quantity) if quantity.isdigit() else 1
                                 if "New" in item:
                                     size = item.split(" x")[1].split("New")[0].strip().replace("'", "").replace(" ", "")
                                     term = "1Trip"
@@ -2106,7 +2495,8 @@ def get_message_content_plain(service, message_id):
                                     term = "2Trips"
                             elif "+" in item:
                                 size = item.split(")")[1].split("New")[0].strip().replace("'", "").replace(" ", "")
-                                quantity = int(item.split(")")[0].replace("(", ""))
+                                quantity = item.split(")")[0].replace("(", "")
+                                quantity = int(quantity) if quantity.isdigit() else 1
                                 term = "1Trip"
 
                             for key, value in size_data.items():
@@ -2114,7 +2504,8 @@ def get_message_content_plain(service, message_id):
                                     size = value
 
                             feature = item.split(";")[1].strip() + "," + item.split(";")[2]
-                            price = int(item.split("$")[1].replace(",", "").replace("each", "").strip())
+                            price = item.split("$")[1].replace(",", "").replace("each", "").strip()
+                            price = int(price) if price.isdigit() else 0
                             
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
                         
@@ -2124,10 +2515,12 @@ def get_message_content_plain(service, message_id):
                                 if key == size:
                                     size = value
 
-                            quantity = int(item.split(" x")[0])
+                            quantity = item.split(" x")[0]
+                            quantity = int(quantity) if quantity.isdigit() else 1
                             term = "1Trip"
                             feature = item.split(";")[1].strip() + "," + item.split(";")[2] + "," + item.split(";")[3]
-                            price = int(item.split("$")[1].replace(",", "").replace("each", "").strip())
+                            price = item.split("$")[1].replace(",", "").replace("each", "").strip()
+                            price = int(price) if price.isdigit() else 0
                             
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
@@ -2137,16 +2530,19 @@ def get_message_content_plain(service, message_id):
                                 if key == size:
                                     size = value
 
-                            quantity = int(item.split(" x")[0])
+                            quantity = item.split(" x")[0]
+                            quantity = int(quantity) if quantity.isdigit() else 1
                             term = "1Trip"
                             feature = item.split(";")[1].strip() + "," + item.split(";")[2] + "," + item.split(";")[3] + "," + item.split(";")[4]
                             depot = item.split("each")[1].strip()
-                            price = int(item.split("$")[1].split("(")[0].replace(",", "").replace("each", "").strip())
+                            price = item.split("$")[1].split("(")[0].replace(",", "").replace("each", "").strip()
+                            price = int(price) if price.isdigit() else 0
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
         # ---------------  Parsing for erica@icc-solution.com (Erica Medina, International Container & Chassis Solution) --------------- #
         case "erica@icc-solution.com":
+            clear_container_data(vendor_email[0])
             provider = "Erica Medina, International Container & Chassis Solution"
             content_data_temp = content.split("Regards,")[0].split("\n")
             content_data = []
@@ -2179,7 +2575,8 @@ def get_message_content_plain(service, message_id):
                     feature, depot, eta = "", "", ""
                     if "CW" in item or "WWT" in item or "IICL" in item:
                         if "x" in item:
-                            quantity = int(item.split("x")[0])
+                            quantity = item.split("x")[0]
+                            quantity = int(quantity) if quantity.isdigit() else 1
                             size = item.split("x")[1].lstrip().split(" ")[0].replace("'", "").replace(" ", "")
                         else:
                             quantity = 1
@@ -2194,7 +2591,8 @@ def get_message_content_plain(service, message_id):
 
                         terms = ["CW", "WWT", "IICL"]
                         term = next((t for t in terms if t in item), None)
-                        price = int(item.split("$")[1].replace(",", "").replace("each", "").strip())
+                        price = item.split("$")[1].replace(",", "").replace("each", "").strip()
+                        price = int(price) if price.isdigit() else 0
 
                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
@@ -2202,12 +2600,14 @@ def get_message_content_plain(service, message_id):
                         if len(item.split(";")) == 2:
                             size = ""
                             if " x" in item:
-                                quantity = int(item.split(" x")[0])
+                                quantity = item.split(" x")[0]
+                                quantity = int(quantity) if quantity.isdigit() else 1
                                 if "New" in item:
                                     size = item.split(" x")[1].split("New")[0].strip().replace("'", "").replace(" ", "")
                             elif "+" in item:
                                 size = item.split(")")[1].split("New")[0].strip().replace("'", "").replace(" ", "")
-                                quantity = int(item.split(")")[0].replace("(", ""))
+                                quantity = item.split(")")[0].replace("(", "")
+                                quantity = int(quantity) if quantity.isdigit() else 1
 
                             if size:
                                 for key, value in size_data.items():
@@ -2215,12 +2615,14 @@ def get_message_content_plain(service, message_id):
                                         size = value
 
                             term = "1Trip"
-                            price = int(item.split("$")[1].replace(",", "").replace("each", "").strip())
+                            price = item.split("$")[1].replace(",", "").replace("each", "").strip()
+                            price = int(price) if price.isdigit() else 0
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                         if len(item.split(";")) == 3:
-                            quantity = int(item.split(" x")[0])
+                            quantity = item.split(" x")[0]
+                            quantity = int(quantity) if quantity.isdigit() else 1
                             size = item.split(" x")[1].split("New")[0].strip().replace("'", "").replace(" ", "").replace("standard", "")
                             for key, value in size_data.items():
                                 if key == size:
@@ -2233,13 +2635,15 @@ def get_message_content_plain(service, message_id):
                             if len(item.split(";")[0].split("Trip")[1]) > 3:
                                 feature = feature + item.split(";")[0].split("Trip")[1]
                             
-                            price = int(item.split("$")[1].replace(",", "").replace("each", "").strip())
+                            price = item.split("$")[1].replace(",", "").replace("each", "").strip()
+                            price = int(price) if price.isdigit() else 0
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
                         
                         if len(item.split(";")) == 4:
                             if " x" in item:
-                                quantity = int(item.split(" x")[0])
+                                quantity = item.split(" x")[0]
+                                quantity = int(quantity) if quantity.isdigit() else 1
                                 if "New" in item:
                                     size = item.split(" x")[1].split("New")[0].strip().replace("'", "").replace(" ", "")
                                     term = "1Trip"
@@ -2248,7 +2652,8 @@ def get_message_content_plain(service, message_id):
                                     term = "2Trips"
                             elif "+" in item:
                                 size = item.split(")")[1].split("New")[0].strip().replace("'", "").replace(" ", "")
-                                quantity = int(item.split(")")[0].replace("(", ""))
+                                quantity = item.split(")")[0].replace("(", "")
+                                quantity = int(quantity) if quantity.isdigit() else 1
                                 term = "1Trip"
 
                             for key, value in size_data.items():
@@ -2256,7 +2661,8 @@ def get_message_content_plain(service, message_id):
                                     size = value
 
                             feature = item.split(";")[1].strip() + "," + item.split(";")[2]
-                            price = int(item.split("$")[1].replace(",", "").replace("each", "").strip())
+                            price = item.split("$")[1].replace(",", "").replace("each", "").strip()
+                            price = int(price) if price.isdigit() else 0
                             
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
                         
@@ -2266,10 +2672,12 @@ def get_message_content_plain(service, message_id):
                                 if key == size:
                                     size = value
 
-                            quantity = int(item.split(" x")[0])
+                            quantity = item.split(" x")[0]
+                            quantity = int(quantity) if quantity.isdigit() else 1
                             term = "1Trip"
                             feature = item.split(";")[1].strip() + "," + item.split(";")[2] + "," + item.split(";")[3]
-                            price = int(item.split("$")[1].replace(",", "").replace("each", "").strip())
+                            price = item.split("$")[1].replace(",", "").replace("each", "").strip()
+                            price = int(price) if price.isdigit() else 0
                             
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
@@ -2279,11 +2687,13 @@ def get_message_content_plain(service, message_id):
                                 if key == size:
                                     size = value
 
-                            quantity = int(item.split(" x")[0])
+                            quantity = item.split(" x")[0]
+                            quantity = int(quantity) if quantity.isdigit() else 1
                             term = "1Trip"
                             feature = item.split(";")[1].strip() + "," + item.split(";")[2] + "," + item.split(";")[3] + "," + item.split(";")[4]
                             depot = item.split("each")[1].strip()
-                            price = int(item.split("$")[1].split("(")[0].replace(",", "").replace("each", "").strip())
+                            price = item.split("$")[1].split("(")[0].replace(",", "").replace("each", "").strip()
+                            price = int(price) if price.isdigit() else 0
 
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 

@@ -7,10 +7,8 @@ from datetime import datetime
 
 import emailparser
 
-
 app = Flask(__name__)
 CORS(app, resources={r"/download_csv": {"origins": "*"}})
-
 
 # Define the function to run once a day
 def daily_emailparser():
