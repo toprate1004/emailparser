@@ -486,9 +486,9 @@ def get_message_content_html(service, message_id):
 
             return
 
-        # ---------------  Parsing for sales@isr-containers.com (Zarah Moore, ISR CONTAINERS) --------------- #
+        # ---------------  Parsing for sales@isr-containers.com (Zarah Moore, ISR Containers) --------------- #
         case "sales@isr-containers.com":
-            provider = "Zarah Moore, ISR CONTAINERS"
+            provider = "Zarah Moore, ISR Containers"
             if "SHIPPING CONTAINERS FOR SALE" in subject:
                 clear_container_data(vendor_email[0])
                 for i in range(1, len(rows)):
@@ -1281,7 +1281,7 @@ def get_message_content_html(service, message_id):
             
             return
 
-        # ---------------  Parsing for Saquib.amiri@sadecontainers.com (Jack Anguish, ISM) --------------- #
+        # ---------------  Parsing for JAnguish@ism247.com (Jack Anguish, ISM) --------------- #
         case "JAnguish@ism247.com":
             provider = "Jack Anguish, ISM"
             if "Inventory" in subject:
@@ -1354,10 +1354,10 @@ def get_message_content_html(service, message_id):
             
             return
 
-        # ---------------  Parsing for sales@tritoncontainersales.com (TRITON) --------------- #
+        # ---------------  Parsing for sales@tritoncontainersales.com (TRITON Container Sales) --------------- #
         case "sales@tritoncontainersales.com":
             clear_container_data(vendor_email[0])
-            provider = "TRITON"
+            provider = "TRITON Container Sales"
             for i in range(6, len(rows)-2):
                 cells = rows[i].find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
@@ -1649,7 +1649,7 @@ def get_message_content_html(service, message_id):
 
                 if location and cell_data.count("\xa0") < 5 and len(cell_data) > 4 and len(cell_data[2]) < 3:
                     if "\xa0" not in cell_data[0]:
-                        location = cell_data[0].split("@")[0].upper().strip()
+                        location = cell_data[0].split("@")[0].split(",")[0].upper().strip()
                         for key, value in location_data.items():
                             if key == location:
                                 location = value
@@ -1676,10 +1676,10 @@ def get_message_content_html(service, message_id):
             
             return
         
-        # ---------------  Parsing for ryanchoi@muwon.com (Ryan Jongwon Choi, MUWON USA) --------------- #
+        # ---------------  Parsing for ryanchoi@muwon.com (Ryan Jongwon Choi, Muwon USA) --------------- #
         case "ryanchoi@muwon.com":
             clear_container_data(vendor_email[0])
-            provider = "Ryan Jongwon Choi, MUWON USA"
+            provider = "Ryan Jongwon Choi, Muwon USA"
             sizes = rows[1].find_all('td')
             size_list = [size.get_text() for size in sizes]
             term_list = ["CW", "CW", "CW", "1Trip", "1Trip"]
@@ -1888,10 +1888,10 @@ def get_message_content_html(service, message_id):
 
             return
 
-        # ---------------  Parsing for yansen@megaconusa.com (Yansen C. LO, MEGA CONTAINER SALES) --------------- #
+        # ---------------  Parsing for yansen@megaconusa.com (Yansen C. LO, MEGA Container Sales) --------------- #
         case "yansen@megaconusa.com":
             clear_container_data(vendor_email[0])
-            provider = "Yansen C. LO, MEGA CONTAINER SALES"
+            provider = "Yansen C. LO, MEGA Container Sales"
             sizes = rows[2].find_all('td')
             size_list = [size.get_text() for size in sizes]
             for i in range(3, len(rows)):
@@ -2473,7 +2473,7 @@ def get_message_content_plain(service, message_id):
             for item in content_data:
                 item = item.strip()
                 if "*" in item and "," in item:
-                    location = item.replace("*", "")
+                    location = item.replace("*", "").split("[")[0].replace("0", "O").strip()
                 else:
                     feature, depot, eta = "", "", ""
                     item = item.replace("X", "x")
@@ -2514,9 +2514,9 @@ def get_message_content_plain(service, message_id):
             provider = "Erica Medina, International Container & Chassis Solution"
             content_data = content.split("Regards,")[0].split("\n")
             for item in content_data:
-                item = item.replace("X", "x").strip()
+                item = item.strip()
                 if "*" in item and "," in item:
-                    location = item.replace("*", "")
+                    location = item.replace("*", "").split("[")[0].replace("0", "O").strip()
                 else:
                     feature, depot, eta = "", "", ""
                     item = item.replace("X", "x")
@@ -2661,7 +2661,7 @@ def main():
                             "from:c17.txelp@gcc2011.com after:2024/10/21",
                             "from:m1.ntab@gcc2011.com after:2023/10/17",
                             "from:m2.id@gcc2011.com after:2024/10/23",
-                            "from:M3.Ut@gcc2011.com after:2024/11/19",
+                            "from:M3.Ut@gcc2011.com after:2024/11/18",
                             "from:ash@container-xchange.com after:2024/11/5",
                             "from:Saquib.amiri@sadecontainers.com after:2024/10/28",
                             "from:JAnguish@ism247.com after:2024/11/18",
