@@ -263,7 +263,6 @@ def get_message_content_html(service, message_id):
     subject = email_message['Subject']
     vendor_email = re.findall(r'<(.*?)>', email_message['From'])
     received_date_temp = email_message['Date'].replace(" (GMT)", "")
-    print(received_date_temp)
     parsed_time = datetime.strptime(received_date_temp, "%a, %d %b %Y %H:%M:%S %z")
     received_date = parsed_time.strftime("%Y/%m/%d %H:%M:%S")
     current_datetime = datetime.now()
@@ -280,7 +279,7 @@ def get_message_content_html(service, message_id):
     
     print(subject)
     print(vendor_email[0])
-    # parse_html_content(body)
+    parse_html_content(body)
 
     match vendor_email[0]:
         # ---------------  Parsing for john@americanacontainers.com (John Rupert, Americana Containers Distribution Chain) --------------- #
@@ -322,7 +321,7 @@ def get_message_content_html(service, message_id):
         case "chris@americanacontainers.com":
             clear_container_data(vendor_email[0])
             provider = "Chris Miller, Americana Containers Distribution Chain"
-            for i in range(1, len(rows)):
+            for i in range(0, len(rows)):
                 cells = rows[i].find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
 
@@ -2643,17 +2642,17 @@ def main():
     # Authenticate and build the service
     service = authenticate_gmail()
 
-    # query = "olaf@marinecw.com after:2024/11/12"
+    # query = "from:James@tradecorp-usa.com after:2024/11/19"
 
     email_html_lists = [    
                             "from:john@americanacontainers.com after:2024/11/12",
-                            "from:chris@americanacontainers.com after:2024/11/12",
+                            "from:chris@americanacontainers.com after:2024/11/19",
                             "from:tine@americanacontainers.com after:2024/11/12",
                             "from:jason@americanacontainers.com after:2024/11/13",
                             "from:johannes@oztradingltd.com after:2024/11/18",
                             "from:steven.gao@cgkinternational.com after:2024/7/8",
                             "from:sales@isr-containers.com after:2024/11/5",
-                            "from:wayne.vandenburg@dutchcontainers.com after:2024/11/15",
+                            "from:wayne.vandenburg@dutchcontainers.com after:2024/11/19",
                             "from:wayne.vandenburg@trident-containers.com after:2023/10/16",
                             "from:ryan@trident-containers.com after:2024/7/8",
                             "from:e4.mevtnhrict@gcc2011.com after:2024/11/13",
@@ -2672,7 +2671,7 @@ def main():
                             "from:Saquib.amiri@sadecontainers.com after:2024/10/28",
                             "from:JAnguish@ism247.com after:2024/11/18",
                             "from:sales@tritoncontainersales.com after:2024/10/21",
-                            "from:thomas@fulidacontainer.com after:2024/11/14",
+                            "from:thomas@fulidacontainer.com after:2024/11/19",
                             "from:magui.cheung@northatlanticcontainer.com after:2024/11/14",
                             "from:jeff@lummid.com after:2024/7/8",
                             "from:mjs@lummid.com after:2024/11/15",
@@ -2682,7 +2681,7 @@ def main():
                             "from:olaf@marinecw.com after:2024/11/12",
                             "from:yansen@megaconusa.com after:2024/11/12",
                             "from:wayneterry@florens.com after:2024/11/4",
-                            "from:equipment@conwaycs.com after:2024/11/11",
+                            "from:equipment@conwaycs.com after:2024/11/19",
                             "from:jenny@icc-solution.com subject:SALE Units/ after:2024/11/12",
                             "from:erica@icc-solution.com subject:🔥ICCS Friday Container SALE! 11/08 after:2024/11/8"
                         ]
