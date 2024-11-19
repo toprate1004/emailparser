@@ -2678,8 +2678,8 @@ def main():
                             "from:eastcoast@lummid.com after:2024/11/18",
                             "from:westcoast@lummid.com after:2024/11/5",
                             "from:ryanchoi@muwon.com after:2023/10/16",
-                            "from:olaf@marinecw.com after:2024/11/12",
-                            "from:yansen@megaconusa.com after:2024/11/12",
+                            "from:olaf@marinecw.com after:2024/11/19",
+                            "from:yansen@megaconusa.com after:2024/11/19",
                             "from:wayneterry@florens.com after:2024/11/4",
                             "from:equipment@conwaycs.com after:2024/11/19",
                             "from:jenny@icc-solution.com subject:SALE Units/ after:2024/11/12",
@@ -2690,7 +2690,7 @@ def main():
                             "from:rolly@oceanbox.cn after:2024/11/18",
                             "from:Bryan@scontainers.com after:2024/7/1",
                             "from:gemparker@scontainers.com after:2024/11/4",
-                            "from:jenny@icc-solution.com after:2024/11/13",
+                            "from:jenny@icc-solution.com after:2024/11/19",
                             "from:erica@icc-solution.com after:2024/11/12"
                         ]
 
