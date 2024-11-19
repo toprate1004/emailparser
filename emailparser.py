@@ -260,9 +260,12 @@ def get_message_content_html(service, message_id):
         body = email_message.get_payload(decode=True).decode(email_message.get_content_charset() or 'utf-8')
         # print("\nBody:", body)
 
-    vendor_email = re.findall(r'<(.*?)>', email_message['From'])
-    received_date = email_message['Date']
     subject = email_message['Subject']
+    vendor_email = re.findall(r'<(.*?)>', email_message['From'])
+    received_date_temp = email_message['Date'].replace(" (GMT)", "")
+    print(received_date_temp)
+    parsed_time = datetime.strptime(received_date_temp, "%a, %d %b %Y %H:%M:%S %z")
+    received_date = parsed_time.strftime("%Y/%m/%d %H:%M:%S")
     current_datetime = datetime.now()
     created_date = current_datetime.strftime("%Y/%m/%d %H:%M:%S")
 
@@ -885,7 +888,7 @@ def get_message_content_html(service, message_id):
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
             
             return
-                
+        
         # ---------------  Parsing for W8.CaLgb@gcc2011.com (Jayvie Hernaez, Global Container & Chassis) --------------- #
         case "W8.CaLgb@gcc2011.com":
             provider = "Jayvie Hernaez, Global Container & Chassis"
@@ -934,7 +937,52 @@ def get_message_content_html(service, message_id):
         # ---------------  Parsing for c6.wi@gcc2011.com (Jeohnel Erfe, Global Container & Chassis) --------------- #
         case "c6.wi@gcc2011.com":
             provider = "Jeohnel Erfe, Global Container & Chassis"
-            if "Containers" in subject:
+            if "Container" in subject:
+                clear_container_data(vendor_email[0])
+                sizes = rows[0].find_all('td')
+                size_list = [size.get_text() for size in sizes]
+
+                for i in range(2, len(rows)):
+                    cells = rows[i].find_all('td')
+                    cell_data = [cell.get_text() for cell in cells]
+
+                    location = cell_data[1].split(",")[0].upper().strip()
+                    for key, value in location_data.items():
+                        if key == location:
+                            location = value
+
+                    term = cell_data[3]
+                    for key, value in term_data.items():
+                        if key in term:
+                            term = value
+
+                    feature, depot, eta = "", "", ""
+                    grade = cell_data[2].replace("DC", "").replace("'", "")
+
+                    for j in range(4, len(cell_data), 2):
+                        if j+1 < len(cell_data) and cell_data[j] and cell_data[j+1]:
+                            size = size_list[int(j / 2) + 2]
+                            size = size.replace(" ", "").replace("'", "")
+                            for key, value in size_data.items():
+                                if key == size:
+                                    size = value
+
+                            if grade:
+                                size = size + " " + grade.upper()
+
+                            quantity = cell_data[j].replace("+", "").strip()
+                            quantity = int(quantity) if quantity.isdigit() else 1
+                            price = cell_data[j+1].replace("$", "").replace(",", "").strip()
+                            price = int(price) if price.isdigit() else 0
+
+                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+            return
+        
+        # ---------------  Parsing for C11.La@gcc2011.com (Joana Bulan, Global Container & Chassis) --------------- #
+        case "C11.La@gcc2011.com":
+            provider = "Joana Bulan, Global Container & Chassis"
+            if "Container" in subject:
                 clear_container_data(vendor_email[0])
                 sizes = rows[0].find_all('td')
                 size_list = [size.get_text() for size in sizes]
@@ -1111,9 +1159,9 @@ def get_message_content_html(service, message_id):
 
             return
 
-        # ---------------  Parsing for c6.wi@gcc2011.com (Jeohnel Erfe, Global Container & Chassis) --------------- #
-        case "c6.wi@gcc2011.com":
-            provider = "Jeohnel Erfe, Global Container & Chassis"
+        # ---------------  Parsing for M3.Ut@gcc2011.com (Joshua Flores, Global Container & Chassis) --------------- #
+        case "M3.Ut@gcc2011.com":
+            provider = "Joshua Flores, Global Container & Chassis"
             if "Container" in subject:
                 clear_container_data(vendor_email[0])
                 sizes = rows[0].find_all('td')
@@ -1818,19 +1866,23 @@ def get_message_content_html(service, message_id):
                                 location = value
 
                     size = cell_data[1].replace(" ", "").replace("'", "")
+                    if "x" in size:
+                        quantity = size.split("x")[0].strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        size = size.split("x")[1].strip()
+                    else:
+                        quantity = 1
                     for key, value in size_data.items():
                         if key == size:
                             size = value
                     
-                    term, feature, depot, eta = "", "", "", ""
+                    term, feature, depot, eta, price = "", "", "", "", 0
                     if "1-trip" in cell_data[2] or "NEW" in cell_data[2]:
                         term = "1Trip"
                     if "Used" in cell_data[2] or "Cargo Worthy" in cell_data[2]:
-                        term = "Used CW"
+                        term = "CW"
                     if len(cell_data[2].split(",")) > 2:
                         depot = cell_data[2].split(",")[2].strip()
-
-                    quantity, price = 1, 0
 
                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
@@ -1894,8 +1946,36 @@ def get_message_content_html(service, message_id):
                             if key == size:
                                 size = value
 
-                        term = "Used WWT"
+                        term = "WWT"
                         quantity = cell_data[j].replace("+", "").strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+
+                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+            return
+        
+        # ---------------  Parsing for equipment@conwaycs.com (Margarita Kolecenko, Conway) --------------- #
+        case "equipment@conwaycs.com":
+            clear_container_data(vendor_email[0])
+            provider = "Margarita Kolecenko, Conway"
+            for row in rows:
+                cells = row.find_all('td')
+                cell_data = [cell.get_text() for cell in cells]
+            
+                if len(cell_data) == 4 and cell_data[3].isdigit():
+                    if cell_data[0] == "USA" or cell_data[0] == "CANADA":
+                        location = cell_data[1].split("(")[0].upper().strip()
+                        for key, value in location_data.items():
+                            if key == location:
+                                location = value
+                    
+                        size = cell_data[2].replace(" ", "").replace("'", "")
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
+                        
+                        term, feature, depot, eta, price = "", "", "", "", 0
+                        quantity = cell_data[3].replace("+", "").strip()
                         quantity = int(quantity) if quantity.isdigit() else 1
 
                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
@@ -1934,8 +2014,10 @@ def get_message_content_plain(service, message_id):
         # print("\nBody:", body)
 
     vendor_email = re.findall(r'<(.*?)>', email_message['From'])
-    received_date = email_message['Date']
     subject = email_message['Subject']
+    received_date_temp = email_message['Date']
+    parsed_time = datetime.strptime(received_date_temp, "%a, %d %b %Y %H:%M:%S %z")
+    received_date = parsed_time.strftime("%Y/%m/%d %H:%M:%S")
     current_datetime = datetime.now()
     created_date = current_datetime.strftime("%Y/%m/%d %H:%M:%S")
     content = re.sub(r"^\s*$\n", "", body, flags=re.MULTILINE)
@@ -2301,10 +2383,10 @@ def get_message_content_plain(service, message_id):
 
             return
 
-        # ---------------  Parsing for Bryan@scontainers.com (Bryan Lucas, STAR CONTAINER SOLUTION) --------------- #
+        # ---------------  Parsing for Bryan@scontainers.com (Bryan Lucas, Star Container Solution) --------------- #
         case "Bryan@scontainers.com":
             clear_container_data(vendor_email[0])
-            provider = "Bryan Lucas, STAR CONTAINER SOLUTION"
+            provider = "Bryan Lucas, Star Container Solution"
             content_data = content.split("\n")
             location = ''
             for i in range(0, len(content_data)):
@@ -2385,53 +2467,29 @@ def get_message_content_plain(service, message_id):
         
         # ---------------  Parsing for jenny@icc-solution.com (Jenny Roberts, International Container & Chassis Solution) --------------- #
         case "jenny@icc-solution.com":
-            clear_container_data(vendor_email[0])
+            # clear_container_data(vendor_email[0])
             provider = "Jenny Roberts, International Container & Chassis Solution"
-            content_data_temp = content.split("Regards,")[0].split("\n")
-            content_data = []
-            location = ""
-            for item in content_data_temp:
-                item = item.replace("\r", "")
-                if "x" in item or "*" in item or "+" in item:
-                    if "x" in item and "*" in item:
-                        content_data.append("*" + item.split("*")[1] + "*")
-                        content_data.append(item.split("*")[2])
-                    elif "each8 x 40" not in item:
-                        content_data.append(item)
-
-                elif len(content_data) > 0:
-                    if "'" in item:
-                        content_data.append(item)
-                    else:
-                        content_data[-1] = content_data[-1] + " " + item
-                    
-                    if "each8 x 40" in item:
-                        content_data[-1] = content_data[-1] + " " + item.split("each")[0] + "each"
-                        content_data.append(item.split("each")[1])
+            content_data = content.split("Regards,")[0].split("\n")
             for item in content_data:
-                if "*" in item:
-                    location = item.replace("*", "").split(",")[0].upper().strip()
-                    for key, value in location_data.items():
-                        if key == location:
-                            location = value
+                item = item.strip()
+                if "*" in item and "," in item:
+                    location = item.replace("*", "")
                 else:
                     feature, depot, eta = "", "", ""
+                    item = item.replace("X", "x")
+                    if "x" in item:
+                        quantity = item.split("x")[0]
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        size = item.split("x")[1].lstrip().split(" ")[0].replace("'", "").replace(" ", "")
+                    else:
+                        quantity = 1
+                        size = item.split(" ")[0].replace("'", "").replace(" ", "")
+
+                    for key, value in size_data.items():
+                        if key == size:
+                            size = value
+
                     if "CW" in item or "WWT" in item or "IICL" in item:
-                        if "x" in item:
-                            quantity = item.split("x")[0]
-                            quantity = int(quantity) if quantity.isdigit() else 1
-                            size = item.split("x")[1].lstrip().split(" ")[0].replace("'", "").replace(" ", "")
-                        else:
-                            quantity = 1
-                            size = item.split(" ")[0].replace("'", "").replace(" ", "")
-
-                        for key, value in size_data.items():
-                            if key == size:
-                                size = value
-
-                        if ";" in item and len(item.split(";")) > 2 and "Newer" in item:
-                            feature = item.split(";")[1].strip() + "," + item.split(";")[2]
-
                         terms = ["CW", "WWT", "IICL"]
                         term = next((t for t in terms if t in item), None)
                         price = item.split("$")[1].replace(",", "").replace("each", "").strip()
@@ -2439,156 +2497,42 @@ def get_message_content_plain(service, message_id):
 
                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
-                    else:          
-                        if len(item.split(";")) == 2:
-                            size = ""
-                            if " x" in item:
-                                quantity = item.split(" x")[0]
-                                quantity = int(quantity) if quantity.isdigit() else 1
-                                if "New" in item:
-                                    size = item.split(" x")[1].split("New")[0].strip().replace("'", "").replace(" ", "")
-                            elif "+" in item:
-                                size = item.split(")")[1].split("New")[0].strip().replace("'", "").replace(" ", "")
-                                quantity = item.split(")")[0].replace("(", "")
-                                quantity = int(quantity) if quantity.isdigit() else 1
+                    if "New/ One Trip" in item:
+                        term = "1Trip"
+                        if "(" in item and ")" in item:
+                            feature = item.split("(")[1].split(")")[0]
+                        price = item.split("$")[1].replace(",", "").replace("each", "").strip()
+                        price = int(price) if price.isdigit() else 0
 
-                            if size:
-                                for key, value in size_data.items():
-                                    if key == size:
-                                        size = value
+                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
-                            term = "1Trip"
-                            price = item.split("$")[1].replace(",", "").replace("each", "").strip()
-                            price = int(price) if price.isdigit() else 0
-
-                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-
-                        if len(item.split(";")) == 3:
-                            quantity = item.split(" x")[0]
-                            quantity = int(quantity) if quantity.isdigit() else 1
-                            size = item.split(" x")[1].split("New")[0].strip().replace("'", "").replace(" ", "").replace("standard", "")
-                            for key, value in size_data.items():
-                                if key == size:
-                                    size = value
-
-                            term = "1Trip"
-                            feature = item.split(";")[1].strip()
-                            if len(item.split(";")[2].split("$")[0]) > 3:
-                                feature = feature + item.split(";")[2].split("$")[0]
-                            if len(item.split(";")[0].split("Trip")[1]) > 3:
-                                feature = feature + item.split(";")[0].split("Trip")[1]
-                            
-                            price = item.split("$")[1].replace(",", "").replace("each", "").strip()
-                            price = int(price) if price.isdigit() else 0
-
-                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-                        
-                        if len(item.split(";")) == 4:
-                            if " x" in item:
-                                quantity = item.split(" x")[0]
-                                quantity = int(quantity) if quantity.isdigit() else 1
-                                if "New" in item:
-                                    size = item.split(" x")[1].split("New")[0].strip().replace("'", "").replace(" ", "")
-                                    term = "1Trip"
-                                elif "2-3" in item:
-                                    size = item.split(" x")[1].split("2-3")[0].strip().replace("'", "").replace(" ", "")
-                                    term = "2Trips"
-                            elif "+" in item:
-                                size = item.split(")")[1].split("New")[0].strip().replace("'", "").replace(" ", "")
-                                quantity = item.split(")")[0].replace("(", "")
-                                quantity = int(quantity) if quantity.isdigit() else 1
-                                term = "1Trip"
-
-                            for key, value in size_data.items():
-                                if key == size:
-                                    size = value
-
-                            feature = item.split(";")[1].strip() + "," + item.split(";")[2]
-                            price = item.split("$")[1].replace(",", "").replace("each", "").strip()
-                            price = int(price) if price.isdigit() else 0
-                            
-                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-                        
-                        if len(item.split(";")) == 5:                        
-                            size = item.split(" x")[1].split("New")[0].strip().replace("'", "").replace(" ", "")
-                            for key, value in size_data.items():
-                                if key == size:
-                                    size = value
-
-                            quantity = item.split(" x")[0]
-                            quantity = int(quantity) if quantity.isdigit() else 1
-                            term = "1Trip"
-                            feature = item.split(";")[1].strip() + "," + item.split(";")[2] + "," + item.split(";")[3]
-                            price = item.split("$")[1].replace(",", "").replace("each", "").strip()
-                            price = int(price) if price.isdigit() else 0
-                            
-                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-
-                        if len(item.split(";")) == 6:
-                            size = item.split(" x")[1].split("New")[0].strip().replace("'", "").replace(" ", "")
-                            for key, value in size_data.items():
-                                if key == size:
-                                    size = value
-
-                            quantity = item.split(" x")[0]
-                            quantity = int(quantity) if quantity.isdigit() else 1
-                            term = "1Trip"
-                            feature = item.split(";")[1].strip() + "," + item.split(";")[2] + "," + item.split(";")[3] + "," + item.split(";")[4]
-                            depot = item.split("each")[1].strip()
-                            price = item.split("$")[1].split("(")[0].replace(",", "").replace("each", "").strip()
-                            price = int(price) if price.isdigit() else 0
-
-                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+            return
 
         # ---------------  Parsing for erica@icc-solution.com (Erica Medina, International Container & Chassis Solution) --------------- #
         case "erica@icc-solution.com":
-            clear_container_data(vendor_email[0])
+            # clear_container_data(vendor_email[0])
             provider = "Erica Medina, International Container & Chassis Solution"
-            content_data_temp = content.split("Regards,")[0].split("\n")
-            content_data = []
-            location = ""
-            for item in content_data_temp:
-                item = item.replace("\r", "")
-                if "x" in item or "*" in item or "+" in item:
-                    if "x" in item and "*" in item:
-                        content_data.append("*" + item.split("*")[1] + "*")
-                        content_data.append(item.split("*")[2])
-                    elif "each8 x 40" not in item:
-                        content_data.append(item)
-
-                elif len(content_data) > 0:
-                    if "'" in item:
-                        content_data.append(item)
-                    else:
-                        content_data[-1] = content_data[-1] + " " + item
-                    
-                    if "each8 x 40" in item:
-                        content_data[-1] = content_data[-1] + " " + item.split("each")[0] + "each"
-                        content_data.append(item.split("each")[1])
+            content_data = content.split("Regards,")[0].split("\n")
             for item in content_data:
-                if "*" in item:
-                    location = item.replace("*", "").split(",")[0].upper().strip()
-                    for key, value in location_data.items():
-                        if key == location:
-                            location = value
+                item = item.replace("X", "x").strip()
+                if "*" in item and "," in item:
+                    location = item.replace("*", "")
                 else:
                     feature, depot, eta = "", "", ""
+                    item = item.replace("X", "x")
+                    if "x" in item:
+                        quantity = item.split("x")[0]
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        size = item.split("x")[1].lstrip().split(" ")[0].replace("'", "").replace(" ", "")
+                    else:
+                        quantity = 1
+                        size = item.split(" ")[0].replace("'", "").replace(" ", "")
+
+                    for key, value in size_data.items():
+                        if key == size:
+                            size = value
+
                     if "CW" in item or "WWT" in item or "IICL" in item:
-                        if "x" in item:
-                            quantity = item.split("x")[0]
-                            quantity = int(quantity) if quantity.isdigit() else 1
-                            size = item.split("x")[1].lstrip().split(" ")[0].replace("'", "").replace(" ", "")
-                        else:
-                            quantity = 1
-                            size = item.split(" ")[0].replace("'", "").replace(" ", "")
-
-                        for key, value in size_data.items():
-                            if key == size:
-                                size = value
-
-                        if ";" in item and len(item.split(";")) > 2 and "Newer" in item:
-                            feature = item.split(";")[1].strip() + "," + item.split(";")[2]
-
                         terms = ["CW", "WWT", "IICL"]
                         term = next((t for t in terms if t in item), None)
                         price = item.split("$")[1].replace(",", "").replace("each", "").strip()
@@ -2596,107 +2540,47 @@ def get_message_content_plain(service, message_id):
 
                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
-                    else:          
-                        if len(item.split(";")) == 2:
-                            size = ""
-                            if " x" in item:
-                                quantity = item.split(" x")[0]
-                                quantity = int(quantity) if quantity.isdigit() else 1
-                                if "New" in item:
-                                    size = item.split(" x")[1].split("New")[0].strip().replace("'", "").replace(" ", "")
-                            elif "+" in item:
-                                size = item.split(")")[1].split("New")[0].strip().replace("'", "").replace(" ", "")
-                                quantity = item.split(")")[0].replace("(", "")
-                                quantity = int(quantity) if quantity.isdigit() else 1
+                    if "New/ One Trip" in item:
+                        term = "1Trip"
+                        if "(" in item and ")" in item:
+                            feature = item.split("(")[1].split(")")[0]
+                        price = item.split("$")[1].replace(",", "").replace("each", "").strip()
+                        price = int(price) if price.isdigit() else 0
 
-                            if size:
-                                for key, value in size_data.items():
-                                    if key == size:
-                                        size = value
+                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
-                            term = "1Trip"
-                            price = item.split("$")[1].replace(",", "").replace("each", "").strip()
-                            price = int(price) if price.isdigit() else 0
+            return
 
-                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+        # ---------------  Parsing for gemparker@scontainers.com (Gem Parker, Star Container Solution) --------------- #
+        case "gemparker@scontainers.com":
+            clear_container_data(vendor_email[0])
+            provider = "Gem Parker, Star Container Solution"
+            content_data = content.split("\n")
+            
+            for item in content_data:
+                if item.count("*") == 2 and "[" not in item:
+                    location = item.replace("*", "").split(",")[0].upper().strip()
+                    for key, value in location_data.items():
+                        if key == location:
+                            location = value
+                if item.count("*") == 2 and "$" in item and "[" in item:
+                    size = item.split(" ")[1].replace(" ", "").replace("'", "")
+                    for key, value in size_data.items():
+                        if key == size:
+                            size = value
+                    
+                    depot, eta = "", ""
+                    term = "1Trip"
+                    feature = item.split("(")[1].split(")")[0].replace("FULL OPEN SIDE;", "").strip()
+                    quantity = item.split("]")[0].replace("[", "").strip()
+                    quantity = int(quantity) if quantity.isdigit() else 1
+                    price = item.split("$")[1].replace(",", "").replace("EACH", "").strip()
+                    price = int(price) if price.isdigit() else 0
 
-                        if len(item.split(";")) == 3:
-                            quantity = item.split(" x")[0]
-                            quantity = int(quantity) if quantity.isdigit() else 1
-                            size = item.split(" x")[1].split("New")[0].strip().replace("'", "").replace(" ", "").replace("standard", "")
-                            for key, value in size_data.items():
-                                if key == size:
-                                    size = value
+                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
-                            term = "1Trip"
-                            feature = item.split(";")[1].strip()
-                            if len(item.split(";")[2].split("$")[0]) > 3:
-                                feature = feature + item.split(";")[2].split("$")[0]
-                            if len(item.split(";")[0].split("Trip")[1]) > 3:
-                                feature = feature + item.split(";")[0].split("Trip")[1]
-                            
-                            price = item.split("$")[1].replace(",", "").replace("each", "").strip()
-                            price = int(price) if price.isdigit() else 0
-
-                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-                        
-                        if len(item.split(";")) == 4:
-                            if " x" in item:
-                                quantity = item.split(" x")[0]
-                                quantity = int(quantity) if quantity.isdigit() else 1
-                                if "New" in item:
-                                    size = item.split(" x")[1].split("New")[0].strip().replace("'", "").replace(" ", "")
-                                    term = "1Trip"
-                                elif "2-3" in item:
-                                    size = item.split(" x")[1].split("2-3")[0].strip().replace("'", "").replace(" ", "")
-                                    term = "2Trips"
-                            elif "+" in item:
-                                size = item.split(")")[1].split("New")[0].strip().replace("'", "").replace(" ", "")
-                                quantity = item.split(")")[0].replace("(", "")
-                                quantity = int(quantity) if quantity.isdigit() else 1
-                                term = "1Trip"
-
-                            for key, value in size_data.items():
-                                if key == size:
-                                    size = value
-
-                            feature = item.split(";")[1].strip() + "," + item.split(";")[2]
-                            price = item.split("$")[1].replace(",", "").replace("each", "").strip()
-                            price = int(price) if price.isdigit() else 0
-                            
-                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-                        
-                        if len(item.split(";")) == 5:                        
-                            size = item.split(" x")[1].split("New")[0].strip().replace("'", "").replace(" ", "")
-                            for key, value in size_data.items():
-                                if key == size:
-                                    size = value
-
-                            quantity = item.split(" x")[0]
-                            quantity = int(quantity) if quantity.isdigit() else 1
-                            term = "1Trip"
-                            feature = item.split(";")[1].strip() + "," + item.split(";")[2] + "," + item.split(";")[3]
-                            price = item.split("$")[1].replace(",", "").replace("each", "").strip()
-                            price = int(price) if price.isdigit() else 0
-                            
-                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-
-                        if len(item.split(";")) == 6:
-                            size = item.split(" x")[1].split("New")[0].strip().replace("'", "").replace(" ", "")
-                            for key, value in size_data.items():
-                                if key == size:
-                                    size = value
-
-                            quantity = item.split(" x")[0]
-                            quantity = int(quantity) if quantity.isdigit() else 1
-                            term = "1Trip"
-                            feature = item.split(";")[1].strip() + "," + item.split(";")[2] + "," + item.split(";")[3] + "," + item.split(";")[4]
-                            depot = item.split("each")[1].strip()
-                            price = item.split("$")[1].split("(")[0].replace(",", "").replace("each", "").strip()
-                            price = int(price) if price.isdigit() else 0
-
-                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-
+            return
+    
     # Close the connection
     if connection:
         connection.close()
@@ -2753,28 +2637,100 @@ def main():
     # Authenticate and build the service
     service = authenticate_gmail()
 
-    with open('variable.json', 'r') as f:
-        var_data = json.load(f)
-    email_html_lists = var_data['email_html_data']
-    email_plain_lists = var_data['email_plain_data']
+    # query = "olaf@marinecw.com after:2024/11/12"
 
-    current_datetime = datetime.now()
-    yesterday = current_datetime - timedelta(days=1)
-    yesterday_str = yesterday.strftime("%Y/%m/%d")
-    
+    email_html_lists = [    
+                            "from:john@americanacontainers.com after:2024/11/12",
+                            "from:chris@americanacontainers.com after:2024/11/12",
+                            "from:tine@americanacontainers.com after:2024/11/12",
+                            "from:jason@americanacontainers.com after:2024/11/13",
+                            "from:johannes@oztradingltd.com after:2024/11/18",
+                            "from:steven.gao@cgkinternational.com after:2024/7/8",
+                            "from:sales@isr-containers.com after:2024/11/5",
+                            "from:wayne.vandenburg@dutchcontainers.com after:2024/11/15",
+                            "from:wayne.vandenburg@trident-containers.com after:2023/10/16",
+                            "from:ryan@trident-containers.com after:2024/7/8",
+                            "from:e4.mevtnhrict@gcc2011.com after:2024/11/13",
+                            "from:e8.pa@gcc2011.com after:2024/10/25",
+                            "from:e61.md@gcc2011.com after:2023/10/17",
+                            "from:W3.Wa@gcc2011.com after:2024/11/15",
+                            "from:W6.CaLgb@gcc2011.com after:2023/10/16",
+                            "from:W8.CaLgb@gcc2011.com after:2023/10/9",
+                            "from:c6.wi@gcc2011.com after:2023/10/17",
+                            "from:C11.La@gcc2011.com after:2024/11/18",
+                            "from:c17.txelp@gcc2011.com after:2024/10/21",
+                            "from:m1.ntab@gcc2011.com after:2023/10/17",
+                            "from:m2.id@gcc2011.com after:2024/10/23",
+                            "from:M3.Ut@gcc2011.com after:2024/11/19",
+                            "from:ash@container-xchange.com after:2024/11/5",
+                            "from:Saquib.amiri@sadecontainers.com after:2024/10/28",
+                            "from:JAnguish@ism247.com after:2024/11/18",
+                            "from:sales@tritoncontainersales.com after:2024/10/21",
+                            "from:thomas@fulidacontainer.com after:2024/11/14",
+                            "from:magui.cheung@northatlanticcontainer.com after:2024/11/14",
+                            "from:jeff@lummid.com after:2024/7/8",
+                            "from:mjs@lummid.com after:2024/11/15",
+                            "from:eastcoast@lummid.com after:2024/11/18",
+                            "from:westcoast@lummid.com after:2024/11/5",
+                            "from:ryanchoi@muwon.com after:2023/10/16",
+                            "from:olaf@marinecw.com after:2024/11/12",
+                            "from:yansen@megaconusa.com after:2024/11/12",
+                            "from:wayneterry@florens.com after:2024/11/4",
+                            "from:equipment@conwaycs.com after:2024/11/11",
+                            "from:jenny@icc-solution.com subject:SALE Units/ after:2024/11/12",
+                            "from:erica@icc-solution.com subject:🔥ICCS Friday Container SALE! 11/08 after:2024/11/8"
+                        ]
+
+    email_plain_lists = [   
+                            "from:rolly@oceanbox.cn after:2024/11/18",
+                            "from:Bryan@scontainers.com after:2024/7/1",
+                            "from:gemparker@scontainers.com after:2024/11/4",
+                            "from:jenny@icc-solution.com after:2024/11/13",
+                            "from:erica@icc-solution.com after:2024/11/12"
+                        ]
+
     for email_html_list in email_html_lists:
-        query = f"from:{email_html_list} after:{yesterday_str}"
-        messages = get_messages(service, query=query)
+        # query = f"from:{email_html_list} after:{yesterday_str}"
+        messages = get_messages(service, query=email_html_list)
         if messages:
             for message in messages:
                 get_message_content_html(service, message['id'])
 
     for email_plain_list in email_plain_lists:
-        query = f"from:{email_plain_list} after:{yesterday_str}"
-        messages = get_messages(service, query=query)
+        # query = f"from:{email_plain_list} after:{yesterday_str}"
+        messages = get_messages(service, query=email_plain_list)
         if messages:
             for message in messages:
                 get_message_content_plain(service, message['id'])
+
+
+    # messages = get_messages(service, query=query)
+    # if messages:
+    #     for message in messages:
+    #         get_message_content_html(service, message['id'])
+
+    # with open('variable.json', 'r') as f:
+    #     var_data = json.load(f)
+    # email_html_lists = var_data['email_html_data']
+    # email_plain_lists = var_data['email_plain_data']
+
+    # current_datetime = datetime.now()
+    # yesterday = current_datetime - timedelta(days=1)
+    # yesterday_str = yesterday.strftime("%Y/%m/%d")
+    
+    # for email_html_list in email_html_lists:
+    #     query = f"from:{email_html_list} after:{yesterday_str}"
+    #     messages = get_messages(service, query=query)
+    #     if messages:
+    #         for message in messages:
+    #             get_message_content_html(service, message['id'])
+
+    # for email_plain_list in email_plain_lists:
+    #     query = f"from:{email_plain_list} after:{yesterday_str}"
+    #     messages = get_messages(service, query=query)
+    #     if messages:
+    #         for message in messages:
+    #             get_message_content_plain(service, message['id'])
 
 if __name__ == '__main__':
     main()
