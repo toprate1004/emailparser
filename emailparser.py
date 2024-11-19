@@ -2473,7 +2473,10 @@ def get_message_content_plain(service, message_id):
             for item in content_data:
                 item = item.strip()
                 if "*" in item and "," in item:
-                    location = item.replace("*", "").split("[")[0].replace("0", "O").strip()
+                    location = item.replace("*", "").split(",")[0].upper().strip()
+                    for key, value in location_data.items():
+                        if key == location:
+                            location = value
                 else:
                     feature, depot, eta = "", "", ""
                     item = item.replace("X", "x")
@@ -2516,7 +2519,10 @@ def get_message_content_plain(service, message_id):
             for item in content_data:
                 item = item.strip()
                 if "*" in item and "," in item:
-                    location = item.replace("*", "").split("[")[0].replace("0", "O").strip()
+                    location = item.replace("*", "").split(",")[0].upper().strip()
+                    for key, value in location_data.items():
+                        if key == location:
+                            location = value
                 else:
                     feature, depot, eta = "", "", ""
                     item = item.replace("X", "x")
