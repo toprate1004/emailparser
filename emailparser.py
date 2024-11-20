@@ -279,7 +279,7 @@ def get_message_content_html(service, message_id):
     
     print(subject)
     print(vendor_email[0])
-    parse_html_content(body)
+    # parse_html_content(body)
 
     match vendor_email[0]:
         # ---------------  Parsing for john@americanacontainers.com (John Rupert, Americana Containers Distribution Chain) --------------- #
@@ -1116,7 +1116,7 @@ def get_message_content_html(service, message_id):
         # ---------------  Parsing for m2.id@gcc2011.com (Jerry Devit, Global Container & Chassis) --------------- #
         case "m2.id@gcc2011.com":
             provider = "Jerry Devit, Global Container & Chassis"
-            if "Container" in subject:
+            if "Inventory" in subject:
                 clear_container_data(vendor_email[0])
                 sizes = rows[0].find_all('td')
                 size_list = [size.get_text() for size in sizes]
