@@ -1857,7 +1857,7 @@ def get_message_content_html(service, message_id):
                 cells = row.find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
             
-                if cell_data[0] != "LOCATION":
+                if cell_data[0] != "LOCATION" and cell_data[0] != "":
                     if cell_data[0] != "\xa0":
                         location = cell_data[0].split(",")[0].upper().strip()
                         for key, value in location_data.items():
@@ -2642,100 +2642,28 @@ def main():
     # Authenticate and build the service
     service = authenticate_gmail()
 
-    # query = "from:James@tradecorp-usa.com after:2024/11/19"
+    with open('variable.json', 'r') as f:
+        var_data = json.load(f)
+    email_html_lists = var_data['email_html_data']
+    email_plain_lists = var_data['email_plain_data']
 
-    email_html_lists = [    
-                            "from:john@americanacontainers.com after:2024/11/12",
-                            "from:chris@americanacontainers.com after:2024/11/19",
-                            "from:tine@americanacontainers.com after:2024/11/12",
-                            "from:jason@americanacontainers.com after:2024/11/13",
-                            "from:johannes@oztradingltd.com after:2024/11/18",
-                            "from:steven.gao@cgkinternational.com after:2024/7/8",
-                            "from:sales@isr-containers.com after:2024/11/5",
-                            "from:wayne.vandenburg@dutchcontainers.com after:2024/11/19",
-                            "from:wayne.vandenburg@trident-containers.com after:2023/10/16",
-                            "from:ryan@trident-containers.com after:2024/7/8",
-                            "from:e4.mevtnhrict@gcc2011.com after:2024/11/13",
-                            "from:e8.pa@gcc2011.com after:2024/10/25",
-                            "from:e61.md@gcc2011.com after:2023/10/17",
-                            "from:W3.Wa@gcc2011.com after:2024/11/15",
-                            "from:W6.CaLgb@gcc2011.com after:2023/10/16",
-                            "from:W8.CaLgb@gcc2011.com after:2023/10/9",
-                            "from:c6.wi@gcc2011.com after:2023/10/17",
-                            "from:C11.La@gcc2011.com after:2024/11/18",
-                            "from:c17.txelp@gcc2011.com after:2024/10/21",
-                            "from:m1.ntab@gcc2011.com after:2023/10/17",
-                            "from:m2.id@gcc2011.com after:2024/10/23",
-                            "from:M3.Ut@gcc2011.com after:2024/11/18",
-                            "from:ash@container-xchange.com after:2024/11/5",
-                            "from:Saquib.amiri@sadecontainers.com after:2024/10/28",
-                            "from:JAnguish@ism247.com after:2024/11/18",
-                            "from:sales@tritoncontainersales.com after:2024/10/21",
-                            "from:thomas@fulidacontainer.com after:2024/11/19",
-                            "from:magui.cheung@northatlanticcontainer.com after:2024/11/14",
-                            "from:jeff@lummid.com after:2024/7/8",
-                            "from:mjs@lummid.com after:2024/11/15",
-                            "from:eastcoast@lummid.com after:2024/11/18",
-                            "from:westcoast@lummid.com after:2024/11/5",
-                            "from:ryanchoi@muwon.com after:2023/10/16",
-                            "from:olaf@marinecw.com after:2024/11/19",
-                            "from:yansen@megaconusa.com after:2024/11/19",
-                            "from:wayneterry@florens.com after:2024/11/4",
-                            "from:equipment@conwaycs.com after:2024/11/19",
-                            "from:jenny@icc-solution.com subject:SALE Units/ after:2024/11/12",
-                            "from:erica@icc-solution.com subject:🔥ICCS Friday Container SALE! 11/08 after:2024/11/8"
-                        ]
-
-    email_plain_lists = [   
-                            "from:rolly@oceanbox.cn after:2024/11/18",
-                            "from:Bryan@scontainers.com after:2024/7/1",
-                            "from:gemparker@scontainers.com after:2024/11/4",
-                            "from:jenny@icc-solution.com after:2024/11/19",
-                            "from:erica@icc-solution.com after:2024/11/12"
-                        ]
-
+    current_datetime = datetime.now()
+    yesterday = current_datetime - timedelta(days=1)
+    yesterday_str = yesterday.strftime("%Y/%m/%d")
+    
     for email_html_list in email_html_lists:
-        # query = f"from:{email_html_list} after:{yesterday_str}"
-        messages = get_messages(service, query=email_html_list)
+        query = f"from:{email_html_list} after:{yesterday_str}"
+        messages = get_messages(service, query=query)
         if messages:
             for message in messages:
                 get_message_content_html(service, message['id'])
 
     for email_plain_list in email_plain_lists:
-        # query = f"from:{email_plain_list} after:{yesterday_str}"
-        messages = get_messages(service, query=email_plain_list)
+        query = f"from:{email_plain_list} after:{yesterday_str}"
+        messages = get_messages(service, query=query)
         if messages:
             for message in messages:
                 get_message_content_plain(service, message['id'])
-
-
-    # messages = get_messages(service, query=query)
-    # if messages:
-    #     for message in messages:
-    #         get_message_content_html(service, message['id'])
-
-    # with open('variable.json', 'r') as f:
-    #     var_data = json.load(f)
-    # email_html_lists = var_data['email_html_data']
-    # email_plain_lists = var_data['email_plain_data']
-
-    # current_datetime = datetime.now()
-    # yesterday = current_datetime - timedelta(days=1)
-    # yesterday_str = yesterday.strftime("%Y/%m/%d")
-    
-    # for email_html_list in email_html_lists:
-    #     query = f"from:{email_html_list} after:{yesterday_str}"
-    #     messages = get_messages(service, query=query)
-    #     if messages:
-    #         for message in messages:
-    #             get_message_content_html(service, message['id'])
-
-    # for email_plain_list in email_plain_lists:
-    #     query = f"from:{email_plain_list} after:{yesterday_str}"
-    #     messages = get_messages(service, query=query)
-    #     if messages:
-    #         for message in messages:
-    #             get_message_content_plain(service, message['id'])
 
 if __name__ == '__main__':
     main()
