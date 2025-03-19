@@ -67,7 +67,7 @@ def execute_query(connection, query):
         cursor.execute(query)
         connection.commit()
         print("Query executed successfully")
-    except Error as e:
+    except Exception as e:
         print(f"The error '{e}' occurred")
 
 def insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email, received_date, created_date):
@@ -91,7 +91,7 @@ def get_container_data():
     try:
         with connection.cursor() as cursor:
             # SQL query to fetch data
-            fetch_query = "SELECT * FROM container ORDER BY received_date DESC"
+            fetch_query = "SELECT * FROM container ORDER BY created_date DESC"
             cursor.execute(fetch_query)
 
             # Fetch all results
@@ -2185,7 +2185,7 @@ def main():
     email_plain_lists = var_data['email_plain_data']
 
     current_datetime = datetime.now()
-    yesterday = current_datetime - timedelta(days=3)
+    yesterday = current_datetime - timedelta(days=1)
     yesterday_str = yesterday.strftime("%Y/%m/%d")
 
     for email_html_list in email_html_lists:
