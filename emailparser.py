@@ -852,7 +852,7 @@ def get_message_content_html(service, message_id):
                         for j in range(4, len(cell_data), 2):
                             if j+1 < len(cell_data) and cell_data[j] and cell_data[j+1]:
                                 size = size_list[int(j / 2) + 2]
-                                size = size.replace(" ", "").replace("'", "")
+                                size = size.replace(" ", "").replace("'", "").upper()
                                 for key, value in size_data.items():
                                     if key == size:
                                         size = value
@@ -895,7 +895,7 @@ def get_message_content_html(service, message_id):
 
                         for j in range(1, len(cell_data)):
                             grade = grade_list[j-1]
-                            size = size_list[j-1].replace(" ", "").replace("'", "")
+                            size = size_list[j-1].replace(" ", "").replace("'", "").upper()
                             for key, value in size_data.items():
                                 if key == size:
                                     size = value
