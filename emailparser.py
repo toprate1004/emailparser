@@ -262,8 +262,10 @@ def get_message_content_html(service, message_id):
 
     subject = email_message['Subject']
     vendor_email = re.findall(r'<(.*?)>', email_message['From'])
-    received_date_temp = email_message['Date'].replace(" (GMT)", "")
+    print(email_message['Date'])
+    received_date_temp = email_message['Date'].split(" (")[0]
     parsed_time = datetime.strptime(received_date_temp, "%a, %d %b %Y %H:%M:%S %z")
+
     received_date = parsed_time.strftime("%Y/%m/%d %H:%M:%S")
     current_datetime = datetime.now()
     created_date = current_datetime.strftime("%Y/%m/%d %H:%M:%S")
@@ -290,33 +292,40 @@ def get_message_content_html(service, message_id):
                 cells = rows[i].find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
 
-                if len(cell_data) >= 5 and cell_data[0] != "":
-                    location = cell_data[0].split(",")[0].upper().strip()
-                    for key, value in location_data.items():
-                        if key == location:
-                            location = value
+                try:
+                    if len(cell_data) >= 5 and cell_data[0] != "":
+                        location = cell_data[0].split(",")[0].upper().strip()
+                        for key, value in location_data.items():
+                            if key == location:
+                                location = value
+                                break
 
-                    size = cell_data[1].replace(" ", "").replace("'", "")
-                    for key, value in size_data.items():
-                        if key == size:
-                            size = value
+                        size = cell_data[1].replace(" ", "").replace("'", "").upper()
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
+                                break
 
-                    term = cell_data[2]
-                    for key, value in term_data.items():
-                        if key in term:
-                            term = value
+                        term = cell_data[2]
+                        for key, value in term_data.items():
+                            if key in term:
+                                term = value
+                                break
 
-                    feature, depot, eta = "", "", ""
+                        feature, depot, eta = "", "", ""
 
-                    quantity = cell_data[3].replace("+", "").strip()
-                    quantity = int(quantity) if quantity.isdigit() else 1
-                    price = cell_data[4].replace("$", "").replace(",", "").strip()
-                    price = int(price) if price.isdigit() else 0
+                        if len(cell_data) > 5 and cell_data[5] != "":
+                            feature = cell_data[5]
 
-                    if len(cell_data) > 5 and cell_data[5] != "":
-                        feature = cell_data[5]
+                        quantity = cell_data[3].replace("+", "").strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = cell_data[4].replace("$", "").replace(",", "").strip()
 
-                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                        if price.isdigit() and int(price) > 0:
+                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                except Exception as e:
+                    print(f"Error on item {cell_data}: {e}")
 
             return
 
@@ -328,30 +337,37 @@ def get_message_content_html(service, message_id):
                 cells = rows[i].find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
 
-                if len(cell_data) >= 5 and cell_data[0] != "":
-                    location = cell_data[0].split(",")[0].upper().strip()
-                    for key, value in location_data.items():
-                        if key == location:
-                            location = value
+                try:
+                    if len(cell_data) >= 5 and cell_data[0] != "":
+                        location = cell_data[0].split(",")[0].upper().strip()
+                        for key, value in location_data.items():
+                            if key == location:
+                                location = value
+                                break
 
-                    size = cell_data[1].replace(" ", "").replace("'", "")
-                    for key, value in size_data.items():
-                        if key == size:
-                            size = value
+                        size = cell_data[1].replace(" ", "").replace("'", "").upper()
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
+                                break
 
-                    term = cell_data[2]
-                    for key, value in term_data.items():
-                        if key in term:
-                            term = value
+                        term = cell_data[2]
+                        for key, value in term_data.items():
+                            if key in term:
+                                term = value
+                                break
 
-                    eta = ""
-                    feature, depot = cell_data[6], cell_data[5]
-                    quantity = cell_data[3].replace("+", "").strip()
-                    quantity = int(quantity) if quantity.isdigit() else 1
-                    price = cell_data[4].replace("$", "").replace(",", "").strip()
-                    price = int(price) if price.isdigit() else 0
+                        eta = ""
+                        feature, depot = cell_data[6], cell_data[5]
+                        quantity = cell_data[3].replace("+", "").strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = cell_data[4].replace("$", "").replace(",", "").strip()
 
-                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                        if price.isdigit() and int(price) > 0:
+                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                except Exception as e:
+                    print(f"Error on item {cell_data}: {e}")
 
             return
 
@@ -363,32 +379,40 @@ def get_message_content_html(service, message_id):
                 cells = rows[i].find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
 
-                if len(cell_data) >= 5 and cell_data[0] != "":
-                    location = cell_data[0].split(",")[0].upper().strip()
-                    for key, value in location_data.items():
-                        if key == location:
-                            location = value
+                try:
+                    if len(cell_data) >= 5 and cell_data[0] != "":
+                        location = cell_data[0].split(",")[0].upper().strip()
+                        for key, value in location_data.items():
+                            if key == location:
+                                location = value
+                                break
 
-                    size = cell_data[1].replace(" ", "").replace("'", "")
-                    for key, value in size_data.items():
-                        if key == size:
-                            size = value
+                        size = cell_data[1].replace(" ", "").replace("'", "").upper()
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
+                                break
 
-                    term = cell_data[2]
-                    for key, value in term_data.items():
-                        if key in term:
-                            term = value
+                        term = cell_data[2]
+                        for key, value in term_data.items():
+                            if key in term:
+                                term = value
+                                break
 
-                    feature, depot, eta = "", "", ""
-                    quantity = cell_data[3].replace("+", "").strip()
-                    quantity = int(quantity) if quantity.isdigit() else 1
-                    price = cell_data[4].replace("$", "").replace(",", "").strip()
-                    price = int(price) if price.isdigit() else 0
+                        feature, depot, eta = "", "", ""
 
-                    if len(cell_data) > 5 and cell_data[5] != "":
-                        feature = cell_data[5]
+                        if len(cell_data) > 5 and cell_data[5] != "":
+                            feature = cell_data[5]
 
-                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                        quantity = cell_data[3].replace("+", "").strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = cell_data[4].replace("$", "").replace(",", "").strip()
+
+                        if price.isdigit() and int(price) > 0:
+                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                except Exception as e:
+                    print(f"Error on item {cell_data}: {e}")
 
             return
 
@@ -399,30 +423,36 @@ def get_message_content_html(service, message_id):
             for i in range(1, len(rows)):
                 cells = rows[i].find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
+                try:
+                    if len(cell_data) >= 5 and cell_data[0] != "":
+                        location = cell_data[0].split(",")[0].upper().strip()
+                        for key, value in location_data.items():
+                            if key == location:
+                                location = value
+                                break
 
-                if len(cell_data) >= 5 and cell_data[0] != "":
-                    location = cell_data[0].split(",")[0].upper().strip()
-                    for key, value in location_data.items():
-                        if key == location:
-                            location = value
+                        size = cell_data[1].replace(" ", "").replace("'", "").upper()
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
+                                break
 
-                    size = cell_data[1].replace(" ", "").replace("'", "")
-                    for key, value in size_data.items():
-                        if key == size:
-                            size = value
+                        term = cell_data[2]
+                        for key, value in term_data.items():
+                            if key in term:
+                                term = value
+                                break
 
-                    term = cell_data[2]
-                    for key, value in term_data.items():
-                        if key in term:
-                            term = value
+                        feature, depot, eta = cell_data[6], cell_data[5], ""
+                        quantity = cell_data[3].replace("+", "").strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = cell_data[4].replace("$", "").replace(",", "").strip()
 
-                    feature, depot, eta = cell_data[6], cell_data[5], ""
-                    quantity = cell_data[3].replace("+", "").strip()
-                    quantity = int(quantity) if quantity.isdigit() else 1
-                    price = cell_data[4].replace("$", "").replace(",", "").strip()
-                    price = int(price) if price.isdigit() else 0
+                        if price.isdigit() and int(price) > 0:
+                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
-                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                except Exception as e:
+                    print(f"Error on item {cell_data}: {e}")
 
             return
 
@@ -434,54 +464,61 @@ def get_message_content_html(service, message_id):
                 cells = rows[i].find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
 
-                if len(cell_data) >= 7:
-                    location = cell_data[3].split(",")[0].upper().replace("\n", "").replace("  ", " ").strip()
-                    for key, value in location_data.items():
-                        if key == location:
-                            location = value
+                try:
+                    if len(cell_data) >= 7:
+                        location = cell_data[3].split(",")[0].upper().replace("\n", "").replace("  ", " ").strip()
+                        for key, value in location_data.items():
+                            if key == location:
+                                location = value
+                                break
 
-                    size = cell_data[1].replace(" ", "").replace("'", "")
-                    for key, value in size_data.items():
-                        if key == size:
-                            size = value
+                        size = cell_data[1].replace(" ", "").replace("'", "").upper()
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
+                                break
 
-                    feature, depot = "", ""
-                    eta = "ETA: " + cell_data[4]
-                    quantity = cell_data[2].replace("+", "").strip()
-                    quantity = int(quantity) if quantity.isdigit() else 1
-                    price = cell_data[6].replace("$", "").replace(",", "").strip()
-                    price = int(price) if price.isdigit() else 0
+                        feature, depot = "", ""
+                        eta = "ETA: " + cell_data[4]
+                        quantity = cell_data[2].replace("+", "").strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = cell_data[6].replace("$", "").replace(",", "").strip()
 
-                    if "NEW" in cell_data[5]:
-                        term = "1Trip"
-                        feature = cell_data[5].replace("NEW", "").strip()
+                        if "NEW" in cell_data[5]:
+                            term = "1Trip"
+                            feature = cell_data[5].replace("NEW", "").strip()
+                        else:
+                            term = "CW"
                     else:
-                        term = "CW"
-                else:
-                    location = cell_data[2].split(",")[0].upper().replace("\n", "").replace("  ", " ").strip()
-                    for key, value in location_data.items():
-                        if key == location:
-                            location = value
+                        location = cell_data[2].split(",")[0].upper().replace("\n", "").replace("  ", " ").strip()
+                        for key, value in location_data.items():
+                            if key == location:
+                                location = value
+                                break
 
-                    size = cell_data[0].replace(" ", "").replace("'", "")
-                    for key, value in size_data.items():
-                        if key == size:
-                            size = value
+                        size = cell_data[0].replace(" ", "").replace("'", "").upper()
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
+                                break
 
-                    feature, depot = "", ""
-                    eta = "ETA: " + cell_data[3]
-                    quantity = cell_data[1].replace("+", "").strip()
-                    quantity = int(quantity) if quantity.isdigit() else 1
-                    price = cell_data[5].replace("$", "").replace(",", "").strip()
-                    price = int(price) if price.isdigit() else 0
+                        feature, depot = "", ""
+                        eta = "ETA: " + cell_data[3]
+                        quantity = cell_data[1].replace("+", "").strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = cell_data[5].replace("$", "").replace(",", "").strip()
 
-                    if "NEW" in cell_data[4]:
-                        term = "1Trip"
-                        feature = cell_data[4].replace("NEW", "").strip()
-                    else:
-                        term = "CW"
+                        if "NEW" in cell_data[4]:
+                            term = "1Trip"
+                            feature = cell_data[4].replace("NEW", "").strip()
+                        else:
+                            term = "CW"
 
-                insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                    if price.isdigit() and int(price) > 0:
+                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                except Exception as e:
+                    print(f"Error on item {cell_data}: {e}")
 
             return
 
@@ -493,26 +530,32 @@ def get_message_content_html(service, message_id):
                 cells = rows[i].find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
 
-                if cell_data[2].isdigit():
-                    location = cell_data[1].split(",")[0].upper().strip()
-                    for key, value in location_data.items():
-                        if key == location:
-                            location = value
+                try:
+                    if cell_data[2].isdigit():
+                        location = cell_data[1].split(",")[0].upper().strip()
+                        for key, value in location_data.items():
+                            if key == location:
+                                location = value
+                                break
 
-                    size = cell_data[0].replace(" ", "").replace("'", "")
-                    for key, value in size_data.items():
-                        if key == size:
-                            size = value
+                        size = cell_data[0].replace(" ", "").replace("'", "").upper()
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
+                                break
 
-                    depot, eta = "", ""
-                    term = cell_data[5].replace(" ", "")
-                    feature = cell_data[6] + ", YOM: " + cell_data[4]
-                    quantity = cell_data[2].replace("+", "").strip()
-                    quantity = int(quantity) if quantity.isdigit() else 1
-                    price = cell_data[3].replace("$", "").replace(",", "").strip()
-                    price = int(price) if price.isdigit() else 0
+                        depot, eta = "", ""
+                        term = cell_data[5].replace(" ", "")
+                        feature = cell_data[6] + ", YOM: " + cell_data[4]
+                        quantity = cell_data[2].replace("+", "").strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = cell_data[3].replace("$", "").replace(",", "").strip()
 
-                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                        if price.isdigit() and int(price) > 0:
+                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                except Exception as e:
+                    print(f"Error on item {cell_data}: {e}")
 
             return
 
@@ -525,26 +568,33 @@ def get_message_content_html(service, message_id):
                     cells = rows[i].find_all('td')
                     cell_data = [cell.get_text() for cell in cells]
 
-                    location = cell_data[1].split(",")[0].upper().strip()
-                    for key, value in location_data.items():
-                        if key == location:
-                            location = value
+                    try:
+                        location = cell_data[1].split(",")[0].upper().strip()
+                        for key, value in location_data.items():
+                            if key == location:
+                                location = value
+                                break
 
-                    size = cell_data[2].replace(" ", "").replace("'", "").replace("’", "")
-                    for key, value in size_data.items():
-                            if key == size:
-                                size = value
+                        size = cell_data[2].replace(" ", "").replace("'", "").replace("’", "").upper()
+                        for key, value in size_data.items():
+                                if key == size:
+                                    size = value
+                                    break
 
-                    term = cell_data[3]
-                    for key, value in term_data.items():
-                        if key in term:
-                            term = value
+                        term = cell_data[3]
+                        for key, value in term_data.items():
+                            if key in term:
+                                term = value
+                                break
 
-                    price, feature, depot, eta = 0, "", "", ""
-                    quantity = cell_data[4].replace("+", "").strip()
-                    quantity = int(quantity) if quantity.isdigit() else 1
+                        price, feature, depot, eta = 0, "", "", ""
+                        quantity = cell_data[4].replace("+", "").strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
 
-                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                    except Exception as e:
+                        print(f"Error on item {cell_data}: {e}")
 
             return
 
@@ -557,28 +607,35 @@ def get_message_content_html(service, message_id):
                     cells = rows[i].find_all('td')
                     cell_data = [cell.get_text() for cell in cells]
 
-                    location = cell_data[0].split(",")[0].upper().replace("\n", "").strip()
-                    for key, value in location_data.items():
-                            if key == location:
-                                location = value
+                    try:
+                        location = cell_data[0].split(",")[0].upper().replace("\n", "").strip()
+                        for key, value in location_data.items():
+                                if key == location:
+                                    location = value
+                                    break
 
-                    size = cell_data[2].replace(" ", "").replace("'", "").replace("\n", "")
-                    for key, value in size_data.items():
-                        if key == size:
-                            size = value
+                        size = cell_data[2].replace(" ", "").replace("'", "").replace("\n", "").upper()
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
+                                break
 
-                    term = cell_data[3].replace('\n', '')
-                    for key, value in term_data.items():
-                        if key in term:
-                            term = value
+                        term = cell_data[3].replace('\n', '')
+                        for key, value in term_data.items():
+                            if key in term:
+                                term = value
+                                break
 
-                    price, depot = 0, ""
-                    feature = cell_data[4].replace("\n", "")
-                    eta = "ETA: " + cell_data[5].replace("\n", "")
-                    quantity = cell_data[1].replace("\n", "").strip()
-                    quantity = int(quantity) if quantity.isdigit() else 1
+                        price, depot = 0, ""
+                        feature = cell_data[4].replace("\n", "")
+                        eta = "ETA: " + cell_data[5].replace("\n", "")
+                        quantity = cell_data[1].replace("\n", "").strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
 
-                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                    except Exception as e:
+                        print(f"Error on item {cell_data}: {e}")
 
             elif "Inventory" in subject:
                 clear_container_data(vendor_email[0])
@@ -586,31 +643,82 @@ def get_message_content_html(service, message_id):
                     cells = rows[i].find_all('td')
                     cell_data = [cell.get_text() for cell in cells]
 
-                    if cell_data[1].replace('\n', '').isdigit():
-                        location = cell_data[0].split(",")[0].upper().replace("\n", "").strip()
-                        for key, value in location_data.items():
-                            if key == location:
-                                location = value
+                    try:
+                        if cell_data[1].replace('\n', '').isdigit():
+                            location = cell_data[0].split(",")[0].upper().replace("\n", "").strip()
+                            for key, value in location_data.items():
+                                if key == location:
+                                    location = value
+                                    break
 
-                        size = cell_data[2].replace(" ", "").replace("'", "").replace("\n", "")
-                        for key, value in size_data.items():
-                            if key == size:
-                                size = value
+                            size = cell_data[2].replace(" ", "").replace("'", "").replace("\n", "").upper()
+                            for key, value in size_data.items():
+                                if key == size:
+                                    size = value
+                                    break
 
-                        term = cell_data[3].replace('\n', '')
-                        for key, value in term_data.items():
-                            if key in term:
-                                term = value
+                            term = cell_data[3].replace('\n', '')
+                            for key, value in term_data.items():
+                                if key in term:
+                                    term = value
+                                    break
 
-                        eta = ""
-                        feature = cell_data[4].replace("\n", "")
-                        depot= cell_data[5].replace('\n', '')
-                        quantity = cell_data[1].replace("\n", "").strip()
-                        quantity = int(quantity) if quantity.isdigit() else 1
-                        price = cell_data[6].replace('\n', '').split(',')[0]
-                        price = int(price) if price.isdigit() else 0
+                            eta = ""
+                            feature = cell_data[4].replace("\n", "")
+                            depot= cell_data[5].replace('\n', '')
+                            quantity = cell_data[1].replace("\n", "").strip()
+                            quantity = int(quantity) if quantity.isdigit() else 1
+                            price = cell_data[6].replace('\n', '').split(',')[0]
 
-                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                            if price.isdigit() and int(price) > 0:
+                                insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                    except Exception as e:
+                        print(f"Error on item {cell_data}: {e}")
+
+            return
+
+        # ---------------  Parsing for tom.terhorst@dutchcontainers.com (Tom ter Horst, Dutch Container Merchants B.V.) --------------- #
+        case "tom.terhorst@dutchcontainers.com":
+            provider = "Tom ter Horst, Dutch Container Merchants B.V."
+            if "Arrival" in subject or "arrival" in subject or "update" in subject or "Update" in subject:
+                clear_container_data(vendor_email[0])
+                for i in range(1, len(rows)):
+                    cells = rows[i].find_all('td')
+                    cell_data = [cell.get_text() for cell in cells]
+
+                    try:
+                        if cell_data[1].replace('\n', '').isdigit():
+                            location = cell_data[0].split(",")[0].upper().replace("\n", "").strip()
+                            for key, value in location_data.items():
+                                if key == location:
+                                    location = value
+                                    break
+
+                            size = cell_data[2].replace(" ", "").replace("'", "").replace("\n", "").upper()
+                            for key, value in size_data.items():
+                                if key == size:
+                                    size = value
+                                    break
+
+                            term = cell_data[3].replace('\n', '')
+                            for key, value in term_data.items():
+                                if key in term:
+                                    term = value
+                                    break
+
+                            eta = ""
+                            feature = cell_data[4].replace("\n", "")
+                            depot= cell_data[5].replace('\n', '')
+                            quantity = cell_data[1].replace("\n", "").strip()
+                            quantity = int(quantity) if quantity.isdigit() else 1
+                            price = cell_data[6].replace('\n', '').split(',')[0]
+
+                            if price.isdigit() and int(price) > 0:
+                                insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                    except Exception as e:
+                        print(f"Error on item {cell_data}: {e}")
 
             return
 
@@ -624,39 +732,50 @@ def get_message_content_html(service, message_id):
                     cells = rows[i].find_all('td')
                     cell_data = [cell.get_text() for cell in cells]
 
-                    if "ARRIVING" in cell_data[0]:
-                        status = "ARRIVING"
+                    try:
+                        if "ARRIVING" in cell_data[0]:
+                            status = "ARRIVING"
 
-                    if cell_data[1].replace("\n", "").isdigit():
-                        location = cell_data[0].split(",")[0].upper().replace("\n", "").strip()
-                        for key, value in location_data.items():
-                            if key == location:
-                                location = value
+                        if cell_data[1].replace("\n", "").isdigit():
+                            location = cell_data[0].split(",")[0].upper().replace("\n", "").strip()
+                            for key, value in location_data.items():
+                                if key == location:
+                                    location = value
+                                    break
 
-                        size = cell_data[2].replace(" ", "").replace("'", "").replace("\n", "")
-                        for key, value in size_data.items():
+                            size = cell_data[2].replace(" ", "").replace("'", "").replace("\n", "").upper()
+                            for key, value in size_data.items():
                                 if key == size:
                                     size = value
+                                    break
 
-                        term = cell_data[3].replace("\n", "")
-                        for key, value in term_data.items():
-                            if key in term:
-                                term = value
+                            term = cell_data[3].replace("\n", "")
+                            for key, value in term_data.items():
+                                if key in term:
+                                    term = value
+                                    break
 
-                        feature = cell_data[4].replace("\n", "")
-                        quantity = cell_data[1].replace("\n", "").strip()
-                        quantity = int(quantity) if quantity.isdigit() else 1
-                        price = cell_data[6].replace("\n", "").split(",")[0]
-                        price = int(price) if price.isdigit() else 0
+                            feature = cell_data[4].replace("\n", "")
+                            quantity = cell_data[1].replace("\n", "").strip()
+                            quantity = int(quantity) if quantity.isdigit() else 1
+                            price = cell_data[6].replace("\n", "").split(",")[0]
 
-                        if status:
-                            depot = ""
-                            eta = "ETA: " + cell_data[5].replace("\n", "")
-                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-                        else:
-                            depot = cell_data[5].replace("\n", "")
-                            eta = ""
-                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                            if status:
+                                depot = ""
+                                eta = "ETA: " + cell_data[5].replace("\n", "")
+
+                                if price.isdigit() and int(price) > 0:
+                                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                            else:
+                                depot = cell_data[5].replace("\n", "")
+                                eta = ""
+
+                                if price.isdigit() and int(price) > 0:
+                                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                    except Exception as e:
+                        print(f"Error on item {cell_data}: {e}")
 
             return
 
@@ -669,29 +788,36 @@ def get_message_content_html(service, message_id):
                     cells = rows[i].find_all('td')
                     cell_data = [cell.get_text() for cell in cells]
 
-                    if cell_data[1].replace("\n", "").isdigit():
-                        location = cell_data[0].split(",")[0].upper().replace("\n", "").strip()
-                        for key, value in location_data.items():
+                    try:
+                        if cell_data[1].replace("\n", "").isdigit():
+                            location = cell_data[0].split(",")[0].upper().replace("\n", "").strip()
+                            for key, value in location_data.items():
                                 if key == location:
                                     location = value
+                                    break
 
-                        size = cell_data[2].replace(" ", "").replace("'", "").replace("\n", "").replace("\r", "")
-                        for key, value in size_data.items():
-                            if key == size:
-                                size = value
+                            size = cell_data[2].replace(" ", "").replace("'", "").replace("\n", "").replace("\r", "").upper()
+                            for key, value in size_data.items():
+                                if key == size:
+                                    size = value
+                                    break
 
-                        term = cell_data[3].replace("\n", "")
-                        for key, value in term_data.items():
-                            if key in term:
-                                term = value
+                            term = cell_data[3].replace("\n", "")
+                            for key, value in term_data.items():
+                                if key in term:
+                                    term = value
+                                    break
 
-                        feature, depot, eta = cell_data[4].replace("\n", ""), cell_data[5].replace("\n", ""), ""
-                        quantity = cell_data[1].replace("\n", "").strip()
-                        quantity = int(quantity) if quantity.isdigit() else 1
-                        price = cell_data[6].replace("\n", "").split(",")[0]
-                        price = int(price) if price.isdigit() else 0
+                            feature, depot, eta = cell_data[4].replace("\n", ""), cell_data[5].replace("\n", ""), ""
+                            quantity = cell_data[1].replace("\n", "").strip()
+                            quantity = int(quantity) if quantity.isdigit() else 1
+                            price = cell_data[6].replace("\n", "").split(",")[0]
 
-                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                            if price.isdigit() and int(price) > 0:
+                                insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                    except Exception as e:
+                        print(f"Error on item {cell_data}: {e}")
 
             return
 
@@ -707,36 +833,43 @@ def get_message_content_html(service, message_id):
                     cells = rows[i].find_all('td')
                     cell_data = [cell.get_text() for cell in cells]
 
-                    location = cell_data[1].split(",")[0].upper().strip()
-                    for key, value in location_data.items():
-                        if key == location:
-                            location = value
+                    try:
+                        location = cell_data[1].split(",")[0].upper().strip()
+                        for key, value in location_data.items():
+                            if key == location:
+                                location = value
+                                break
 
-                    term = cell_data[3]
-                    for key, value in term_data.items():
-                        if key in term:
-                            term = value
+                        term = cell_data[3]
+                        for key, value in term_data.items():
+                            if key in term:
+                                term = value
+                                break
 
-                    feature, depot, eta = "", "", ""
-                    grade = cell_data[2].replace("DC", "").replace("'", "")
+                        feature, depot, eta = "", "", ""
+                        grade = cell_data[2].replace("DC", "").replace("'", "")
 
-                    for j in range(4, len(cell_data), 2):
-                        if j+1 < len(cell_data) and cell_data[j] and cell_data[j+1]:
-                            size = size_list[int(j / 2) + 2]
-                            size = size.replace(" ", "").replace("'", "")
-                            for key, value in size_data.items():
-                                if key == size:
-                                    size = value
+                        for j in range(4, len(cell_data), 2):
+                            if j+1 < len(cell_data) and cell_data[j] and cell_data[j+1]:
+                                size = size_list[int(j / 2) + 2]
+                                size = size.replace(" ", "").replace("'", "")
+                                for key, value in size_data.items():
+                                    if key == size:
+                                        size = value
+                                        break
 
-                            if grade:
-                                size = size + " " + grade.upper()
+                                if grade:
+                                    size = size + " " + grade.upper()
 
-                            quantity = cell_data[j].replace("+", "").strip()
-                            quantity = int(quantity) if quantity.isdigit() else 1
-                            price = cell_data[j+1].replace("$", "").replace(",", "").strip()
-                            price = int(price) if price.isdigit() else 0
+                                quantity = cell_data[j].replace("+", "").strip()
+                                quantity = int(quantity) if quantity.isdigit() else 1
+                                price = cell_data[j+1].replace("$", "").replace(",", "").strip()
 
-                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                                if price.isdigit() and int(price) > 0:
+                                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                    except Exception as e:
+                        print(f"Error on item {cell_data}: {e}")
 
             return
 
@@ -747,36 +880,45 @@ def get_message_content_html(service, message_id):
             size_list = ["20'", "20'", "20'", "20'", "40'HC", "40'HC", "40'HC", "40'HC",]
             grade_list = ['', '', 'Double Door', 'Side Door', '', '', 'Double Door', 'Side Door']
             term_list = ['Cargo Worthy', '1Trip', '1Trip', '1Trip', 'Cargo Worthy', '1Trip', '1Trip', '1Trip']
+
             for i in range(1, len(rows)):
                 cells = rows[i].find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
-                if "\n\xa0\n" not in cell_data[0]:
-                    location = cell_data[0].split(",")[0].upper().replace("\n", "").strip()
-                    for key, value in location_data.items():
-                        if key == location:
-                            location = value
 
-                    for j in range(1, len(cell_data)):
-                        grade = grade_list[j-1]
-                        size = size_list[j-1].replace(" ", "").replace("'", "")
-                        for key, value in size_data.items():
-                            if key == size:
-                                size = value
+                try:
+                    if "\n\xa0\n" not in cell_data[0]:
+                        location = cell_data[0].split(",")[0].upper().replace("\n", "").strip()
+                        for key, value in location_data.items():
+                            if key == location:
+                                location = value
+                                break
 
-                        if grade:
-                            size = size + " " + grade.upper()
+                        for j in range(1, len(cell_data)):
+                            grade = grade_list[j-1]
+                            size = size_list[j-1].replace(" ", "").replace("'", "")
+                            for key, value in size_data.items():
+                                if key == size:
+                                    size = value
+                                    break
 
-                        term = term_list[j-1]
-                        for key, value in term_data.items():
-                            if key in term:
-                                term = value
+                            if grade:
+                                size = size + " " + grade.upper()
 
-                        feature, depot, eta = "", "", ""
-                        quantity = 1
-                        price = cell_data[j].replace("$", "").replace(",", "").strip().replace("\n", "")
-                        price = int(price) if price.isdigit() else 0
+                            term = term_list[j-1]
+                            for key, value in term_data.items():
+                                if key in term:
+                                    term = value
+                                    break
 
-                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                            feature, depot, eta = "", "", ""
+                            quantity = 1
+                            price = cell_data[j].replace("$", "").replace(",", "").strip().replace("\n", "")
+
+                            if price.isdigit() and int(price) > 0:
+                                insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                except Exception as e:
+                    print(f"Error on item {cell_data}: {e}")
 
             return
 
@@ -789,31 +931,38 @@ def get_message_content_html(service, message_id):
                     cells = rows[i].find_all('td')
                     cell_data = [cell.get_text() for cell in cells]
 
-                    location = cell_data[0].split(",")[0].upper().replace("\n", "").strip()
-                    for key, value in location_data.items():
-                        if key == location:
-                            location = value
+                    try:
+                        location = cell_data[0].split(",")[0].upper().replace("\n", "").strip()
+                        for key, value in location_data.items():
+                            if key == location:
+                                location = value
+                                break
 
-                    size_temp = cell_data[1].replace("\n", "").split(' ')[0] + " "
-                    size = size_temp.replace(" ", "").replace("'", "")
-                    for key, value in size_data.items():
-                        if key == size:
-                            size = value
+                        size_temp = cell_data[1].replace("\n", "").split(' ')[0] + " "
+                        size = size_temp.replace(" ", "").replace("'", "").upper()
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
+                                break
 
-                    term = cell_data[1].replace("\n", "").replace(size_temp, "")
-                    for key, value in term_data.items():
-                        if key in term:
-                            term = value
+                        term = cell_data[1].replace("\n", "").replace(size_temp, "")
+                        for key, value in term_data.items():
+                            if key in term:
+                                term = value
+                                break
 
-                    feature, eta = "", ""
-                    depot = cell_data[2].replace("\n", "")
+                        feature, eta = "", ""
+                        depot = cell_data[2].replace("\n", "")
 
-                    quantity = cell_data[3].replace("\n", "").strip()
-                    quantity = int(quantity) if quantity.isdigit() else 1
-                    price = cell_data[4].replace("$", "").replace(",", "").strip().replace("\n", "")
-                    price = int(price) if price.isdigit() else 0
+                        quantity = cell_data[3].replace("\n", "").strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = cell_data[4].replace("$", "").replace(",", "").strip().replace("\n", "")
 
-                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                        if price.isdigit() and int(price) > 0:
+                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                    except Exception as e:
+                        print(f"Error on item {cell_data}: {e}")
 
             return
 
@@ -826,67 +975,77 @@ def get_message_content_html(service, message_id):
                 for i in range(1, len(rows)):
                     cells = rows[i].find_all('td')
                     cell_data = [cell.get_text() for cell in cells]
-                    if len(cell_data) == 0 or len(cell_data) == 1 or len(cell_data) == 4 or len(cell_data) == 7:
-                        i += 1
-
-                    if len(cell_data) == 2 and "Available" in cell_data[1]:
-                        if "Location" in cell_data[0]:
+                    try:
+                        if len(cell_data) == 0 or len(cell_data) == 1 or len(cell_data) == 4 or len(cell_data) == 7:
                             i += 1
-                        else:
+
+                        if len(cell_data) == 2 and "Available" in cell_data[1]:
+                            if "Location" in cell_data[0]:
+                                i += 1
+                            else:
+                                location = cell_data[0].split(",")[0].upper().replace("\n", "").replace(" ", "").strip()
+                                for key, value in location_data.items():
+                                    if key == location:
+                                        location = value
+                                        break
+
+                        elif len(cell_data) == 5:
                             location = cell_data[0].split(",")[0].upper().replace("\n", "").replace(" ", "").strip()
                             for key, value in location_data.items():
                                 if key == location:
                                     location = value
+                                    break
 
-                    elif len(cell_data) == 5:
-                        location = cell_data[0].split(",")[0].upper().replace("\n", "").replace(" ", "").strip()
-                        for key, value in location_data.items():
-                            if key == location:
-                                location = value
+                            status = cell_data[4].replace("\n", "").replace("\xa0", "")
 
-                        status = cell_data[4].replace("\n", "").replace("\xa0", "")
+                        if len(cell_data) == 6 and status == "Price" and cell_data[0].replace("\n", "") != "":
+                            size = cell_data[1].replace(" ", "").replace("'", "").replace("\n", "").replace("\r", "").replace("\xa0", "").upper()
+                            for key, value in size_data.items():
+                                if key == size:
+                                    size = value
+                                    break
 
-                    if len(cell_data) == 6 and status == "Price" and cell_data[0].replace("\n", "") != "":
-                        size = cell_data[1].replace(" ", "").replace("'", "").replace("\n", "").replace("\r", "").replace("\xa0", "")
-                        for key, value in size_data.items():
-                            if key == size:
-                                size = value
+                            term = cell_data[2].replace("\n", "").replace("\r", "").replace("\xa0", "")
+                            for key, value in term_data.items():
+                                if key in term:
+                                    term = value
+                                    break
 
-                        term = cell_data[2].replace("\n", "").replace("\r", "").replace("\xa0", "")
-                        for key, value in term_data.items():
-                            if key in term:
-                                term = value
+                            depot, eta = "", ""
+                            feature = cell_data[3].replace("\n", "").replace("\r", "").replace("\xa0", "") + ", " + cell_data[4].replace("\n", "").replace("\r", "").replace("\xa0", "")
+                            feature = feature.replace("N, N", "")
 
-                        depot, eta = "", ""
-                        feature = cell_data[3].replace("\n", "").replace("\r", "").replace("\xa0", "") + ", " + cell_data[4].replace("\n", "").replace("\r", "").replace("\xa0", "")
-                        feature = feature.replace("N, N", "")
+                            quantity = cell_data[0].replace("\n", "").replace("\r", "").strip()
+                            quantity = int(quantity) if quantity.isdigit() else 1
+                            price = cell_data[5].replace("$", "").replace(",", "").replace("\n", "").replace("\r", "").replace("\xa0", "").split("(")[0].strip()
 
-                        quantity = cell_data[0].replace("\n", "").replace("\r", "").strip()
-                        quantity = int(quantity) if quantity.isdigit() else 1
-                        price = cell_data[5].replace("$", "").replace(",", "").replace("\n", "").replace("\r", "").replace("\xa0", "").split("(")[0].strip()
-                        price = int(price) if price.isdigit() else 0
+                            if price.isdigit() and int(price) > 0:
+                                insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
-                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                        if len(cell_data) == 6 and status == "ETA" and cell_data[0].replace("\n", "") != "":
+                            size = cell_data[1].replace(" ", "").replace("'", "").replace("\n", "").replace("\r", "").replace("\xa0", "").upper()
+                            for key, value in size_data.items():
+                                if key == size:
+                                    size = value
+                                    break
 
-                    if len(cell_data) == 6 and status == "ETA" and cell_data[0].replace("\n", "") != "":
-                        size = cell_data[1].replace(" ", "").replace("'", "").replace("\n", "").replace("\r", "").replace("\xa0", "")
-                        for key, value in size_data.items():
-                            if key == size:
-                                size = value
+                            term = cell_data[2].replace("\n", "").replace("\r", "").replace("\xa0", "")
+                            for key, value in term_data.items():
+                                if key in term:
+                                    term = value
+                                    break
 
-                        term = cell_data[2].replace("\n", "").replace("\r", "").replace("\xa0", "")
-                        for key, value in term_data.items():
-                            if key in term:
-                                term = value
+                            price, depot = 0, ""
+                            eta = cell_data[5].replace("\n", "").replace("\r", "").replace("\xa0", "")
+                            feature = cell_data[3].replace("\n", "").replace("\r", "").replace("\xa0", "") + ", " + cell_data[4].replace("\n", "").replace("\r", "").replace("\xa0", "")
+                            feature = feature.replace("N, N", "")
+                            quantity = cell_data[0].replace("\n", "").replace("\r", "").strip()
+                            quantity = int(quantity) if quantity.isdigit() else 1
 
-                        price, depot = 0, ""
-                        eta = cell_data[5].replace("\n", "").replace("\r", "").replace("\xa0", "")
-                        feature = cell_data[3].replace("\n", "").replace("\r", "").replace("\xa0", "") + ", " + cell_data[4].replace("\n", "").replace("\r", "").replace("\xa0", "")
-                        feature = feature.replace("N, N", "")
-                        quantity = cell_data[0].replace("\n", "").replace("\r", "").strip()
-                        quantity = int(quantity) if quantity.isdigit() else 1
+                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
-                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                    except Exception as e:
+                        print(f"Error on item {cell_data}: {e}")
 
             return
 
@@ -898,21 +1057,28 @@ def get_message_content_html(service, message_id):
                 cells = rows[i].find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
 
-                location = cell_data[0].split(",")[0].upper().replace("\n", "").replace("\r", "").strip()
-                for key, value in location_data.items():
-                    if key == location:
-                        location = value
+                try:
+                    location = cell_data[0].split(",")[0].upper().replace("\n", "").replace("\r", "").strip()
+                    for key, value in location_data.items():
+                        if key == location:
+                            location = value
+                            break
 
-                term = "CW"
-                quantity, size, feature, depot, eta = 1,  "", "", "", ""
-                price_reefer, price_tripped = 0, 0
-                if cell_data[1] != "-":
-                    price_reefer = int(cell_data[1].replace("$", "").replace(",", "").split("+")[0].strip())
-                if cell_data[2] != "-":
-                    price_tripped = int(cell_data[2].replace("$", "").replace(",", "").split("+")[0].strip())
+                    term = "CW"
+                    quantity, size, feature, depot, eta = 1,  "", "", "", ""
+                    price_reefer, price_tripped = 0, 0
 
-                insert_container_record(connection, size, quantity, term, location, price_reefer, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-                insert_container_record(connection, size, quantity, term, location, price_tripped, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                    if cell_data[1] != "-":
+                        price_reefer = int(cell_data[1].replace("$", "").replace(",", "").split("+")[0].strip())
+
+                    if cell_data[2] != "-":
+                        price_tripped = int(cell_data[2].replace("$", "").replace(",", "").split("+")[0].strip())
+
+                    insert_container_record(connection, size, quantity, term, location, price_reefer, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                    insert_container_record(connection, size, quantity, term, location, price_tripped, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                except Exception as e:
+                    print(f"Error on item {cell_data}: {e}")
 
             return
 
@@ -924,33 +1090,40 @@ def get_message_content_html(service, message_id):
                 cells = rows[i].find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
 
-                if cell_data[0] != "LOCATION" and cell_data[0] != "" and cell_data[1] != "\u3000":
-                    location = cell_data[0].split(",")[0].upper().strip()
-                    for key, value in location_data.items():
-                        if key == location:
-                            location = value
+                try:
+                    if cell_data[0] != "LOCATION" and cell_data[0] != "" and cell_data[1] != "\u3000":
+                        location = cell_data[0].split(",")[0].upper().strip()
+                        for key, value in location_data.items():
+                            if key == location:
+                                location = value
+                                break
 
-                    cell_data[1] = cell_data[1].replace("（", "(")
-                    size = cell_data[1].replace(" ", "").replace("'", "").split("(")[0]
-                    for key, value in size_data.items():
-                        if key == size:
-                            size = value
+                        cell_data[1] = cell_data[1].replace("（", "(")
+                        size = cell_data[1].replace(" ", "").replace("'", "").split("(")[0].upper()
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
+                                break
 
-                    term = cell_data[2]
-                    for key, value in term_data.items():
-                        if key in term:
-                            term = value
+                        term = cell_data[2]
+                        for key, value in term_data.items():
+                            if key in term:
+                                term = value
+                                break
 
-                    feature = cell_data[3] + " " + cell_data[4]
-                    depot = cell_data[5]
-                    eta = "ETA: " + cell_data[8]
+                        feature = cell_data[3] + " " + cell_data[4]
+                        depot = cell_data[5]
+                        eta = "ETA: " + cell_data[8]
 
-                    quantity = cell_data[6].replace("+", "").strip()
-                    quantity = int(quantity) if quantity.isdigit() else 1
-                    price = cell_data[7].replace("$", "").replace(",", "").strip()
-                    price = int(price) if price.isdigit() else 0
+                        quantity = cell_data[6].replace("+", "").strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = cell_data[7].replace("$", "").replace(",", "").strip()
 
-                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                        if price.isdigit() and int(price) > 0:
+                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                except Exception as e:
+                    print(f"Error on item {cell_data}: {e}")
 
             return
 
@@ -965,57 +1138,65 @@ def get_message_content_html(service, message_id):
                 cells = rows[i].find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
 
-                if len(cell_data) > 3:
-                    location = cell_data[0].split(",")[0].upper().strip()
-                    for key, value in location_data.items():
-                        if key == location:
-                            location = value
+                try:
+                    if len(cell_data) > 3:
+                        location = cell_data[0].split(",")[0].upper().strip()
+                        for key, value in location_data.items():
+                            if key == location:
+                                location = value
+                                break
 
                     quantity = cell_data[2].replace("-", "").strip()
                     quantity = int(quantity) if quantity.isdigit() else 1
                     price = cell_data[3].replace("$", "").replace(",", "").strip()
-                    price = int(price) if price.isdigit() else 0
                     item = cell_data[1]
 
-                if len(cell_data) == 3:
-                    quantity = cell_data[1].replace("-", "").strip()
-                    quantity = int(quantity) if quantity.isdigit() else 1
-                    price = cell_data[2].replace("$", "").replace(",", "").strip()
-                    price = int(price) if price.isdigit() else 0
-                    item = cell_data[0]
+                    if len(cell_data) == 3:
+                        quantity = cell_data[1].replace("-", "").strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = cell_data[2].replace("$", "").replace(",", "").strip()
+                        item = cell_data[0]
 
-                size, term, grade, feature, depot, eta = "", "", "", "", "", ""
+                    size, term, grade, feature, depot, eta = "", "", "", "", "", ""
 
-                for size_value in size_list:
-                    if size_value in item:
-                        size = size_value
-                        break
-                size = size.replace(" ", "").replace("'", "")
-                for key, value in size_data.items():
+                    for size_value in size_list:
+                        if size_value in item:
+                            size = size_value
+                            break
+
+                    size = size.replace(" ", "").replace("'", "")
+                    for key, value in size_data.items():
                         if key == size:
                             size = value
-                for grade_value in grade_list:
-                    if grade_value in item:
-                        grade = grade_value
-                        break
-                if grade:
-                    size = size + " " + grade
+                            break
 
-                for key, value in term_data.items():
-                    if key in item:
-                        term = value
+                    for grade_value in grade_list:
+                        if grade_value in item:
+                            grade = grade_value
+                            break
+                    if grade:
+                        size = size + " " + grade
 
-                for eta_value in eta_list:
-                    if eta_value in item:
-                        eta = eta_value
-                        break
+                    for key, value in term_data.items():
+                        if key in item:
+                            term = value
+                            break
 
-                if "(" in item and ")" in item and "RAL" in item:
-                    feature = item.split("(")[1].split(")")[0]
-                    if "RAL" not in feature:
-                        feature = item.split(")")[1].split("(")[1].split(")")[0]
+                    for eta_value in eta_list:
+                        if eta_value in item:
+                            eta = eta_value
+                            break
 
-                insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                    if "(" in item and ")" in item and "RAL" in item:
+                        feature = item.split("(")[1].split(")")[0]
+                        if "RAL" not in feature:
+                            feature = item.split(")")[1].split("(")[1].split(")")[0]
+
+                    if price.isdigit() and int(price) > 0:
+                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                except Exception as e:
+                    print(f"Error on item {cell_data}: {e}")
 
             return
 
@@ -1028,52 +1209,60 @@ def get_message_content_html(service, message_id):
                 cells = row.find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
 
-                if len(cell_data) == 4 and "Market" in cell_data[0]:
-                    location = "USA"
+                try:
+                    if len(cell_data) == 4 and "Market" in cell_data[0]:
+                        location = "USA"
 
-                if location and cell_data.count("\xa0") < 4 and len(cell_data) > 3 and "@" in cell_data[3]:
-                    if "\xa0" not in cell_data[0]:
-                        location = cell_data[0].split(",")[0].upper().strip()
-                        for key, value in location_data.items():
-                            if key == location:
-                                location = value
+                    if location and cell_data.count("\xa0") < 4 and len(cell_data) > 3 and "@" in cell_data[3]:
+                        if "\xa0" not in cell_data[0]:
+                            location = cell_data[0].split(",")[0].upper().strip()
+                            for key, value in location_data.items():
+                                if key == location:
+                                    location = value
+                                    break
 
-                    size = cell_data[1].split(" ")[0]
-                    term = cell_data[1].replace(size, "").strip()
-                    size = size.replace("'", "").replace(" ", "")
-                    for key, value in size_data.items():
-                        if key == size:
-                            size = value
+                        size = cell_data[1].split(" ")[0]
+                        term = cell_data[1].replace(size, "").strip()
+                        size = size.replace("'", "").replace(" ", "").upper()
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
 
-                    if "ST" in term:
-                        term = term.replace("ST", "").strip()
+                        if "ST" in term:
+                            term = term.replace("ST", "").strip()
 
-                    grade_list = {"D.D." : "DOUBLE DOOR", "S.D." : "SIDE DOOR", "O.S." : "OPEN SIDE"}
-                    grade, eta = "", ""
-                    for key, value in grade_list.items():
-                        if key in term:
-                            grade = value
-                            term = term.replace(key, "").strip()
+                        grade_list = {"D.D." : "DOUBLE DOOR", "S.D." : "SIDE DOOR", "O.S." : "OPEN SIDE"}
+                        grade, eta = "", ""
 
-                    if grade:
-                        size = size + " " + grade
+                        for key, value in grade_list.items():
+                            if key in term:
+                                grade = value
+                                term = term.replace(key, "").strip()
+                                break
 
-                    for key, value in term_data.items():
-                        if key in term:
-                            term = value
+                        if grade:
+                            size = size + " " + grade
 
-                    if "$" in cell_data[2]:
-                        quantity = cell_data[2].split("x")[0].strip()
-                        quantity = int(quantity) if quantity.isdigit() else 1
-                        price = cell_data[2].split("x")[1].replace("$", "").strip()
-                        price = int(price) if price.isdigit() else 0
-                    else:
-                        quantity, price = cell_data[2].strip(), 0
-                        quantity = int(quantity) if quantity.isdigit() else 1
+                        for key, value in term_data.items():
+                            if key in term:
+                                term = value
+                                break
 
-                    feature, depot = cell_data[3].split("@")[0], cell_data[3].split("@")[1]
+                        if "$" in cell_data[2]:
+                            quantity = cell_data[2].split("x")[0].strip()
+                            quantity = int(quantity) if quantity.isdigit() else 1
+                            price = cell_data[2].split("x")[1].replace("$", "").strip()
+                        else:
+                            quantity, price = cell_data[2].strip(), 0
+                            quantity = int(quantity) if quantity.isdigit() else 1
 
-                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                        feature, depot = cell_data[3].split("@")[0], cell_data[3].split("@")[1]
+
+                        if price.isdigit() and int(price) > 0:
+                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                except Exception as e:
+                    print(f"Error on item {cell_data}: {e}")
 
             return
 
@@ -1086,30 +1275,36 @@ def get_message_content_html(service, message_id):
                 cells = row.find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
 
-                if len(cell_data) == 6 and "Location" in cell_data[0]:
-                    location = "USA"
+                try:
+                    if len(cell_data) == 6 and "Location" in cell_data[0]:
+                        location = "USA"
 
-                if location and len(cell_data) > 5 and cell_data[5].isdigit():
+                    if location and len(cell_data) > 5 and cell_data[5].isdigit():
 
-                    location = cell_data[0].split(",")[0].upper().strip()
-                    for key, value in location_data.items():
-                        if key == location:
-                            location = value
+                        location = cell_data[0].split(",")[0].upper().strip()
+                        for key, value in location_data.items():
+                            if key == location:
+                                location = value
+                                break
 
-                    size = cell_data[1].replace(" ", "").replace("'", "").split("-")[0]
-                    for key, value in size_data.items():
-                        if key == size:
-                            size = value
+                        size = cell_data[1].replace(" ", "").replace("'", "").split("-")[0].upper()
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
+                                break
 
-                    term, depot = "", ""
-                    feature = cell_data[4]
-                    eta = "ETA: " + cell_data[2]
-                    quantity = cell_data[5].replace("+", "").strip()
-                    quantity = int(quantity) if quantity.isdigit() else 1
-                    price = cell_data[3].replace("$", "").replace(",", "").strip()
-                    price = int(price) if price.isdigit() else 0
+                        term, depot = "", ""
+                        feature = cell_data[4]
+                        eta = "ETA: " + cell_data[2]
+                        quantity = cell_data[5].replace("+", "").strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = cell_data[3].replace("$", "").replace(",", "").strip()
 
-                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                        if price.isdigit() and int(price) > 0:
+                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                except Exception as e:
+                    print(f"Error on item {cell_data}: {e}")
 
             return
 
@@ -1122,52 +1317,60 @@ def get_message_content_html(service, message_id):
                 cells = row.find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
 
-                if len(cell_data) == 4 and "Market" in cell_data[0]:
-                    location = "USA"
+                try:
+                    if len(cell_data) == 4 and "Market" in cell_data[0]:
+                        location = "USA"
 
-                if location and cell_data.count("\xa0") < 4 and len(cell_data) > 3 and "@" in cell_data[3]:
-                    if "\xa0" not in cell_data[0]:
-                        location = cell_data[0].split(",")[0].upper().strip()
-                        for key, value in location_data.items():
-                            if key == location:
-                                location = value
+                    if location and cell_data.count("\xa0") < 4 and len(cell_data) > 3 and "@" in cell_data[3]:
+                        if "\xa0" not in cell_data[0]:
+                            location = cell_data[0].split(",")[0].upper().strip()
+                            for key, value in location_data.items():
+                                if key == location:
+                                    location = value
+                                    break
 
-                    size = cell_data[1].split(" ")[0]
-                    term = cell_data[1].replace(size, "").strip()
-                    size = size.replace("'", "").replace(" ", "")
-                    for key, value in size_data.items():
-                        if key == size:
-                            size = value
+                        size = cell_data[1].split(" ")[0]
+                        term = cell_data[1].replace(size, "").strip()
+                        size = size.replace("'", "").replace(" ", "").upper()
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
+                                break
 
-                    if "ST" in term:
-                        term = term.replace("ST", "").strip()
+                        if "ST" in term:
+                            term = term.replace("ST", "").strip()
 
-                    grade_list = {"D.D." : "DOUBLE DOOR", "S.D." : "SIDE DOOR", "O.S." : "OPEN SIDE"}
-                    grade, eta = "", ""
-                    for key, value in grade_list.items():
-                        if key in term:
-                            grade = value
-                            term = term.replace(key, "").strip()
+                        grade_list = {"D.D." : "DOUBLE DOOR", "S.D." : "SIDE DOOR", "O.S." : "OPEN SIDE"}
+                        grade, eta = "", ""
+                        for key, value in grade_list.items():
+                            if key in term:
+                                grade = value
+                                term = term.replace(key, "").strip()
+                                break
 
-                    if grade:
-                        size = size + " " + grade
+                        if grade:
+                            size = size + " " + grade
 
-                    for key, value in term_data.items():
-                        if key in term:
-                            term = value
+                        for key, value in term_data.items():
+                            if key in term:
+                                term = value
+                                break
 
-                    if "$" in cell_data[2]:
-                        quantity = cell_data[2].split("x")[0].strip()
-                        quantity = int(quantity) if quantity.isdigit() else 1
-                        price = cell_data[2].split("x")[1].replace("$", "").strip()
-                        price = int(price) if price.isdigit() else 0
-                    else:
-                        quantity, price = cell_data[2].strip(), 0
-                        quantity = int(quantity) if quantity.isdigit() else 1
+                        if "$" in cell_data[2]:
+                            quantity = cell_data[2].split("x")[0].strip()
+                            quantity = int(quantity) if quantity.isdigit() else 1
+                            price = cell_data[2].split("x")[1].replace("$", "").strip()
+                        else:
+                            quantity, price = cell_data[2].strip(), 0
+                            quantity = int(quantity) if quantity.isdigit() else 1
 
-                    feature, depot = cell_data[3].split("@")[0], cell_data[3].split("@")[1]
+                        feature, depot = cell_data[3].split("@")[0], cell_data[3].split("@")[1]
 
-                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                        if price.isdigit() and int(price) > 0:
+                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                except Exception as e:
+                    print(f"Error on item {cell_data}: {e}")
 
             return
 
@@ -1180,343 +1383,600 @@ def get_message_content_html(service, message_id):
                 cells = row.find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
 
-                if len(cell_data) <= 7 and len(cell_data) >= 5 and "Market" in cell_data[0]:
-                    location = "CANADA"
+                try:
+                    if len(cell_data) <= 7 and len(cell_data) >= 5 and "Market" in cell_data[0]:
+                        location = "CANADA"
 
-                if location and cell_data.count("\xa0") < 5 and len(cell_data) > 4 and len(cell_data[2]) < 3:
-                    if "\xa0" not in cell_data[0]:
-                        location = cell_data[0].split("@")[0].split(",")[0].upper().strip()
-                        for key, value in location_data.items():
-                            if key == location:
-                                location = value
+                    if location and cell_data.count("\xa0") < 5 and len(cell_data) > 4 and len(cell_data[2]) < 3:
+                        if "\xa0" not in cell_data[0]:
+                            location = cell_data[0].split("@")[0].split(",")[0].upper().strip()
+                            for key, value in location_data.items():
+                                if key == location:
+                                    location = value
+                                    break
 
-                    size = cell_data[1].split(" ")[0] + cell_data[1].split(" ")[1]
-                    size = size.replace("'", "").replace(" ", "")
-                    for key, value in size_data.items():
-                        if key == size:
-                            size = value
+                        size = cell_data[1].split(" ")[0] + cell_data[1].split(" ")[1]
+                        size = size.replace("'", "").replace(" ", "").upper()
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
+                                break
 
-                    term = cell_data[1].split(" ")[-1].strip()
-                    for key, value in term_data.items():
-                        if key in term:
-                            term = value
+                        term = cell_data[1].split(" ")[-1].strip()
+                        for key, value in term_data.items():
+                            if key in term:
+                                term = value
+                                break
 
-                    depot, eta = "", ""
-                    feature = cell_data[4].replace("\xa0", "")
-                    quantity = cell_data[2].replace("+", "").strip()
-                    quantity = int(quantity) if quantity.isdigit() else 1
-                    price = cell_data[3].replace("$", "").replace(",", "").strip()
-                    price = int(price) if price.isdigit() else 0
+                        depot, eta = "", ""
+                        feature = cell_data[4].replace("\xa0", "")
+                        quantity = cell_data[2].replace("+", "").strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = cell_data[3].replace("$", "").replace(",", "").strip()
 
-                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-
-            return
-
-        # ---------------  Parsing for ryanchoi@muwon.com (Ryan Jongwon Choi, Muwon USA) --------------- #
-        case "ryanchoi@muwon.com":
-            clear_container_data(vendor_email[0])
-            provider = "Ryan Jongwon Choi, Muwon USA"
-            sizes = rows[1].find_all('td')
-            size_list = [size.get_text() for size in sizes]
-            term_list = ["CW", "CW", "CW", "1Trip", "1Trip"]
-            for i in range(2, len(rows)):
-                cells = rows[i].find_all('td')
-                cell_data = [cell.get_text() for cell in cells]
-
-                feature, depot = "", ""
-                if len(cell_data) > 5:
-                    location = cell_data[1].split(",")[0].upper().strip()
-                    for key, value in location_data.items():
-                        if key == location:
-                            location = value
-                    depot = cell_data[2] if len(cell_data) > 7 else ""
-
-                    start_index = 3 if len(cell_data) > 7 else 2
-                    for j in range(start_index, len(cell_data)):
-                        if "\xa0" not in cell_data[j]:
-                            quantity = cell_data[j].replace("(", "").replace(")", "").replace("$", "").strip()
-                            quantity = int(quantity) if quantity.isdigit() else 1
-                            eta = "GATE BUY Available" if "(" in cell_data[j] else ""
-                            size = size_list[j].replace(" ", "").replace("'", "")
-                            for key, value in size_data.items():
-                                if key == size:
-                                    size = value
-                            term = term_list[j-start_index]
-                            price = 0
-
+                        if price.isdigit() and int(price) > 0:
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
+                except Exception as e:
+                    print(f"Error on item {cell_data}: {e}")
+
             return
 
-        # ---------------  Parsing for erica@icc-solution.com (Erica Medina, International Container & Chassis Solution) --------------- #
-        case "erica@icc-solution.com":
+        # ---------------  Parsing for jenny@onsitestorage.com (Jenny Tingzon, OnSite Storage Solutions) --------------- #
+        case "jenny@onsitestorage.com":
+            provider = "Jenny Tingzon, OnSite Storage Solutions"
             clear_container_data(vendor_email[0])
-            provider = "Erica Medina, International Container & Chassis Solution"
-            for i in range(2, len(rows)):
+            for i in range(1, len(rows)):
                 cells = rows[i].find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
 
-                if len(cell_data) == 6:
-                    location = cell_data[0].split(",")[0].upper().strip()
+                try:
+                    location = cell_data[0].split(",")[0].upper().replace("\xa0", " ").replace("\n", "").strip()
                     for key, value in location_data.items():
                         if key == location:
                             location = value
+                            break
 
-                    size = cell_data[1].replace(" ", "").replace("'", "")
+                    size = cell_data[1].replace(" ", "").replace("'", "").replace("\n", "").replace("Used", "").replace("New", "").upper()
                     for key, value in size_data.items():
                         if key == size:
                             size = value
+                            break
 
-                    term = cell_data[2]
+                    term = cell_data[2].replace('\n', '')
                     for key, value in term_data.items():
                         if key in term:
                             term = value
+                            break
 
-                    depot = cell_data[4]
-                    quantity = cell_data[3].replace("+", "").strip()
-                    quantity = int(quantity) if quantity.isdigit() else 1
-                    price = cell_data[5].replace("$", "").replace(",", "").strip()
-                    price = int(price) if price.isdigit() else 0
-
-                if len(cell_data) == 5:
-                    size = cell_data[0].replace(" ", "").replace("'", "")
-                    for key, value in size_data.items():
-                        if key == size:
-                            size = value
-
-                    term = cell_data[1]
-                    for key, value in term_data.items():
-                        if key in term:
-                            term = value
-
-                    depot = cell_data[3]
-                    quantity = cell_data[2].replace("+", "").strip()
+                    eta, depot = "", ""
+                    feature = cell_data[5].replace("'", "").replace("\n", "")
+                    quantity = cell_data[3].replace("\n", "").strip()
                     quantity = int(quantity) if quantity.isdigit() else 1
                     price = cell_data[4].replace("$", "").replace(",", "").strip()
-                    price = int(price) if price.isdigit() else 0
 
-                if len(cell_data) == 4:
-                    size = cell_data[0].replace(" ", "").replace("'", "")
-                    for key, value in size_data.items():
-                        if key == size:
-                            size = value
+                    if price.isdigit() and int(price) > 0:
+                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
-                    term = cell_data[1]
-                    for key, value in term_data.items():
-                        if key in term:
-                            term = value
-
-                    quantity = cell_data[2].replace("+", "").strip()
-                    quantity = int(quantity) if quantity.isdigit() else 1
-                    price = cell_data[3].replace("$", "").replace(",", "").strip()
-                    price = int(price) if price.isdigit() else 0
-
-                if len(cell_data) >= 4:
-                    feature, eta = "", ""
-                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                except Exception as e:
+                    print(f"Error on item {cell_data}: {e}")
 
             return
 
-        # ---------------  Parsing for jenny@icc-solution.com (Jenny Roberts, International Container & Chassis Solution) --------------- #
-        case "jenny@icc-solution.com":
+        # ---------------  Parsing for sales1@kirin-trans.com (Kirin Trans. International) --------------- #
+        case "sales1@kirin-trans.com":
+            provider = "Kirin Trans. International"
             clear_container_data(vendor_email[0])
-            provider = "Jenny Roberts, International Container & Chassis Solution"
-            for i in range(2, len(rows)):
+            for i in range(1, len(rows)):
                 cells = rows[i].find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
 
-                if len(cell_data) == 6:
-                    location = cell_data[0].split(",")[0].upper().strip()
+                try:
+                    location = cell_data[1].split(",")[0].upper().replace("\xa0", " ").replace("\n", "").strip()
                     for key, value in location_data.items():
                         if key == location:
                             location = value
+                            break
 
-                    size = cell_data[1].replace(" ", "").replace("'", "")
+                    size = cell_data[3].replace(" ", "").replace("'", "").replace("\n", "").upper()
                     for key, value in size_data.items():
                         if key == size:
                             size = value
+                            break
 
-                    term = cell_data[2]
-                    for key, value in term_data.items():
-                        if key in term:
-                            term = value
-
-                    depot = cell_data[4]
-                    quantity = cell_data[3].replace("+", "").strip()
-                    quantity = int(quantity) if quantity.isdigit() else 1
-                    price = cell_data[5].replace("$", "").replace(",", "").strip()
-                    price = int(price) if price.isdigit() else 0
-
-                if len(cell_data) == 5:
-                    size = cell_data[0].replace(" ", "").replace("'", "")
-                    for key, value in size_data.items():
-                        if key == size:
-                            size = value
-
-                    term = cell_data[1]
-                    for key, value in term_data.items():
-                        if key in term:
-                            term = value
-
-                    depot = cell_data[3]
-                    quantity = cell_data[2].replace("+", "").strip()
-                    quantity = int(quantity) if quantity.isdigit() else 1
-                    price = cell_data[4].replace("$", "").replace(",", "").strip()
-                    price = int(price) if price.isdigit() else 0
-
-                if len(cell_data) == 4:
-                    size = cell_data[0].replace(" ", "").replace("'", "")
-                    for key, value in size_data.items():
-                        if key == size:
-                            size = value
-
-                    term = cell_data[1]
-                    for key, value in term_data.items():
-                        if key in term:
-                            term = value
-
-                    quantity = cell_data[2].replace("+", "").strip()
-                    quantity = int(quantity) if quantity.isdigit() else 1
-                    price = cell_data[3].replace("$", "").replace(",", "").strip()
-                    price = int(price) if price.isdigit() else 0
-
-                if len(cell_data) >= 4:
-                    feature, eta = "", ""
-                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-
-            return
-
-        # ---------------  Parsing for olaf@marinecw.com (Marine Container World) --------------- #
-        case "olaf@marinecw.com":
-            clear_container_data(vendor_email[0])
-            provider = "Marine Container World"
-            for row in rows:
-                cells = row.find_all('td')
-                cell_data = [cell.get_text() for cell in cells]
-
-                if cell_data[0] != "LOCATION" and cell_data[0] != "":
-                    if cell_data[0] != "\xa0":
-                        location = cell_data[0].split(",")[0].upper().strip()
-                        for key, value in location_data.items():
-                            if key == location:
-                                location = value
-
-                    size = cell_data[1].replace(" ", "").replace("'", "")
-                    if "x" in size:
-                        quantity = size.split("x")[0].strip()
-                        quantity = int(quantity) if quantity.isdigit() else 1
-                        size = size.split("x")[1].strip()
-                    else:
-                        quantity = 1
-                    for key, value in size_data.items():
-                        if key == size:
-                            size = value
-
-                    term, feature, depot, eta, price = "", "", "", "", 0
-                    if "1-trip" in cell_data[2] or "NEW" in cell_data[2]:
-                        term = "1Trip"
-                    if "Used" in cell_data[2] or "Cargo Worthy" in cell_data[2]:
+                    if "CW" in cell_data[0]:
                         term = "CW"
-                    if len(cell_data[2].split(",")) > 2:
-                        depot = cell_data[2].split(",")[2].strip()
+                        feature = ""
+                    else:
+                        term = "1Trip"
+                        feature = cell_data[0]
 
-                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                    depot, eta = cell_data[2], cell_data[4]
+                    quantity = 1
+                    price = cell_data[5].replace("$", "").replace(",", "").replace("USD", "").strip()
+
+                    if price.isdigit() and int(price) > 0:
+                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                except Exception as e:
+                    print(f"Error on item {cell_data}: {e}")
 
             return
 
-        # ---------------  Parsing for yansen@megaconusa.com (Yansen C. LO, MEGA Container Sales) --------------- #
-        case "yansen@megaconusa.com":
+        # ---------------  Parsing for saquib.amiri@boxxport.com (Saquib Amiri, BOXXPORT) --------------- #
+        case "saquib.amiri@boxxport.com":
+            provider = "Saquib Amiri, BOXXPORT"
             clear_container_data(vendor_email[0])
-            provider = "Yansen C. LO, MEGA Container Sales"
-            sizes = rows[2].find_all('td')
-            size_list = [size.get_text() for size in sizes]
-            for i in range(3, len(rows)):
+            for i in range(1, len(rows)):
                 cells = rows[i].find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
 
-                if cell_data[0] != "":
-                    location = cell_data[0].split(",")[0].upper().strip()
+                try:
+                    location = cell_data[0].split(",")[0].upper().replace("\xa0", " ").replace("\n", "").strip()
                     for key, value in location_data.items():
                         if key == location:
                             location = value
+                            break
 
-                    feature, depot, eta, price = "", "", "", 0
-                    for j in range(1, len(cell_data) - 1):
-                        if cell_data[j]:
-                            size = size_list[j-1]
-                            size = size.replace(" ", "").replace("'", "")
-                            for key, value in size_data.items():
-                                if key == size:
-                                    size = value
+                    size = cell_data[1].split(" ")[0].replace(" ", "").replace("'", "").replace("\n", "").upper()
+                    for key, value in size_data.items():
+                        if key == size:
+                            size = value
+                            break
 
-                            term = "Used" if j > 3 else "1Trip"
-                            quantity = cell_data[j].replace("+", "").strip()
-                            quantity = int(quantity) if quantity.isdigit() else 1
+                    term = cell_data[1].split(" ")[1].strip()
+                    for key, value in term_data.items():
+                        if key in term:
+                            term = value
+                            break
 
-                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                    depot, eta, feature = "", "", ""
+                    quantity = 1
+                    price = cell_data[2].replace("$", "").replace(",", "").strip()
+
+                    if price.isdigit() and int(price) > 0:
+                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                except Exception as e:
+                    print(f"Error on item {cell_data}: {e}")
 
             return
 
-        # ---------------  Parsing for wayneterry@florens.com (Wayne Terry, Florens Asset Management) --------------- #
-        case "wayneterry@florens.com":
+        # ---------------  Parsing for henry@foursonslogistics.com (Henry Villacruel, Container Sales Analyst) --------------- #
+        case "henry@foursonslogistics.com":
+            provider = "Henry Villacruel, Container Sales Analyst"
             clear_container_data(vendor_email[0])
-            provider = "Wayne Terry, Florens Asset Management"
-            sizes = rows[1].find_all('td')
-            size_list = [size.get_text() for size in sizes]
-            for i in range(2, len(rows)):
+            for i in range(1, len(rows)):
                 cells = rows[i].find_all('td')
                 cell_data = [cell.get_text() for cell in cells]
 
-                location = cell_data[1].split(",")[0].replace("\n", "").upper().strip()
-                for key, value in location_data.items():
-                    if key == location:
-                        location = value
-
-                depot = cell_data[2].replace("\n", "")
-                feature, eta, price = "", "", 0
-                for j in range(3, len(cell_data)):
-                    if "\xa0" not in cell_data[j]:
-                        size = size_list[j-3]
-                        size = size.replace(" ", "").replace("'", "").replace(".", "").replace("\n", "")
-                        for key, value in size_data.items():
-                            if key == size:
-                                size = value
-
-                        term = "WWT"
-                        quantity = cell_data[j].replace("+", "").strip()
-                        quantity = int(quantity) if quantity.isdigit() else 1
-
-                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-
-            return
-
-        # ---------------  Parsing for equipment@conwaycs.com (Margarita Kolecenko, Conway) --------------- #
-        case "equipment@conwaycs.com":
-            clear_container_data(vendor_email[0])
-            provider = "Margarita Kolecenko, Conway"
-            for row in rows:
-                cells = row.find_all('td')
-                cell_data = [cell.get_text() for cell in cells]
-
-                if len(cell_data) == 4 and cell_data[3].isdigit():
-                    if cell_data[0] == "USA" or cell_data[0] == "CANADA":
-                        location = cell_data[1].split("(")[0].upper().strip()
+                try:
+                    if len(cell_data) == 7:
+                        location = cell_data[2].upper().replace("\xa0", " ").replace("\n", "").strip()
                         for key, value in location_data.items():
                             if key == location:
                                 location = value
+                                break
 
-                        size = cell_data[2].replace(" ", "").replace("'", "")
+                        size = cell_data[4].replace("Box", "").replace(" ", "").replace("'", "").replace('"', "").replace("\n", "").upper()
                         for key, value in size_data.items():
                             if key == size:
                                 size = value
+                                break
 
-                        term, feature, depot, eta, price = "", "", "", "", 0
-                        quantity = cell_data[3].replace("+", "").strip()
+                        term = cell_data[5].strip()
+                        for key, value in term_data.items():
+                            if key in term:
+                                term = value
+                                break
+
+                        depot, eta, feature = "", "", ""
+                        quantity = cell_data[3].replace(" ", "").replace("+", "").replace("\n", "")
                         quantity = int(quantity) if quantity.isdigit() else 1
+                        price = cell_data[6].split(".")[0].replace("$", "").replace(",", "").strip()
 
-                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                        if price.isdigit() and int(price) > 0:
+                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                except Exception as e:
+                    print(f"Error on item {cell_data}: {e}")
 
             return
+
+        # # ---------------  Parsing for ryanchoi@muwon.com (Ryan Jongwon Choi, Muwon USA) --------------- #
+        # case "ryanchoi@muwon.com":
+        #     clear_container_data(vendor_email[0])
+        #     provider = "Ryan Jongwon Choi, Muwon USA"
+        #     sizes = rows[1].find_all('td')
+        #     size_list = [size.get_text() for size in sizes]
+        #     term_list = ["CW", "CW", "CW", "1Trip", "1Trip"]
+        #     for i in range(2, len(rows)):
+        #         cells = rows[i].find_all('td')
+        #         cell_data = [cell.get_text() for cell in cells]
+
+        #         try:
+        #             feature, depot = "", ""
+        #             if len(cell_data) > 5:
+        #                 location = cell_data[1].split(",")[0].upper().strip()
+        #                 for key, value in location_data.items():
+        #                     if key == location:
+        #                         location = value
+        #                         break
+
+        #                 depot = cell_data[2] if len(cell_data) > 7 else ""
+
+        #                 start_index = 3 if len(cell_data) > 7 else 2
+        #                 for j in range(start_index, len(cell_data)):
+        #                     if "\xa0" not in cell_data[j]:
+        #                         quantity = cell_data[j].replace("(", "").replace(")", "").replace("$", "").strip()
+        #                         quantity = int(quantity) if quantity.isdigit() else 1
+        #                         eta = "GATE BUY Available" if "(" in cell_data[j] else ""
+        #                         size = size_list[j].replace(" ", "").replace("'", "")
+        #                         for key, value in size_data.items():
+        #                             if key == size:
+        #                                 size = value
+        #                                 break
+
+        #                         term = term_list[j-start_index]
+
+        #                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+        #         except Exception as e:
+        #             print(f"Error on item {cell_data}: {e}")
+
+        #     return
+
+        # # ---------------  Parsing for erica@icc-solution.com (Erica Medina, International Container & Chassis Solution) --------------- #
+        # case "erica@icc-solution.com":
+        #     clear_container_data(vendor_email[0])
+        #     provider = "Erica Medina, International Container & Chassis Solution"
+        #     for i in range(2, len(rows)):
+        #         cells = rows[i].find_all('td')
+        #         cell_data = [cell.get_text() for cell in cells]
+
+        #         try:
+        #             if len(cell_data) == 6:
+        #                 location = cell_data[0].split(",")[0].upper().strip()
+        #                 for key, value in location_data.items():
+        #                     if key == location:
+        #                         location = value
+        #                         break
+
+        #                 size = cell_data[1].replace(" ", "").replace("'", "")
+        #                 for key, value in size_data.items():
+        #                     if key == size:
+        #                         size = value
+        #                         break
+
+        #                 term = cell_data[2]
+        #                 for key, value in term_data.items():
+        #                     if key in term:
+        #                         term = value
+        #                         break
+
+        #                 depot = cell_data[4]
+        #                 quantity = cell_data[3].replace("+", "").strip()
+        #                 quantity = int(quantity) if quantity.isdigit() else 1
+        #                 price = cell_data[5].replace("$", "").replace(",", "").strip()
+
+        #             if len(cell_data) == 5:
+        #                 size = cell_data[0].replace(" ", "").replace("'", "")
+        #                 for key, value in size_data.items():
+        #                     if key == size:
+        #                         size = value
+        #                         break
+
+        #                 term = cell_data[1]
+        #                 for key, value in term_data.items():
+        #                     if key in term:
+        #                         term = value
+        #                         break
+
+        #                 depot = cell_data[3]
+        #                 quantity = cell_data[2].replace("+", "").strip()
+        #                 quantity = int(quantity) if quantity.isdigit() else 1
+        #                 price = cell_data[4].replace("$", "").replace(",", "").strip()
+
+        #             if len(cell_data) == 4:
+        #                 size = cell_data[0].replace(" ", "").replace("'", "")
+        #                 for key, value in size_data.items():
+        #                     if key == size:
+        #                         size = value
+        #                         break
+
+        #                 term = cell_data[1]
+        #                 for key, value in term_data.items():
+        #                     if key in term:
+        #                         term = value
+        #                         break
+
+        #                 quantity = cell_data[2].replace("+", "").strip()
+        #                 quantity = int(quantity) if quantity.isdigit() else 1
+        #                 price = cell_data[3].replace("$", "").replace(",", "").strip()
+
+        #             if len(cell_data) >= 4 and price.isdigit() and price > 0:
+        #                 feature, eta = "", ""
+        #                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+        #         except Exception as e:
+        #             print(f"Error on item {cell_data}: {e}")
+
+        #     return
+
+        # # ---------------  Parsing for jenny@icc-solution.com (Jenny Roberts, International Container & Chassis Solution) --------------- #
+        # case "jenny@icc-solution.com":
+        #     clear_container_data(vendor_email[0])
+        #     provider = "Jenny Roberts, International Container & Chassis Solution"
+        #     for i in range(2, len(rows)):
+        #         cells = rows[i].find_all('td')
+        #         cell_data = [cell.get_text() for cell in cells]
+
+        #         try:
+        #             if len(cell_data) == 6:
+        #                 location = cell_data[0].split(",")[0].upper().strip()
+        #                 for key, value in location_data.items():
+        #                     if key == location:
+        #                         location = value
+        #                         break
+
+        #                 size = cell_data[1].replace(" ", "").replace("'", "")
+        #                 for key, value in size_data.items():
+        #                     if key == size:
+        #                         size = value
+        #                         break
+
+        #                 term = cell_data[2]
+        #                 for key, value in term_data.items():
+        #                     if key in term:
+        #                         term = value
+        #                         break
+
+        #                 depot = cell_data[4]
+        #                 quantity = cell_data[3].replace("+", "").strip()
+        #                 quantity = int(quantity) if quantity.isdigit() else 1
+        #                 price = cell_data[5].replace("$", "").replace(",", "").strip()
+
+        #             if len(cell_data) == 5:
+        #                 size = cell_data[0].replace(" ", "").replace("'", "")
+        #                 for key, value in size_data.items():
+        #                     if key == size:
+        #                         size = value
+        #                         break
+
+        #                 term = cell_data[1]
+        #                 for key, value in term_data.items():
+        #                     if key in term:
+        #                         term = value
+        #                         break
+
+        #                 depot = cell_data[3]
+        #                 quantity = cell_data[2].replace("+", "").strip()
+        #                 quantity = int(quantity) if quantity.isdigit() else 1
+        #                 price = cell_data[4].replace("$", "").replace(",", "").strip()
+
+        #             if len(cell_data) == 4:
+        #                 size = cell_data[0].replace(" ", "").replace("'", "")
+        #                 for key, value in size_data.items():
+        #                     if key == size:
+        #                         size = value
+        #                         break
+
+        #                 term = cell_data[1]
+        #                 for key, value in term_data.items():
+        #                     if key in term:
+        #                         term = value
+        #                         break
+
+        #                 quantity = cell_data[2].replace("+", "").strip()
+        #                 quantity = int(quantity) if quantity.isdigit() else 1
+        #                 price = cell_data[3].replace("$", "").replace(",", "").strip()
+
+        #             if len(cell_data) >= 4 and price.isdigit() and price > 0:
+        #                 feature, eta = "", ""
+        #                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+        #         except Exception as e:
+        #             print(f"Error on item {cell_data}: {e}")
+
+        #     return
+
+        # # ---------------  Parsing for olaf@marinecw.com (Marine Container World) --------------- #
+        # case "olaf@marinecw.com":
+        #     clear_container_data(vendor_email[0])
+        #     provider = "Marine Container World"
+        #     for row in rows:
+        #         cells = row.find_all('td')
+        #         cell_data = [cell.get_text() for cell in cells]
+
+        #         try:
+        #             if cell_data[0] != "LOCATION" and cell_data[0] != "":
+        #                 if cell_data[0] != "\xa0":
+        #                     location = cell_data[0].split(",")[0].upper().strip()
+        #                     for key, value in location_data.items():
+        #                         if key == location:
+        #                             location = value
+        #                             break
+
+        #                 size = cell_data[1].replace(" ", "").replace("'", "")
+        #                 if "x" in size:
+        #                     quantity = size.split("x")[0].strip()
+        #                     quantity = int(quantity) if quantity.isdigit() else 1
+        #                     size = size.split("x")[1].strip()
+        #                 else:
+        #                     quantity = 1
+        #                 for key, value in size_data.items():
+        #                     if key == size:
+        #                         size = value
+        #                         break
+
+        #                 term, feature, depot, eta, price = "", "", "", "", 0
+        #                 if "1-trip" in cell_data[2] or "NEW" in cell_data[2]:
+        #                     term = "1Trip"
+        #                 if "Used" in cell_data[2] or "Cargo Worthy" in cell_data[2]:
+        #                     term = "CW"
+        #                 if len(cell_data[2].split(",")) > 2:
+        #                     depot = cell_data[2].split(",")[2].strip()
+
+        #                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+        #         except Exception as e:
+        #             print(f"Error on item {cell_data}: {e}")
+
+        #     return
+
+        # # ---------------  Parsing for yansen@megaconusa.com (Yansen C. LO, MEGA Container Sales) --------------- #
+        # case "yansen@megaconusa.com":
+        #     clear_container_data(vendor_email[0])
+        #     provider = "Yansen C. LO, MEGA Container Sales"
+        #     sizes = rows[2].find_all('td')
+        #     size_list = [size.get_text() for size in sizes]
+        #     for i in range(3, len(rows)):
+        #         cells = rows[i].find_all('td')
+        #         cell_data = [cell.get_text() for cell in cells]
+
+        #         try:
+        #             if cell_data[0] != "":
+        #                 location = cell_data[0].split(",")[0].upper().strip()
+        #                 for key, value in location_data.items():
+        #                     if key == location:
+        #                         location = value
+        #                         break
+
+        #                 feature, depot, eta, price = "", "", "", 0
+        #                 for j in range(1, len(cell_data) - 1):
+        #                     if cell_data[j]:
+        #                         size = size_list[j-1]
+        #                         size = size.replace(" ", "").replace("'", "")
+        #                         for key, value in size_data.items():
+        #                             if key == size:
+        #                                 size = value
+        #                                 break
+
+        #                         term = "Used" if j > 3 else "1Trip"
+        #                         quantity = cell_data[j].replace("+", "").strip()
+        #                         quantity = int(quantity) if quantity.isdigit() else 1
+
+        #                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+        #         except Exception as e:
+        #             print(f"Error on item {cell_data}: {e}")
+
+        #     return
+
+        # # ---------------  Parsing for wayneterry@florens.com (Wayne Terry, Florens Asset Management) --------------- #
+        # case "wayneterry@florens.com":
+        #     clear_container_data(vendor_email[0])
+        #     provider = "Wayne Terry, Florens Asset Management"
+        #     sizes = rows[1].find_all('td')
+        #     size_list = [size.get_text() for size in sizes]
+        #     for i in range(2, len(rows)):
+        #         cells = rows[i].find_all('td')
+        #         cell_data = [cell.get_text() for cell in cells]
+
+        #         try:
+        #             location = cell_data[1].split(",")[0].replace("\n", "").upper().strip()
+        #             for key, value in location_data.items():
+        #                 if key == location:
+        #                     location = value
+        #                     break
+
+        #             depot = cell_data[2].replace("\n", "")
+        #             feature, eta, price = "", "", 0
+        #             for j in range(3, len(cell_data)):
+        #                 if "\xa0" not in cell_data[j]:
+        #                     size = size_list[j-3]
+        #                     size = size.replace(" ", "").replace("'", "").replace(".", "").replace("\n", "")
+        #                     for key, value in size_data.items():
+        #                         if key == size:
+        #                             size = value
+        #                             break
+
+        #                     term = "WWT"
+        #                     quantity = cell_data[j].replace("+", "").strip()
+        #                     quantity = int(quantity) if quantity.isdigit() else 1
+
+        #                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+        #         except Exception as e:
+        #             print(f"Error on item {cell_data}: {e}")
+
+        #     return
+
+        # # ---------------  Parsing for equipment@conwaycs.com (Margarita Kolecenko, Conway) --------------- #
+        # case "equipment@conwaycs.com":
+        #     clear_container_data(vendor_email[0])
+        #     provider = "Margarita Kolecenko, Conway"
+        #     for row in rows:
+        #         cells = row.find_all('td')
+        #         cell_data = [cell.get_text() for cell in cells]
+
+        #         try:
+        #             if len(cell_data) == 4 and cell_data[3].isdigit():
+        #                 if cell_data[0] == "USA" or cell_data[0] == "CANADA":
+        #                     location = cell_data[1].split("(")[0].upper().strip()
+        #                 for key, value in location_data.items():
+        #                     if key == location:
+        #                         location = value
+        #                         break
+
+        #                 size = cell_data[2].replace(" ", "").replace("'", "")
+        #                 for key, value in size_data.items():
+        #                     if key == size:
+        #                         size = value
+        #                         break
+
+        #                 term, feature, depot, eta, price = "", "", "", "", 0
+        #                 quantity = cell_data[3].replace("+", "").strip()
+        #                 quantity = int(quantity) if quantity.isdigit() else 1
+
+        #                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+        #         except Exception as e:
+        #             print(f"Error on item {cell_data}: {e}")
+
+        #     return
+
+        # # ---------------  Parsing for james@tradecorp-usa.com (Tradecorp Container Sales) --------------- #
+        # case "james@tradecorp-usa.com":
+        #     provider = "Tradecorp Container Sales"
+        #     clear_container_data(vendor_email[0])
+        #     for i in range(0, len(rows)):
+        #         cells = rows[i].find_all('td')
+        #         cell_data = [cell.get_text() for cell in cells]
+
+        #         try:
+        #             if len(cell_data) == 6 and cell_data[3].isdigit():
+        #                 location = cell_data[0].split(",")[0].upper().replace("\n", "").strip()
+        #                 for key, value in location_data.items():
+        #                     if key == location:
+        #                         location = value
+        #                         break
+
+        #                 size = cell_data[1].replace(" ", "").replace("'", "").replace("\n", "")
+        #                 for key, value in size_data.items():
+        #                     if key == size:
+        #                         size = value
+        #                         break
+
+        #                 term = cell_data[4].replace('\n', '')
+        #                 for key, value in term_data.items():
+        #                     if key in term:
+        #                         term = value
+        #                         break
+
+        #                 eta = ""
+        #                 feature = cell_data[2].replace("\n", "")
+        #                 depot= cell_data[5].replace('\n', '')
+        #                 quantity = cell_data[3].replace("\n", "").strip()
+        #                 quantity = int(quantity) if quantity.isdigit() else 1
+        #                 price = 0
+
+        #                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+        #         except Exception as e:
+        #             print(f"Error on item {cell_data}: {e}")
+
+        #     return
 
     # Close the connection
     if connection:
@@ -1574,348 +2034,359 @@ def get_message_content_plain(service, message_id):
             provider = "Rolly, Oceanbox logistic limited"
             if "inventory" in subject:
                 clear_container_data(vendor_email[0])
-                content_data = content.split("Thank you!")[1].split("Container expert from China")[0].split("Note")[0].split("\n")
+                content_data = content.split("Container expert from China")[0].split("Note")[0].split("\n")
                 location = ''
                 for i in range(0, len(content_data)):
-                    if len(content_data[i].split(",")) < 3:
-                        location = content_data[i].split(",")[0].upper().strip()
-                        for key, value in location_data.items():
-                            if key == location:
-                                location = value
-                    else:
-                        content_data[i] = content_data[i].replace("，", ",")
-                        feature, depot, eta, term = "", "", "", ""
-                        quantity = content_data[i].split(" x ")[0].strip()
-                        quantity = int(quantity) if quantity.isdigit() else 1
-                        size = content_data[i].split(",")[0].split(" x ")[1]
-                        for key, value in size_data.items():
-                                    if key == size:
-                                        size = value
+                    try:
+                        if len(content_data[i].split(",")) < 3:
+                            location = content_data[i].split(",")[0].upper().strip()
+                            for key, value in location_data.items():
+                                if key == location:
+                                    location = value
+                                    break
+                        else:
+                            content_data[i] = content_data[i].replace("，", ",")
+                            feature, depot, eta, term = "", "", "", ""
+                            quantity = content_data[i].split(" x ")[0].strip()
+                            quantity = int(quantity) if quantity.isdigit() else 1
+                            size = content_data[i].split(",")[0].split(" x ")[1].split("(")[0].upper().strip()
+                            for key, value in size_data.items():
+                                if key == size:
+                                    size = value
+                                    break
 
-                        if len(content_data[i].split(",")) == 5:
-                            if "$" in content_data[i].split(",")[3] and "," in content_data[i].split("$")[1]:
-                                term = content_data[i].split(",")[1].strip()
-                                for key, value in term_data.items():
-                                    if key in term:
-                                        term = value
-
-                                if "ETA" in content_data[i].split(",")[4]:
-                                    eta = content_data[i].split(",")[4].strip()
-                                else:
-                                    depot = content_data[i].split(",")[4].strip()
-                                feature = content_data[i].split(",")[2].strip()
-
-                                if "gatebuy" in content_data[i].split(",")[3] and depot == "":
-                                    depot = "gatebuy"
-                                price = content_data[i].split(",")[3].split("$")[1].strip()
-                                price = int(price) if price.isdigit() else 0
-
-                                insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-
-                            if "$" not in content_data[i]:
-                                term = content_data[i].split(",")[2].strip()
-                                for key, value in term_data.items():
-                                    if key in term:
-                                        term = value
-
-                                if "ETA" in content_data[i].split(",")[4]:
-                                    eta = content_data[i].split(",")[4].strip()
-                                else:
-                                    depot = content_data[i].split(",")[4].strip()
-                                feature = content_data[i].split(",")[3].strip()
-
-                                insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-
-                        if len(content_data[i].split(",")) == 6 and "$" in content_data[i].split(",")[3] and "," in content_data[i].split("$")[1]:
-                            term = content_data[i].split(",")[1].strip()
-                            for key, value in term_data.items():
-                                if key in term:
-                                    term = value
-
-                            if content_data[i].count("$") == 3:
-                                depot = content_data[i].split(",")[2].strip()
-
-                                if "gatebuy" in content_data[i].split(",")[3]:
-                                    depot = "gatebuy"
-                                price = content_data[i].split(",")[3].split("$")[1].strip()
-                                price = int(price) if price.isdigit() else 0
-
-                                insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-
-                            else:
-                                if "Full open side" in content_data[i].split(",")[4]:
-                                    depot = content_data[i].split(",")[5].strip()
-                                else:
-                                    depot = content_data[i].split(",")[4].strip().replace("(", "")
-                                    eta = content_data[i].split(",")[5].strip().replace(")", "")
-
-                                feature = content_data[i].split(",")[2].strip()
-
-                                if "gatebuy" in content_data[i].split(",")[3] and depot == "":
-                                    depot = "gatebuy"
-                                price = content_data[i].split(",")[3].split("$")[1].strip()
-                                price = int(price) if price.isdigit() else 0
-
-                                insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-
-                        if len(content_data[i].split(",")) == 6 and content_data[i].count("$") == 1 and "$" in content_data[i].split(",")[4] and "," in content_data[i].split("$")[1]:
-                            if "door" in content_data[i].split(",")[1] or "full open side" in content_data[i].split(",")[1]:
-                                term = content_data[i].split(",")[2].strip()
-                                for key, value in term_data.items():
-                                    if key in term:
-                                        term = value
-
-                                feature = content_data[i].split(",")[3].strip()
-                                depot = content_data[i].split(",")[5].strip()
-
-                            elif "door" in content_data[i].split(",")[2] or "full open side" in content_data[i].split(",")[2]:
-                                term = content_data[i].split(",")[1].strip()
-                                for key, value in term_data.items():
-                                    if key in term:
-                                        term = value
-
-                                feature = content_data[i].split(",")[3].strip()
-                                depot = content_data[i].split(",")[5].strip()
-                            else:
-                                if "ETA" in content_data[i].split(",")[5]:
-                                    eta = content_data[i].split(",")[5].strip()
-                                    depot = content_data[i].split(",")[3].strip()
-                                elif "ETA" in content_data[i].split(",")[3]:
-                                    eta = content_data[i].split(",")[3].strip()
-                                    depot = content_data[i].split(",")[5].strip()
-                                else:
-                                    depot = content_data[i].split(",")[5].strip()
-
-                                if "full open side" in content_data[i]:
-                                    depot = content_data[i].split(",")[3].strip()
-
-                                term = content_data[i].split(",")[1].strip()
-                                for key, value in term_data.items():
-                                    if key in term:
-                                        term = value
-
-                                feature = content_data[i].split(",")[2].strip()
-
-                            if "YOM" in content_data[i]:
-                                term = content_data[i].split(",")[1].strip()
-                                for key, value in term_data.items():
-                                    if key in term:
-                                        term = value
-
-                                feature = content_data[i].split(",")[2].strip() + "," + content_data[i].split(",")[3]
-                                depot = content_data[i].split(",")[5].strip()
-
-                            if "gatebuy" in content_data[i].split(",")[4] and depot == "":
-                                depot = "gatebuy"
-
-                            price = content_data[i].split(",")[4].split("$")[1].strip()
-                            price = int(price) if price.isdigit() else 0
-
-                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-
-                        if len(content_data[i].split(",")) >= 7:
-                            if "$" in content_data[i].split(",")[3]:
-                                if len(content_data[i].split(",")) == 7:
-                                    depot = content_data[i].split(",")[4].strip() + "," + content_data[i].split(",")[5]
-                                    eta = content_data[i].split(",")[6].strip()
-
-                                if len(content_data[i].split(",")) == 9:
-                                    depot = content_data[i].split(",")[4].strip() + "," + content_data[i].split(",")[5] + "," + content_data[i].split(",")[6] + "," + content_data[i].split(",")[7]
-                                    eta = content_data[i].split(",")[8].strip()
-
-                                term = content_data[i].split(",")[1].strip()
-                                for key, value in term_data.items():
-                                    if key in term:
-                                        term = value
-
-                                feature = content_data[i].split(",")[2].strip()
-
-                                if "gatebuy" in content_data[i].split(",")[3] and depot == "":
-                                    depot = "gatebuy"
-
-                                price = content_data[i].split(",")[3].split("$")[1].strip()
-                                price = int(price) if price.isdigit() else 0
-
-                                insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-
-                            if "$" in content_data[i].split(",")[4]:
-                                if "door" in content_data[i] or "full open side" in content_data[i]:
-                                    term = content_data[i].split(",")[2].strip()
-                                    for key, value in term_data.items():
-                                        if key in term:
-                                            term = value
-
-                                    feature = content_data[i].split(",")[3]
-                                    depot = content_data[i].split(",")[5].strip() + "," + content_data[i].split(",")[6]
-                                else:
+                            if len(content_data[i].split(",")) == 5:
+                                if "$" in content_data[i].split(",")[3] and "," in content_data[i].split("$")[1]:
                                     term = content_data[i].split(",")[1].strip()
                                     for key, value in term_data.items():
                                         if key in term:
                                             term = value
+                                            break
+
+                                    if "ETA" in content_data[i].split(",")[4]:
+                                        eta = content_data[i].split(",")[4].strip()
+                                    else:
+                                        depot = content_data[i].split(",")[4].strip()
+                                    feature = content_data[i].split(",")[2].strip()
+
+                                    if "gatebuy" in content_data[i].split(",")[3] and depot == "":
+                                        depot = "gatebuy"
+                                    price = content_data[i].split(",")[3].split("$")[1].strip()
+
+                                    if price.isdigit() and int(price) > 0:
+                                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                            if len(content_data[i].split(",")) == 6 and "$" in content_data[i].split(",")[3] and "," in content_data[i].split("$")[1]:
+                                term = content_data[i].split(",")[1].strip()
+                                for key, value in term_data.items():
+                                    if key in term:
+                                        term = value
+                                        break
+
+                                if content_data[i].count("$") == 3:
+                                    depot = content_data[i].split(",")[2].strip()
+
+                                    if "gatebuy" in content_data[i].split(",")[3]:
+                                        depot = "gatebuy"
+                                    price = content_data[i].split(",")[3].split("$")[1].strip()
+
+                                    if price.isdigit() and int(price) > 0:
+                                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                                else:
+                                    if "Full open side" in content_data[i].split(",")[4]:
+                                        depot = content_data[i].split(",")[5].strip()
+                                    else:
+                                        depot = content_data[i].split(",")[4].strip().replace("(", "")
+                                        eta = content_data[i].split(",")[5].strip().replace(")", "")
 
                                     feature = content_data[i].split(",")[2].strip()
-                                    depot = content_data[i].split(",")[3].strip() + "," + content_data[i].split(",")[5] + "," + content_data[i].split(",")[6]
+
+                                    if "gatebuy" in content_data[i].split(",")[3] and depot == "":
+                                        depot = "gatebuy"
+                                    price = content_data[i].split(",")[3].split("$")[1].strip()
+
+                                    if price.isdigit() and int(price) > 0:
+                                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                            if len(content_data[i].split(",")) == 6 and content_data[i].count("$") == 1 and "$" in content_data[i].split(",")[4] and "," in content_data[i].split("$")[1]:
+                                if "door" in content_data[i].split(",")[1] or "full open side" in content_data[i].split(",")[1]:
+                                    term = content_data[i].split(",")[2].strip()
+                                    for key, value in term_data.items():
+                                        if key in term:
+                                            term = value
+                                            break
+
+                                    feature = content_data[i].split(",")[3].strip()
+                                    depot = content_data[i].split(",")[5].strip()
+
+                                elif "door" in content_data[i].split(",")[2] or "full open side" in content_data[i].split(",")[2]:
+                                    term = content_data[i].split(",")[1].strip()
+                                    for key, value in term_data.items():
+                                        if key in term:
+                                            term = value
+                                            break
+
+                                    feature = content_data[i].split(",")[3].strip()
+                                    depot = content_data[i].split(",")[5].strip()
+                                else:
+                                    if "ETA" in content_data[i].split(",")[5]:
+                                        eta = content_data[i].split(",")[5].strip()
+                                        depot = content_data[i].split(",")[3].strip()
+                                    elif "ETA" in content_data[i].split(",")[3]:
+                                        eta = content_data[i].split(",")[3].strip()
+                                        depot = content_data[i].split(",")[5].strip()
+                                    else:
+                                        depot = content_data[i].split(",")[5].strip()
+
+                                    if "full open side" in content_data[i]:
+                                        depot = content_data[i].split(",")[3].strip()
+
+                                    term = content_data[i].split(",")[1].strip()
+                                    for key, value in term_data.items():
+                                        if key in term:
+                                            term = value
+                                            break
+
+                                    feature = content_data[i].split(",")[2].strip()
+
+                                if "YOM" in content_data[i]:
+                                    term = content_data[i].split(",")[1].strip()
+                                    for key, value in term_data.items():
+                                        if key in term:
+                                            term = value
+                                            break
+
+                                    feature = content_data[i].split(",")[2].strip() + "," + content_data[i].split(",")[3]
+                                    depot = content_data[i].split(",")[5].strip()
 
                                 if "gatebuy" in content_data[i].split(",")[4] and depot == "":
                                     depot = "gatebuy"
 
                                 price = content_data[i].split(",")[4].split("$")[1].strip()
-                                price = int(price) if price.isdigit() else 0
 
-                                insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                                if price.isdigit() and int(price) > 0:
+                                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
-                            if "$" in content_data[i].split(",")[6]:
-                                if "door" in content_data[i] or "full open side" in content_data[i]:
-                                    term = content_data[i].split(",")[3].strip()
+                            if len(content_data[i].split(",")) >= 7:
+                                if "$" in content_data[i].split(",")[3]:
+                                    if len(content_data[i].split(",")) == 7:
+                                        depot = content_data[i].split(",")[4].strip() + "," + content_data[i].split(",")[5]
+                                        eta = content_data[i].split(",")[6].strip()
+
+                                    if len(content_data[i].split(",")) == 9:
+                                        depot = content_data[i].split(",")[4].strip() + "," + content_data[i].split(",")[5] + "," + content_data[i].split(",")[6] + "," + content_data[i].split(",")[7]
+                                        eta = content_data[i].split(",")[8].strip()
+
+                                    term = content_data[i].split(",")[1].strip()
                                     for key, value in term_data.items():
                                         if key in term:
                                             term = value
+                                            break
 
-                                    feature = content_data[i].split(",")[4].strip()
-                                    depot = content_data[i].split(",")[5].strip()
+                                    feature = content_data[i].split(",")[2].strip()
+
+                                    if "gatebuy" in content_data[i].split(",")[3] and depot == "":
+                                        depot = "gatebuy"
+
+                                    price = content_data[i].split(",")[3].split("$")[1].strip()
+
+                                    if price.isdigit() and int(price) > 0:
+                                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                                if "$" in content_data[i].split(",")[4]:
+                                    if "door" in content_data[i] or "full open side" in content_data[i]:
+                                        term = content_data[i].split(",")[2].strip()
+                                        for key, value in term_data.items():
+                                            if key in term:
+                                                term = value
+                                                break
+
+                                        feature = content_data[i].split(",")[3]
+                                        depot = content_data[i].split(",")[5].strip() + "," + content_data[i].split(",")[6]
+                                    else:
+                                        term = content_data[i].split(",")[1].strip()
+                                        for key, value in term_data.items():
+                                            if key in term:
+                                                term = value
+                                                break
+
+                                        feature = content_data[i].split(",")[2].strip()
+                                        depot = content_data[i].split(",")[3].strip() + "," + content_data[i].split(",")[5] + "," + content_data[i].split(",")[6]
+
+                                    if "gatebuy" in content_data[i].split(",")[4] and depot == "":
+                                        depot = "gatebuy"
+
+                                    price = content_data[i].split(",")[4].split("$")[1].strip()
+
+                                    if price.isdigit() and int(price) > 0:
+                                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                                if "$" in content_data[i].split(",")[6]:
+                                    if "door" in content_data[i] or "full open side" in content_data[i]:
+                                        term = content_data[i].split(",")[3].strip()
+                                        for key, value in term_data.items():
+                                            if key in term:
+                                                term = value
+                                                break
+
+                                        feature = content_data[i].split(",")[4].strip()
+                                        depot = content_data[i].split(",")[5].strip()
+                                    else:
+                                        term = content_data[i].split(",")[1].strip()
+                                        for key, value in term_data.items():
+                                            if key in term:
+                                                term = value
+                                                break
+
+                                        feature = content_data[i].split(",")[2].strip() + "," + content_data[i].split(",")[3]
+                                        depot = content_data[i].split(",")[4].strip() + "," + content_data[i].split(",")[5]
+
+                                    if "gatebuy" in content_data[i].split(",")[6] and depot == "":
+                                        depot = "gatebuy"
+
+                                    price = content_data[i].split(",")[6].split("$")[1].strip()
+
+                                    if price.isdigit() and int(price) > 0:
+                                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                            if "$" in content_data[i].split(",")[2]:
+                                if len(content_data[i].split(",")) > 3:
+                                    if "1 Trip" in content_data[i]:
+                                        term = "1Trip"
+                                    else:
+                                        term = content_data[i].split(",")[1].strip()
+                                        for key, value in term_data.items():
+                                            if key in term:
+                                                term = value
+                                                break
+
+                                    if "RAL" in content_data[i]:
+                                        feature = content_data[i].split(",")[1].replace("1 Trip/", "").strip()
+
+                                    if "ETA" in content_data[i].split(",")[3]:
+                                        eta = content_data[i].split(",")[3].strip()
+                                    else:
+                                        depot = content_data[i].split(",")[3].strip()
+
+                                    if len(content_data[i].split(",")) == 5:
+                                        depot = content_data[i].split(",")[3] + "," + content_data[i].split(",")[4]
+                                        depot = depot.strip()
+
+                                    if "gatebuy" in content_data[i].split(",")[2] and depot == "":
+                                        depot = "gatebuy"
+
+                                    price = content_data[i].split(",")[2].split("$")[1].strip()
+
+                                    if "(" in price:
+                                        price = price.split("(")[0].strip()
+
+                                    if price.isdigit() and int(price) > 0:
+                                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                                else:
+                                    if "1 Trip" in content_data[i]:
+                                        term = "1Trip"
+                                    else:
+                                        term = content_data[i].split(",")[1].strip()
+                                        for key, value in term_data.items():
+                                            if key in term:
+                                                term = value
+                                                break
+
+                                    if "RAL" in content_data[i]:
+                                        feature = content_data[i].split(",")[1].replace("1 Trip/", "").strip()
+
+                                    price = content_data[i].split(",")[2].split("$")[1].strip()
+
+                                    if price.isdigit() and int(price) > 0:
+                                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                            if len(content_data[i].split(",")) == 4 and "$" in content_data[i].split(",")[3] and content_data[i].count("$") == 1:
+                                term = content_data[i].split(",")[1].strip()
+                                for key, value in term_data.items():
+                                    if key in term:
+                                        term = value
+                                        break
+
+                                feature = content_data[i].split(",")[2].strip()
+
+                                if "gatebuy" in content_data[i].split(",")[3] and depot == "":
+                                        depot = "gatebuy"
+
+                                price = content_data[i].split(",")[3].split("$")[1].strip()
+
+                                if price.isdigit() and int(price) > 0:
+                                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                            if len(content_data[i].split(",")) == 5 and "$" in content_data[i].split(",")[4] and content_data[i].count("$") == 1:
+                                if "door" in content_data[i] or "full open side" in content_data[i]:
+                                    if "RAL" in content_data[i].split(",")[2]:
+                                        feature = content_data[i].split(",")[2].strip()
+                                        depot = content_data[i].split(",")[3].strip()
+                                    else:
+                                        term = content_data[i].split(",")[2].strip()
+                                        for key, value in term_data.items():
+                                            if key in term:
+                                                term = value
+
+                                        if "ETA" in content_data[i].split(",")[3]:
+                                            feature = content_data[i].split(",")[3].split("ETA")[0].strip()
+                                            eta = "ETA" + content_data[i].split(",")[3].split("ETA")[1].strip()
+                                        else:
+                                            feature = content_data[i].split(",")[3].strip()
+                                else:
+                                    if "ETA" in content_data[i].split(",")[3]:
+                                        eta = content_data[i].split(",")[3].strip()
+                                    else:
+                                        depot = content_data[i].split(",")[3].strip()
+
+                                    term = content_data[i].split(",")[1].strip()
+                                    for key, value in term_data.items():
+                                        if key in term:
+                                            term = value
+                                            break
+
+                                    feature = content_data[i].split(",")[2].strip()
+
+                                if "gatebuy" in content_data[i].split(",")[4] and depot == "":
+                                        depot = "gatebuy"
+
+                                price = content_data[i].split(",")[4].split("$")[1].strip()
+
+                                if price.isdigit() and int(price) > 0:
+                                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                            if len(content_data[i].split(",")) == 6 and "$" in content_data[i].split(",")[5] and content_data[i].count("$") == 1:
+                                if "door" in content_data[i] or "full open side" in content_data[i]:
+                                    term = content_data[i].split(",")[2].strip()
+                                    for key, value in term_data.items():
+                                        if key in term:
+                                            term = value
+                                            break
+
+                                    feature = content_data[i].split(",")[3].strip()
+                                    depot = content_data[i].split(",")[4].strip()
                                 else:
                                     term = content_data[i].split(",")[1].strip()
                                     for key, value in term_data.items():
                                         if key in term:
                                             term = value
+                                            break
 
                                     feature = content_data[i].split(",")[2].strip() + "," + content_data[i].split(",")[3]
-                                    depot = content_data[i].split(",")[4].strip() + "," + content_data[i].split(",")[5]
+                                    depot = content_data[i].split(",")[4].strip()
 
-                                if "gatebuy" in content_data[i].split(",")[6] and depot == "":
-                                    depot = "gatebuy"
+                                if "gatebuy" in content_data[i].split(",")[5] and depot == "":
+                                        depot = "gatebuy"
 
-                                price = content_data[i].split(",")[6].split("$")[1].strip()
-                                price = int(price) if price.isdigit() else 0
+                                price = content_data[i].split(",")[5].split("$")[1].strip()
 
-                                insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                                if price.isdigit() and int(price) > 0:
+                                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
-                        if "$" in content_data[i].split(",")[2]:
-                            if "RAL" in content_data[i]:
-                                depot = content_data[i].split(",")[3].strip()
-                                feature = content_data[i].split(",")[1].strip()
-                                price = int(content_data[i].split(",")[2].replace("$", '').strip())
-                            else:
-                                term = content_data[i].split(",")[1].strip()
-                                for key, value in term_data.items():
-                                    if key in term:
-                                        term = value
-
-                                if "ETA" in content_data[i].split(",")[3]:
-                                    eta = content_data[i].split(",")[3].strip()
-                                else:
-                                    depot = content_data[i].split(",")[3].strip()
-
-                                if len(content_data[i].split(",")) == 5:
-                                    depot = content_data[i].split(",")[3] + "," + content_data[i].split(",")[4]
-                                    depot = depot.strip()
-
-                                if "gatebuy" in content_data[i].split(",")[2] and depot == "":
-                                    depot = "gatebuy"
-
-                                price = content_data[i].split(",")[2].split("$")[1].strip()
-                                price = int(price) if price.isdigit() else 0
-
-                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-
-                        if len(content_data[i].split(",")) == 4 and "$" in content_data[i].split(",")[3] and content_data[i].count("$") == 1:
-                            term = content_data[i].split(",")[1].strip()
-                            for key, value in term_data.items():
-                                if key in term:
-                                    term = value
-
-                            feature = content_data[i].split(",")[2].strip()
-
-                            if "gatebuy" in content_data[i].split(",")[3] and depot == "":
-                                    depot = "gatebuy"
-
-                            price = content_data[i].split(",")[3].split("$")[1].strip()
-                            price = int(price) if price.isdigit() else 0
-
-                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-
-                        if len(content_data[i].split(",")) == 5 and "$" in content_data[i].split(",")[4] and content_data[i].count("$") == 1:
-                            if "door" in content_data[i] or "full open side" in content_data[i]:
-                                if "RAL" in content_data[i].split(",")[2]:
-                                    feature = content_data[i].split(",")[2].strip()
-                                    depot = content_data[i].split(",")[3].strip()
-                                else:
-                                    term = content_data[i].split(",")[2].strip()
-                                    for key, value in term_data.items():
-                                        if key in term:
-                                            term = value
-
-                                    if "ETA" in content_data[i].split(",")[3]:
-                                        feature = content_data[i].split(",")[3].split("ETA")[0].strip()
-                                        eta = "ETA" + content_data[i].split(",")[3].split("ETA")[1].strip()
-                                    else:
-                                        feature = content_data[i].split(",")[3].strip()
-                            else:
-                                if "ETA" in content_data[i].split(",")[3]:
-                                    eta = content_data[i].split(",")[3].strip()
-                                else:
-                                    depot = content_data[i].split(",")[3].strip()
-
-                                term = content_data[i].split(",")[1].strip()
-                                for key, value in term_data.items():
-                                    if key in term:
-                                        term = value
-                                feature = content_data[i].split(",")[2].strip()
-
-                            if "gatebuy" in content_data[i].split(",")[4] and depot == "":
-                                    depot = "gatebuy"
-
-                            price = content_data[i].split(",")[4].split("$")[1].strip()
-                            price = int(price) if price.isdigit() else 0
-
-                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-
-                        if len(content_data[i].split(",")) == 6 and "$" in content_data[i].split(",")[5] and content_data[i].count("$") == 1:
-                            if "door" in content_data[i] or "full open side" in content_data[i]:
-                                term = content_data[i].split(",")[2].strip()
-                                for key, value in term_data.items():
-                                    if key in term:
-                                        term = value
-
-                                feature = content_data[i].split(",")[3].strip()
-                                depot = content_data[i].split(",")[4].strip()
-                            else:
-                                term = content_data[i].split(",")[1].strip()
-                                for key, value in term_data.items():
-                                    if key in term:
-                                        term = value
-                                feature = content_data[i].split(",")[2].strip() + "," + content_data[i].split(",")[3]
-                                depot = content_data[i].split(",")[4].strip()
-
-                            if "gatebuy" in content_data[i].split(",")[5] and depot == "":
-                                    depot = "gatebuy"
-
-                            price = content_data[i].split(",")[5].split("$")[1].strip()
-                            price = int(price) if price.isdigit() else 0
-
-                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-
-                        if "$" not in content_data[i]:
-                            if "door" in content_data[i] or "full open side" in content_data[i]:
-                                term = content_data[i].split(",")[2].strip()
-                                for key, value in term_data.items():
-                                    if key in term:
-                                        term = value
-
-                                feature = content_data[i].split(",")[3].strip()
-                                depot = content_data[i].split(",")[4].strip()
-                            else:
-                                term = content_data[i].split(",")[1].strip()
-                                for key, value in term_data.items():
-                                    if key in term:
-                                        term = value
-
-                                feature = content_data[i].split(",")[2].strip()
-                                depot = content_data[i].split(",")[3].strip()
-
-                            price = 0
-
-                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                    except Exception as e:
+                        print(f"Error on item {content_data[i]}: {e}")
 
             return
 
@@ -1926,78 +2397,91 @@ def get_message_content_plain(service, message_id):
             content_data = content.split("\n")
             location = ''
             for i in range(0, len(content_data)):
-                if "*" in content_data[i] and "$" not in content_data[i] and "ETA" not in content_data[i]:
-                    location = content_data[i].replace("*", "").split(",")[0].upper().strip()
-                    for key, value in location_data.items():
-                        if key == location:
-                            location = value
+                try:
+                    if "*" in content_data[i] and "$" not in content_data[i] and "ETA" not in content_data[i]:
+                        location = content_data[i].replace("*", "").split(",")[0].upper().strip()
+                        for key, value in location_data.items():
+                            if key == location:
+                                location = value
+                                break
 
-                if "$" in content_data[i]:
-                    feature, depot, eta, = "", "", ""
-                    quantity = content_data[i].replace("*", "").split("X")[0].strip()
-                    quantity = int(quantity) if quantity.isdigit() else 1
-                    if "CW" in content_data[i]:
-                        size = content_data[i].replace("*", "").split("X")[1].split("CW")[0].replace("'", "").replace(" ", "")
-                        for key, value in size_data.items():
-                            if key == size:
-                                size = value
-                        feature = content_data[i].split(" - ")[0].split("CW")[1]
-                        term = "CW"
-                        price = content_data[i].replace("*", "").split(" - ")[1].replace("$", "").replace(",", "").replace("EACH", "").strip()
-                        price = int(price) if price.isdigit() else 0
-
-                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-
-                    elif "ONE TRIP" in content_data[i]:
-                        if "OPEN SIDE" in content_data[i]:
-                            size = content_data[i].replace("*", "").split("X")[1].split("OPEN SIDE")[0].replace("'", "").replace(" ", "")
+                    if "$" in content_data[i]:
+                        feature, depot, eta, = "", "", ""
+                        quantity = content_data[i].replace("*", "").split("X")[0].strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        if "CW" in content_data[i]:
+                            size = content_data[i].replace("*", "").split("X")[1].split("CW")[0].replace("'", "").replace(" ", "").upper()
                             for key, value in size_data.items():
                                 if key == size:
                                     size = value
-                            size = size + " OPEN SIDE"
-                        else:
-                            size = content_data[i].replace("*", "").split("X")[1].split("ONE TRIP")[0].replace("'", "").replace(" ", "")
+                                    break
+
+                            feature = content_data[i].split(" - ")[0].split("CW")[1]
+                            term = "CW"
+                            price = content_data[i].replace("*", "").split(" - ")[1].replace("$", "").replace(",", "").replace("EACH", "").strip()
+
+                            if price.isdigit() and int(price) > 0:
+                                insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                        elif "ONE TRIP" in content_data[i]:
+                            if "OPEN SIDE" in content_data[i]:
+                                size = content_data[i].replace("*", "").split("X")[1].split("OPEN SIDE")[0].replace("'", "").replace(" ", "").upper()
+                                for key, value in size_data.items():
+                                    if key == size:
+                                        size = value
+                                        break
+
+                                size = size + " OPEN SIDE"
+                            else:
+                                size = content_data[i].replace("*", "").split("X")[1].split("ONE TRIP")[0].replace("'", "").replace(" ", "").upper()
+                                for key, value in size_data.items():
+                                    if key == size:
+                                        size = value
+                                        break
+
+                            term = "1Trip"
+                            feature = content_data[i].split("(")[1].split(")")[0]
+                            price = content_data[i].replace("*", "").split(" - ")[1].replace("$", "").replace(",", "").replace("EACH", "").strip()
+
+                            if price.isdigit() and int(price) > 0:
+                                insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                        elif "IICL" in content_data[i]:
+                            feature = content_data[i].split("(")[1].split(")")[0]
+                            size = content_data[i].replace("*", "").split("X")[1].split("IICL")[0].replace("'", "").replace(" ", "").upper()
                             for key, value in size_data.items():
                                 if key == size:
                                     size = value
+                                    break
 
-                        term = "1Trip"
-                        feature = content_data[i].split("(")[1].split(")")[0]
-                        price = content_data[i].replace("*", "").split(" - ")[1].replace("$", "").replace(",", "").replace("EACH", "").strip()
-                        price = int(price) if price.isdigit() else 0
+                            term = "IICL"
+                            price = content_data[i].replace("*", "").split(" - ")[1].replace("$", "").replace(",", "").replace("EACH", "").strip()
 
-                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                            if price.isdigit() and int(price) > 0:
+                                insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
-                    elif "IICL" in content_data[i]:
-                        feature = content_data[i].split("(")[1].split(")")[0]
-                        size = content_data[i].replace("*", "").split("X")[1].split("IICL")[0].replace("'", "").replace(" ", "")
-                        for key, value in size_data.items():
-                            if key == size:
-                                size = value
-                        term = "IICL"
-                        price = content_data[i].replace("*", "").split(" - ")[1].replace("$", "").replace(",", "").replace("EACH", "").strip()
-                        price = int(price) if price.isdigit() else 0
+                        elif "AS IS" in content_data[i] or "WWT" in content_data[i]:
+                            size = content_data[i].replace("*", '').split("X")[1].split(term)[0].replace(" ", '').replace("'", '&#39;').upper()
+                            for key, value in size_data.items():
+                                if key == size:
+                                    size = value
+                                    break
 
-                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                            if "AS IS" in content_data[i]:
+                                term = "Used"
+                                term_temp = "AS IS "
+                            if "WWT" in content_data[i]:
+                                term = "WWT"
+                                term_temp = "WWT "
 
-                    elif "AS IS" in content_data[i] or "WWT" in content_data[i]:
-                        size = content_data[i].replace("*", '').split("X")[1].split(term)[0].replace(" ", '').replace("'", '&#39;')
-                        for key, value in size_data.items():
-                            if key == size:
-                                size = value
+                            feature = content_data[i].split(term_temp)[1].split(" - ")[0].replace(" ", '')
+                            price = content_data[i].replace("*", "").split(" - ")[1].replace("$", "").replace(",", "").replace("EACH", "").strip()
 
-                        if "AS IS" in content_data[i]:
-                            term = "Used"
-                            term_temp = "AS IS "
-                        if "WWT" in content_data[i]:
-                            term = "WWT"
-                            term_temp = "WWT "
+                            if price.isdigit() and int(price) > 0:
+                                insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
-                        feature = content_data[i].split(term_temp)[1].split(" - ")[0].replace(" ", '')
-                        price = content_data[i].replace("*", "").split(" - ")[1].replace("$", "").replace(",", "").replace("EACH", "").strip()
-                        price = int(price) if price.isdigit() else 0
-
-                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                except Exception as e:
+                    print(f"Error on item {content_data[i]}: {e}")
 
             return
 
@@ -2008,88 +2492,56 @@ def get_message_content_plain(service, message_id):
             content_data = content.split("Regards,")[0].split("\n")
             for item in content_data:
                 item = item.strip()
-                if "*" in item and "," in item:
-                    location = item.replace("*", "").split(",")[0].upper().strip()
-                    for key, value in location_data.items():
-                        if key == location:
-                            location = value
-                else:
-                    feature, depot, eta = "", "", ""
-                    item = item.replace("X", "x")
-                    if "x" in item:
-                        quantity = item.split("x")[0]
-                        quantity = int(quantity) if quantity.isdigit() else 1
-                        size = item.split("x")[1].lstrip().split(" ")[0].replace("'", "").replace(" ", "")
+
+                try:
+                    if item.count('*') >= 2:
+                        location = item.replace("*", "").split(",")[0].upper().strip() if "," in item else item.replace("*", "").upper().strip()
+                        for key, value in location_data.items():
+                            if key == location:
+                                location = value
+                                break
                     else:
-                        quantity = 1
-                        size = item.split(" ")[0].replace("'", "").replace(" ", "")
+                        feature, depot, eta = "", "", ""
+                        item = item.replace("X", "x")
+                        if "x" in item:
+                            quantity = item.split("x")[0]
+                            quantity = int(quantity) if quantity.isdigit() else 1
+                            size = item.split("x")[1].lstrip().split(" ")[0].replace("'", "").replace(" ", "").upper()
+                        else:
+                            quantity = 1
+                            size = item.split(" ")[0].replace("'", "").replace(" ", "").upper()
 
-                    for key, value in size_data.items():
-                        if key == size:
-                            size = value
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
+                                break
 
-                    if "CW" in item or "WWT" in item or "IICL" in item:
-                        terms = ["CW", "WWT", "IICL"]
-                        term = next((t for t in terms if t in item), None)
-                        price = item.split("$")[1].replace(",", "").replace("each", "").strip()
-                        price = int(price) if price.isdigit() else 0
+                        if "CW" in item or "WWT" in item or "IICL" in item:
+                            terms = ["CW", "WWT", "IICL"]
+                            term = next((t for t in terms if t in item), None)
+                            price = item.split("$")[1].replace(",", "").replace("each", "").strip()
 
-                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                            if price.isdigit() and int(price) > 0:
+                                insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
-                    if "New/ One Trip" in item:
-                        term = "1Trip"
-                        if "(" in item and ")" in item:
-                            feature = item.split("(")[1].split(")")[0]
-                        price = item.split("$")[1].replace(",", "").replace("each", "").strip()
-                        price = int(price) if price.isdigit() else 0
+                        if "Used" in item and "CW" not in item and "WWT" not in item and "IICL" not in item:
+                            term = "Used"
+                            price = item.split("$")[1].replace(",", "").replace("each", "").strip()
 
-                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                            if price.isdigit() and int(price) > 0:
+                                insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
-            return
+                        if "New/ One Trip" in item or "New" in item or "NEW" in item:
+                            term = "1Trip"
+                            if "(" in item and ")" in item:
+                                feature = item.split("(")[1].split(")")[0]
+                            price = item.split("$")[1].replace(",", "").replace("each", "").strip()
 
-        # ---------------  Parsing for erica@icc-solution.com (Erica Medina, International Container & Chassis Solution) --------------- #
-        case "erica@icc-solution.com":
-            clear_container_data(vendor_email[0])
-            provider = "Erica Medina, International Container & Chassis Solution"
-            content_data = content.split("Regards,")[0].split("\n")
-            for item in content_data:
-                item = item.strip()
-                if "*" in item and "," in item:
-                    location = item.replace("*", "").split(",")[0].upper().strip()
-                    for key, value in location_data.items():
-                        if key == location:
-                            location = value
-                else:
-                    feature, depot, eta = "", "", ""
-                    item = item.replace("X", "x")
-                    if "x" in item:
-                        quantity = item.split("x")[0]
-                        quantity = int(quantity) if quantity.isdigit() else 1
-                        size = item.split("x")[1].lstrip().split(" ")[0].replace("'", "").replace(" ", "")
-                    else:
-                        quantity = 1
-                        size = item.split(" ")[0].replace("'", "").replace(" ", "")
+                            if price.isdigit() and int(price) > 0:
+                                insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
-                    for key, value in size_data.items():
-                        if key == size:
-                            size = value
-
-                    if "CW" in item or "WWT" in item or "IICL" in item:
-                        terms = ["CW", "WWT", "IICL"]
-                        term = next((t for t in terms if t in item), None)
-                        price = item.split("$")[1].replace(",", "").replace("each", "").strip()
-                        price = int(price) if price.isdigit() else 0
-
-                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
-
-                    if "New/ One Trip" in item:
-                        term = "1Trip"
-                        if "(" in item and ")" in item:
-                            feature = item.split("(")[1].split(")")[0]
-                        price = item.split("$")[1].replace(",", "").replace("each", "").strip()
-                        price = int(price) if price.isdigit() else 0
-
-                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                except Exception as e:
+                    print(f"Error on item {item}: {e}")
 
             return
 
@@ -2100,28 +2552,195 @@ def get_message_content_plain(service, message_id):
             content_data = content.split("\n")
 
             for item in content_data:
-                if item.count("*") == 2 and "[" not in item:
-                    location = item.replace("*", "").split(",")[0].upper().strip()
-                    for key, value in location_data.items():
-                        if key == location:
-                            location = value
-                if item.count("*") == 2 and "$" in item and "[" in item:
-                    size = item.split(" ")[1].replace(" ", "").replace("'", "")
-                    for key, value in size_data.items():
-                        if key == size:
-                            size = value
+                try:
+                    if item.count("*") == 2 and "[" not in item:
+                        location = item.replace("*", "").split(",")[0].upper().strip()
+                        for key, value in location_data.items():
+                            if key == location:
+                                location = value
+                                break
 
-                    depot, eta = "", ""
-                    term = "1Trip"
-                    feature = item.split("(")[1].split(")")[0].replace("FULL OPEN SIDE;", "").strip()
-                    quantity = item.split("]")[0].replace("[", "").strip()
-                    quantity = int(quantity) if quantity.isdigit() else 1
-                    price = item.split("$")[1].replace(",", "").replace("EACH", "").strip()
-                    price = int(price) if price.isdigit() else 0
+                    if item.count("*") == 2 and "$" in item and "[" in item:
+                        size = item.split(" ")[1].replace(" ", "").replace("'", "").upper()
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
+                                break
 
-                    insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                        depot, eta = "", ""
+                        term = "1Trip"
+                        feature = item.split("(")[1].split(")")[0].replace("FULL OPEN SIDE;", "").strip()
+                        quantity = item.split("]")[0].replace("[", "").strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = item.split("$")[1].replace(",", "").replace("EACH", "").strip()
+
+                        if price.isdigit() and int(price) > 0:
+                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                except Exception as e:
+                    print(f"Error on item {item}: {e}")
 
             return
+
+        # ---------------  Parsing for judy_zhang@hknewway.net (Judy Zhang, New Way International) --------------- #
+        case "judy_zhang@hknewway.net":
+            clear_container_data(vendor_email[0])
+            provider = "Judy Zhang, New Way International"
+            content_data = content.split("\n")
+
+            for item in content_data:
+                try:
+                    if item.count(" ") == 0:
+                        location = item.upper().strip()
+                        for key, value in location_data.items():
+                            if key == location:
+                                location = value
+                                break
+
+                    if "Depot" in item:
+                        depot = item.replace(" * ", "").strip()
+
+                    if "x" in item and "$" in item:
+                        size = item.replace(" * ", "").split("x")[1].split(" ")[0].replace("'", "").upper()
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
+                                break
+
+                        feature, eta = "", ""
+
+                        if "CW" in item or "cw" in item or "WWT" in item or "IICL" in item:
+                            terms = ["CW", "cw", "WWT", "IICL"]
+                            term = next((t for t in terms if t in item), None)
+                            if term == "cw":
+                                term = "CW"
+
+                        if "1-trip" in item or "1 trip" in item or "New" in item or "NEW" in item:
+                            term = "1Trip"
+                            if "(" in item and ")" in item:
+                                feature = item.split("(")[1].split(")")[0]
+
+                        quantity = item.replace(" * ", "").split("x")[0].strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = item.split("$")[1].replace(",", "").strip()
+
+                        if price.isdigit() and int(price) > 0:
+                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                except Exception as e:
+                    print(f"Error on item {item}: {e}")
+
+            return
+
+        # ---------------  Parsing for ziaj@panoceanicglobal.company (Zia Jones, Pan Oceanic Global) --------------- #
+        case "ziaj@panoceanicglobal.company":
+            clear_container_data(vendor_email[0])
+            provider = "Zia Jones, Pan Oceanic Global"
+            content_data = content.split("\n")
+
+            for item in content_data:
+                item = item.replace("*", "")
+                try:
+                    if "$" not in item and "-" not in item:
+                        if "(" in item and ")" in item:
+                            location = item.split("(")[0].upper().strip()
+                            depot = item.split("(")[1].split(")")[0]
+                        else:
+                            location = item.upper().strip()
+
+                        for key, value in location_data.items():
+                            if key == location:
+                                location = value
+                                break
+
+                    if "$" in item or "-" in item:
+                        size = item.split(") ")[1].split(" ")[0].replace("'", "").upper()
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
+                                break
+
+                        feature, eta = "", ""
+
+                        if "CW" in item or "WWT" in item or "IICL" in item:
+                            terms = ["CW", "WWT", "IICL"]
+                            term = next((t for t in terms if t in item), None)
+
+                        if "ONE TRIP" in item or "New" in item or "NEW" in item:
+                            term = "1Trip"
+
+                        quantity = item.split("(")[1].split(")")[0].strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = item.split("$")[1].replace(",", "").replace("EACH", "").strip()
+
+                        if price.isdigit() and int(price) > 0:
+                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                except Exception as e:
+                    print(f"Error on item {item}: {e}")
+
+            return
+
+        # # ---------------  Parsing for erica@icc-solution.com (Erica Medina, International Container & Chassis Solution) --------------- #
+        # case "erica@icc-solution.com":
+        #     clear_container_data(vendor_email[0])
+        #     provider = "Erica Medina, International Container & Chassis Solution"
+        #     content_data = content.split("Regards,")[0].split("\n")
+        #     for item in content_data:
+        #         item = item.strip()
+
+        #         try:
+        #             if item.count('*') >= 2:
+        #                 location = item.replace("*", "").split(",")[0].upper().strip() if "," in item else item.replace("*", "").upper().strip()
+        #                 for key, value in location_data.items():
+        #                     if key == location:
+        #                         location = value
+        #                         break
+        #             else:
+        #                 feature, depot, eta = "", "", ""
+        #                 item = item.replace("X", "x")
+        #                 if "x" in item:
+        #                     quantity = item.split("x")[0]
+        #                     quantity = int(quantity) if quantity.isdigit() else 1
+        #                     size = item.split("x")[1].lstrip().split(" ")[0].replace("'", "").replace(" ", "").upper()
+        #                 else:
+        #                     quantity = 1
+        #                     size = item.split(" ")[0].replace("'", "").replace(" ", "").upper()
+
+        #                 for key, value in size_data.items():
+        #                     if key == size:
+        #                         size = value
+        #                         break
+
+        #                 if "CW" in item or "WWT" in item or "IICL" in item:
+        #                     terms = ["CW", "WWT", "IICL"]
+        #                     term = next((t for t in terms if t in item), None)
+        #                     price = item.split("$")[1].replace(",", "").replace("each", "").strip()
+
+        #                     if price.isdigit() and int(price) > 0:
+        #                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+        #                 if "Used" in item and "CW" not in item and "WWT" not in item and "IICL" not in item:
+        #                     term = "Used"
+        #                     price = item.split("$")[1].replace(",", "").replace("each", "").strip()
+
+        #                     if price.isdigit() and int(price) > 0:
+        #                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+        #                 if "New/ One Trip" in item or "New" in item or "NEW" in item:
+        #                     term = "1Trip"
+        #                     if "(" in item and ")" in item:
+        #                         feature = item.split("(")[1].split(")")[0]
+
+        #                     price = item.split("$")[1].replace(",", "").replace("each", "").strip()
+
+        #                     if price.isdigit() and int(price) > 0:
+        #                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+        #         except Exception as e:
+        #             print(f"Error on item {item}: {e}")
+
+        #     return
 
     # Close the connection
     if connection:
@@ -2185,32 +2804,41 @@ def main():
     email_plain_lists = var_data['email_plain_data']
 
     current_datetime = datetime.now()
-    yesterday = current_datetime - timedelta(days=1)
+    yesterday = current_datetime - timedelta(days=4)
     yesterday_str = yesterday.strftime("%Y/%m/%d")
 
-    for email_html_list in email_html_lists:
-        try:
-            query = f"from:{email_html_list} after:{yesterday_str}"
-            print(query)
-            messages = get_messages(service, query=query)
-            if messages:
-                for message in messages:
-                    get_message_content_html(service, message['id'])
-        except Exception as e:
-            print(f"Error on item {email_html_list}: {e}")  # Handle the error and continue
+    # for email_html_list in email_html_lists:
+    #     try:
+    #         query = f"from:{email_html_list} after:{yesterday_str}"
+    #         print(query)
+    #         messages = get_messages(service, query=query)
+    #         if messages:
+    #             for message in messages:
+    #                 get_message_content_html(service, message['id'])
+    #     except Exception as e:
+    #         print(f"Error on item {email_html_list}: {e}")
 
     # for email_plain_list in email_plain_lists:
-    #     query = f"from:{email_plain_list} after:{yesterday_str}"
-    #     messages = get_messages(service, query=query)
-    #     if messages:
-    #         for message in messages:
-    #             get_message_content_plain(service, message['id'])
+    #     try:
+    #         query = f"from:{email_plain_list} after:{yesterday_str}"
+    #         messages = get_messages(service, query=query)
+    #         if messages:
+    #             for message in messages:
+    #                 get_message_content_plain(service, message['id'])
+    #     except Exception as e:
+    #         print(f"Error on item {email_plain_list}: {e}")
 
-    # query = "from:e4.mevtnhrict@gcc2011.com after:2025/3/15"
+    query = "tom.terhorst@dutchcontainers.com after:2025/3/25"
+    messages = get_messages(service, query=query)
+    if messages:
+        for message in messages:
+            get_message_content_html(service, message['id'])
+
+    # query = "rolly@oceanbox.cn after:2025/3/19"
     # messages = get_messages(service, query=query)
     # if messages:
     #     for message in messages:
-    #         get_message_content_html(service, message['id'])
+    #         get_message_content_plain(service, message['id'])
 
 if __name__ == '__main__':
     main()
