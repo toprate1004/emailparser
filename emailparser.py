@@ -321,7 +321,7 @@ def get_message_content_html(service, message_id):
                         quantity = int(quantity) if quantity.isdigit() else 1
                         price = cell_data[4].replace("$", "").replace(",", "").strip()
 
-                        if price.isdigit() and int(price) > 0:
+                        if price.isdigit() and int(price) > 0 and quantity > 0:
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                 except Exception as e:
@@ -363,7 +363,7 @@ def get_message_content_html(service, message_id):
                         quantity = int(quantity) if quantity.isdigit() else 1
                         price = cell_data[4].replace("$", "").replace(",", "").strip()
 
-                        if price.isdigit() and int(price) > 0:
+                        if price.isdigit() and int(price) > 0 and quantity > 0:
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                 except Exception as e:
@@ -408,7 +408,7 @@ def get_message_content_html(service, message_id):
                         quantity = int(quantity) if quantity.isdigit() else 1
                         price = cell_data[4].replace("$", "").replace(",", "").strip()
 
-                        if price.isdigit() and int(price) > 0:
+                        if price.isdigit() and int(price) > 0 and quantity > 0:
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                 except Exception as e:
@@ -448,7 +448,7 @@ def get_message_content_html(service, message_id):
                         quantity = int(quantity) if quantity.isdigit() else 1
                         price = cell_data[4].replace("$", "").replace(",", "").strip()
 
-                        if price.isdigit() and int(price) > 0:
+                        if price.isdigit() and int(price) > 0 and quantity > 0:
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                 except Exception as e:
@@ -514,7 +514,7 @@ def get_message_content_html(service, message_id):
                         else:
                             term = "CW"
 
-                    if price.isdigit() and int(price) > 0:
+                    if price.isdigit() and int(price) > 0 and quantity > 0:
                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                 except Exception as e:
@@ -551,7 +551,7 @@ def get_message_content_html(service, message_id):
                         quantity = int(quantity) if quantity.isdigit() else 1
                         price = cell_data[3].replace("$", "").replace(",", "").strip()
 
-                        if price.isdigit() and int(price) > 0:
+                        if price.isdigit() and int(price) > 0 and quantity > 0:
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                 except Exception as e:
@@ -634,7 +634,7 @@ def get_message_content_html(service, message_id):
                             quantity = int(quantity) if quantity.isdigit() else 1
                             price = cell_data[6].replace('\n', '').split(',')[0]
 
-                            if price.isdigit() and int(price) > 0:
+                            if price.isdigit() and int(price) > 0 and quantity > 0:
                                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                     except Exception as e:
@@ -678,7 +678,7 @@ def get_message_content_html(service, message_id):
                             quantity = int(quantity) if quantity.isdigit() else 1
                             price = cell_data[6].replace('\n', '').split(',')[0]
 
-                            if price.isdigit() and int(price) > 0:
+                            if price.isdigit() and int(price) > 0 and quantity > 0:
                                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                     except Exception as e:
@@ -729,13 +729,13 @@ def get_message_content_html(service, message_id):
                                 depot = ""
                                 eta = "ETA: " + cell_data[5].replace("\n", "")
 
-                                if price.isdigit() and int(price) > 0:
+                                if price.isdigit() and int(price) > 0 and quantity > 0:
                                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
                             else:
                                 depot = cell_data[5].replace("\n", "")
                                 eta = ""
 
-                                if price.isdigit() and int(price) > 0:
+                                if price.isdigit() and int(price) > 0 and quantity > 0:
                                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                     except Exception as e:
@@ -777,7 +777,7 @@ def get_message_content_html(service, message_id):
                             quantity = int(quantity) if quantity.isdigit() else 1
                             price = cell_data[6].replace("\n", "").split(",")[0]
 
-                            if price.isdigit() and int(price) > 0:
+                            if price.isdigit() and int(price) > 0 and quantity > 0:
                                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                     except Exception as e:
@@ -829,7 +829,7 @@ def get_message_content_html(service, message_id):
                                 quantity = int(quantity) if quantity.isdigit() else 1
                                 price = cell_data[j+1].replace("$", "").replace(",", "").strip()
 
-                                if price.isdigit() and int(price) > 0:
+                                if price.isdigit() and int(price) > 0 and quantity > 0:
                                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                     except Exception as e:
@@ -878,7 +878,7 @@ def get_message_content_html(service, message_id):
                             quantity = 1
                             price = cell_data[j].replace("$", "").replace(",", "").strip().replace("\n", "")
 
-                            if price.isdigit() and int(price) > 0:
+                            if price.isdigit() and int(price) > 0 and quantity > 0:
                                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                 except Exception as e:
@@ -922,7 +922,7 @@ def get_message_content_html(service, message_id):
         #                 quantity = int(quantity) if quantity.isdigit() else 1
         #                 price = cell_data[4].replace("$", "").replace(",", "").strip().replace("\n", "")
 
-        #                 if price.isdigit() and int(price) > 0:
+        #                 if price.isdigit() and int(price) > 0 and quantity > 0:
         #                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
         #             except Exception as e:
@@ -983,7 +983,7 @@ def get_message_content_html(service, message_id):
                             quantity = int(quantity) if quantity.isdigit() else 1
                             price = cell_data[5].replace("$", "").replace(",", "").replace("\n", "").replace("\r", "").replace("\xa0", "").split("(")[0].strip()
 
-                            if price.isdigit() and int(price) > 0:
+                            if price.isdigit() and int(price) > 0 and quantity > 0:
                                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                         if len(cell_data) == 6 and status == "ETA" and cell_data[0].replace("\n", "") != "":
@@ -1083,7 +1083,7 @@ def get_message_content_html(service, message_id):
                         quantity = int(quantity) if quantity.isdigit() else 1
                         price = cell_data[8].replace("$", "").replace(",", "").strip()
 
-                        if price.isdigit() and int(price) > 0:
+                        if price.isdigit() and int(price) > 0 and quantity > 0:
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                 except Exception as e:
@@ -1156,7 +1156,7 @@ def get_message_content_html(service, message_id):
                         if "RAL" not in feature:
                             feature = item.split(")")[1].split("(")[1].split(")")[0]
 
-                    if price.isdigit() and int(price) > 0:
+                    if price.isdigit() and int(price) > 0 and quantity > 0:
                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                 except Exception as e:
@@ -1229,7 +1229,7 @@ def get_message_content_html(service, message_id):
                         if "RAL" not in feature:
                             feature = item.split(")")[1].split("(")[1].split(")")[0]
 
-                    if price.isdigit() and int(price) > 0:
+                    if price.isdigit() and int(price) > 0 and quantity > 0:
                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                 except Exception as e:
@@ -1295,7 +1295,7 @@ def get_message_content_html(service, message_id):
 
                         feature, depot = cell_data[3].split("@")[0], cell_data[3].split("@")[1]
 
-                        if price.isdigit() and int(price) > 0:
+                        if price.isdigit() and int(price) > 0 and quantity > 0:
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                 except Exception as e:
@@ -1337,7 +1337,7 @@ def get_message_content_html(service, message_id):
                         quantity = int(quantity) if quantity.isdigit() else 1
                         price = cell_data[3].replace("$", "").replace(",", "").strip()
 
-                        if price.isdigit() and int(price) > 0:
+                        if price.isdigit() and int(price) > 0 and quantity > 0:
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                 except Exception as e:
@@ -1403,7 +1403,7 @@ def get_message_content_html(service, message_id):
 
                         feature, depot = cell_data[3].split("@")[0], cell_data[3].split("@")[1]
 
-                        if price.isdigit() and int(price) > 0:
+                        if price.isdigit() and int(price) > 0 and quantity > 0:
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                 except Exception as e:
@@ -1451,7 +1451,7 @@ def get_message_content_html(service, message_id):
                         quantity = int(quantity) if quantity.isdigit() else 1
                         price = cell_data[3].replace("$", "").replace(",", "").strip()
 
-                        if price.isdigit() and int(price) > 0:
+                        if price.isdigit() and int(price) > 0 and quantity > 0:
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                 except Exception as e:
@@ -1492,7 +1492,7 @@ def get_message_content_html(service, message_id):
                     quantity = int(quantity) if quantity.isdigit() else 1
                     price = cell_data[4].replace("$", "").replace(",", "").strip()
 
-                    if price.isdigit() and int(price) > 0:
+                    if price.isdigit() and int(price) > 0 and quantity > 0:
                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                 except Exception as e:
@@ -1532,7 +1532,7 @@ def get_message_content_html(service, message_id):
                     quantity = 1
                     price = cell_data[5].replace("$", "").replace(",", "").replace("USD", "").strip()
 
-                    if price.isdigit() and int(price) > 0:
+                    if price.isdigit() and int(price) > 0 and quantity > 0:
                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                 except Exception as e:
@@ -1571,7 +1571,7 @@ def get_message_content_html(service, message_id):
                     quantity = 1
                     price = cell_data[2].replace("$", "").replace(",", "").strip()
 
-                    if price.isdigit() and int(price) > 0:
+                    if price.isdigit() and int(price) > 0 and quantity > 0:
                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                 except Exception as e:
@@ -1612,7 +1612,7 @@ def get_message_content_html(service, message_id):
                         quantity = int(quantity) if quantity.isdigit() else 1
                         price = cell_data[6].split(".")[0].replace("$", "").replace(",", "").strip()
 
-                        if price.isdigit() and int(price) > 0:
+                        if price.isdigit() and int(price) > 0 and quantity > 0:
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                 except Exception as e:
@@ -2110,7 +2110,7 @@ def get_message_content_plain(service, message_id):
                                         depot = "gatebuy"
                                     price = content_data[i].split(",")[3].split("$")[1].strip()
 
-                                    if price.isdigit() and int(price) > 0:
+                                    if price.isdigit() and int(price) > 0 and quantity > 0:
                                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                             if len(content_data[i].split(",")) == 6 and "$" in content_data[i].split(",")[3] and "," in content_data[i].split("$")[1]:
@@ -2127,7 +2127,7 @@ def get_message_content_plain(service, message_id):
                                         depot = "gatebuy"
                                     price = content_data[i].split(",")[3].split("$")[1].strip()
 
-                                    if price.isdigit() and int(price) > 0:
+                                    if price.isdigit() and int(price) > 0 and quantity > 0:
                                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                                 else:
@@ -2143,7 +2143,7 @@ def get_message_content_plain(service, message_id):
                                         depot = "gatebuy"
                                     price = content_data[i].split(",")[3].split("$")[1].strip()
 
-                                    if price.isdigit() and int(price) > 0:
+                                    if price.isdigit() and int(price) > 0 and quantity > 0:
                                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                             if len(content_data[i].split(",")) == 6 and content_data[i].count("$") == 1 and "$" in content_data[i].split(",")[4] and "," in content_data[i].split("$")[1]:
@@ -2202,7 +2202,7 @@ def get_message_content_plain(service, message_id):
 
                                 price = content_data[i].split(",")[4].split("$")[1].strip()
 
-                                if price.isdigit() and int(price) > 0:
+                                if price.isdigit() and int(price) > 0 and quantity > 0:
                                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                             if len(content_data[i].split(",")) >= 7:
@@ -2228,7 +2228,7 @@ def get_message_content_plain(service, message_id):
 
                                     price = content_data[i].split(",")[3].split("$")[1].strip()
 
-                                    if price.isdigit() and int(price) > 0:
+                                    if price.isdigit() and int(price) > 0 and quantity > 0:
                                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                                 if "$" in content_data[i].split(",")[4]:
@@ -2256,7 +2256,7 @@ def get_message_content_plain(service, message_id):
 
                                     price = content_data[i].split(",")[4].split("$")[1].strip()
 
-                                    if price.isdigit() and int(price) > 0:
+                                    if price.isdigit() and int(price) > 0 and quantity > 0:
                                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                                 if "$" in content_data[i].split(",")[6]:
@@ -2284,7 +2284,7 @@ def get_message_content_plain(service, message_id):
 
                                     price = content_data[i].split(",")[6].split("$")[1].strip()
 
-                                    if price.isdigit() and int(price) > 0:
+                                    if price.isdigit() and int(price) > 0 and quantity > 0:
                                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                             if "$" in content_data[i].split(",")[2]:
@@ -2318,7 +2318,7 @@ def get_message_content_plain(service, message_id):
                                     if "(" in price:
                                         price = price.split("(")[0].strip()
 
-                                    if price.isdigit() and int(price) > 0:
+                                    if price.isdigit() and int(price) > 0 and quantity > 0:
                                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                                 else:
@@ -2336,7 +2336,7 @@ def get_message_content_plain(service, message_id):
 
                                     price = content_data[i].split(",")[2].split("$")[1].strip()
 
-                                    if price.isdigit() and int(price) > 0:
+                                    if price.isdigit() and int(price) > 0 and quantity > 0:
                                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                             if len(content_data[i].split(",")) == 4 and "$" in content_data[i].split(",")[3] and content_data[i].count("$") == 1:
@@ -2353,7 +2353,7 @@ def get_message_content_plain(service, message_id):
 
                                 price = content_data[i].split(",")[3].split("$")[1].strip()
 
-                                if price.isdigit() and int(price) > 0:
+                                if price.isdigit() and int(price) > 0 and quantity > 0:
                                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                             if len(content_data[i].split(",")) == 5 and "$" in content_data[i].split(",")[4] and content_data[i].count("$") == 1:
@@ -2391,7 +2391,7 @@ def get_message_content_plain(service, message_id):
 
                                 price = content_data[i].split(",")[4].split("$")[1].strip()
 
-                                if price.isdigit() and int(price) > 0:
+                                if price.isdigit() and int(price) > 0 and quantity > 0:
                                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                             if len(content_data[i].split(",")) == 6 and "$" in content_data[i].split(",")[5] and content_data[i].count("$") == 1:
@@ -2419,7 +2419,7 @@ def get_message_content_plain(service, message_id):
 
                                 price = content_data[i].split(",")[5].split("$")[1].strip()
 
-                                if price.isdigit() and int(price) > 0:
+                                if price.isdigit() and int(price) > 0 and quantity > 0:
                                     insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                     except Exception as e:
@@ -2457,7 +2457,7 @@ def get_message_content_plain(service, message_id):
                             term = "CW"
                             price = content_data[i].replace("*", "").split(" - ")[1].replace("$", "").replace(",", "").replace("EACH", "").strip()
 
-                            if price.isdigit() and int(price) > 0:
+                            if price.isdigit() and int(price) > 0 and quantity > 0:
                                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                         elif "ONE TRIP" in content_data[i]:
@@ -2480,7 +2480,7 @@ def get_message_content_plain(service, message_id):
                             feature = content_data[i].split("(")[1].split(")")[0]
                             price = content_data[i].replace("*", "").split(" - ")[1].replace("$", "").replace(",", "").replace("EACH", "").strip()
 
-                            if price.isdigit() and int(price) > 0:
+                            if price.isdigit() and int(price) > 0 and quantity > 0:
                                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                         elif "IICL" in content_data[i]:
@@ -2494,7 +2494,7 @@ def get_message_content_plain(service, message_id):
                             term = "IICL"
                             price = content_data[i].replace("*", "").split(" - ")[1].replace("$", "").replace(",", "").replace("EACH", "").strip()
 
-                            if price.isdigit() and int(price) > 0:
+                            if price.isdigit() and int(price) > 0 and quantity > 0:
                                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                         elif "AS IS" in content_data[i] or "WWT" in content_data[i]:
@@ -2514,7 +2514,7 @@ def get_message_content_plain(service, message_id):
                             feature = content_data[i].split(term_temp)[1].split(" - ")[0].replace(" ", '')
                             price = content_data[i].replace("*", "").split(" - ")[1].replace("$", "").replace(",", "").replace("EACH", "").strip()
 
-                            if price.isdigit() and int(price) > 0:
+                            if price.isdigit() and int(price) > 0 and quantity > 0:
                                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                 except Exception as e:
@@ -2558,14 +2558,14 @@ def get_message_content_plain(service, message_id):
                             term = next((t for t in terms if t in item), None)
                             price = item.split("$")[1].replace(",", "").replace("each", "").strip()
 
-                            if price.isdigit() and int(price) > 0:
+                            if price.isdigit() and int(price) > 0 and quantity > 0:
                                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                         if "Used" in item and "CW" not in item and "WWT" not in item and "IICL" not in item:
                             term = "Used"
                             price = item.split("$")[1].replace(",", "").replace("each", "").strip()
 
-                            if price.isdigit() and int(price) > 0:
+                            if price.isdigit() and int(price) > 0 and quantity > 0:
                                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                         if "New/ One Trip" in item or "New" in item or "NEW" in item:
@@ -2574,7 +2574,7 @@ def get_message_content_plain(service, message_id):
                                 feature = item.split("(")[1].split(")")[0]
                             price = item.split("$")[1].replace(",", "").replace("each", "").strip()
 
-                            if price.isdigit() and int(price) > 0:
+                            if price.isdigit() and int(price) > 0 and quantity > 0:
                                 insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                 except Exception as e:
@@ -2611,7 +2611,7 @@ def get_message_content_plain(service, message_id):
                         quantity = int(quantity) if quantity.isdigit() else 1
                         price = item.split("$")[1].replace(",", "").replace("EACH", "").strip()
 
-                        if price.isdigit() and int(price) > 0:
+                        if price.isdigit() and int(price) > 0 and quantity > 0:
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                 except Exception as e:
@@ -2661,7 +2661,7 @@ def get_message_content_plain(service, message_id):
                         quantity = int(quantity) if quantity.isdigit() else 1
                         price = item.split("$")[1].replace(",", "").strip()
 
-                        if price.isdigit() and int(price) > 0:
+                        if price.isdigit() and int(price) > 0 and quantity > 0:
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                 except Exception as e:
@@ -2710,7 +2710,7 @@ def get_message_content_plain(service, message_id):
                         quantity = int(quantity) if quantity.isdigit() else 1
                         price = item.split("$")[1].replace(",", "").replace("EACH", "").strip()
 
-                        if price.isdigit() and int(price) > 0:
+                        if price.isdigit() and int(price) > 0 and quantity > 0:
                             insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                 except Exception as e:
@@ -2754,14 +2754,14 @@ def get_message_content_plain(service, message_id):
         #                     term = next((t for t in terms if t in item), None)
         #                     price = item.split("$")[1].replace(",", "").replace("each", "").strip()
 
-        #                     if price.isdigit() and int(price) > 0:
+        #                     if price.isdigit() and int(price) > 0 and quantity > 0:
         #                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
         #                 if "Used" in item and "CW" not in item and "WWT" not in item and "IICL" not in item:
         #                     term = "Used"
         #                     price = item.split("$")[1].replace(",", "").replace("each", "").strip()
 
-        #                     if price.isdigit() and int(price) > 0:
+        #                     if price.isdigit() and int(price) > 0 and quantity > 0:
         #                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
         #                 if "New/ One Trip" in item or "New" in item or "NEW" in item:
@@ -2771,7 +2771,7 @@ def get_message_content_plain(service, message_id):
 
         #                     price = item.split("$")[1].replace(",", "").replace("each", "").strip()
 
-        #                     if price.isdigit() and int(price) > 0:
+        #                     if price.isdigit() and int(price) > 0 and quantity > 0:
         #                         insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
         #         except Exception as e:
@@ -2844,26 +2844,85 @@ def main():
     yesterday = current_datetime - timedelta(days=4)
     yesterday_str = yesterday.strftime("%Y/%m/%d")
 
-    for email_html_list in email_html_lists:
+    # for email_html_list in email_html_lists:
+    #     try:
+    #         query = f"from:{email_html_list} after:{yesterday_str}"
+    #         print(query)
+    #         messages = get_messages(service, query=query)
+    #         if messages:
+    #             for message in messages:
+    #                 get_message_content_html(service, message['id'])
+    #     except Exception as e:
+    #         print(f"Error on item {email_html_list}: {e}")
+
+    # for email_plain_list in email_plain_lists:
+    #     try:
+    #         query = f"from:{email_plain_list} after:{yesterday_str}"
+    #         messages = get_messages(service, query=query)
+    #         if messages:
+    #             for message in messages:
+    #                 get_message_content_plain(service, message['id'])
+    #     except Exception as e:
+    #         print(f"Error on item {email_plain_list}: {e}")
+
+    query_html_lists = [
+                "john@americanacontainers.com after:2025/3/24",
+                "chris@americanacontainers.com after:2025/3/24",
+                "tine@americanacontainers.com after:2025/3/24",
+                "jason@americanacontainers.com after:2025/3/26",
+                "johannes@oztradingltd.com after:2025/3/18",
+                "wayne.vandenburg@dutchcontainers.com after:2025/3/25",
+                "e4.mevtnhrict@gcc2011.com after:2025/3/17",
+                "ash@container-xchange.com after:2025/2/18",
+                "JAnguish@ism247.com after:2025/2/24",
+                "thomas@fulidacontainer.com after:2025/3/24",
+                "magui.cheung@northatlanticcontainer.com after:2025/3/3",
+                "laizel.yin@northatlanticcontainer.com after:2025/3/6"
+                "tom.terhorst@dutchcontainers.com after:2025/3/20",
+                "jenny@onsitestorage.com after:2025/3/25",
+                "sales1@kirin-trans.com after:2025/3/18",
+                "saquib.amiri@boxxport.com after:2025/3/19",
+                "henry@foursonslogistics.com after:2025/3/19"
+            ]
+
+    for query_list in query_html_lists:
         try:
-            query = f"from:{email_html_list} after:{yesterday_str}"
-            print(query)
-            messages = get_messages(service, query=query)
+            messages = get_messages(service, query=query_list)
             if messages:
                 for message in messages:
                     get_message_content_html(service, message['id'])
         except Exception as e:
-            print(f"Error on item {email_html_list}: {e}")
+            print(f"Error on item {query_list}: {e}")
 
-    for email_plain_list in email_plain_lists:
+
+    query_plain_lists = [
+                "rolly@oceanbox.cn after:2025/3/26",
+                "jenny@icc-solution.com after:2025/3/26",
+                "ziaj@panoceanicglobal.company after:2025/3/14",
+                "judy_zhang@hknewway.net after:2025/3/20"
+
+        ]
+
+    for query_list in query_plain_lists:
         try:
-            query = f"from:{email_plain_list} after:{yesterday_str}"
-            messages = get_messages(service, query=query)
+            messages = get_messages(service, query=query_list)
             if messages:
                 for message in messages:
                     get_message_content_plain(service, message['id'])
         except Exception as e:
-            print(f"Error on item {email_plain_list}: {e}")
+            print(f"Error on item {query_list}: {e}")
+
+    # query = "magui.cheung@northatlanticcontainer.com before:2024/7/2"
+    # messages = get_messages(service, query=query)
+    # if messages:
+    #     for message in messages:
+    #         get_message_content_html(service, message['id'])
+
+    # query = "rolly@oceanbox.cn after:2025/3/19"
+    # messages = get_messages(service, query=query)
+    # if messages:
+    #     for message in messages:
+    #         get_message_content_plain(service, message['id'])
 
 if __name__ == '__main__':
     main()
