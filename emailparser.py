@@ -1110,10 +1110,10 @@ def get_message_content_html(service, message_id):
                                 location = value
                                 break
 
-                    quantity = cell_data[2].replace("-", "").strip()
-                    quantity = int(quantity) if quantity.isdigit() else 1
-                    price = cell_data[3].replace("$", "").replace(",", "").strip()
-                    item = cell_data[1]
+                        quantity = cell_data[2].replace("-", "").strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = cell_data[3].replace("$", "").replace(",", "").strip()
+                        item = cell_data[1]
 
                     if len(cell_data) == 3:
                         quantity = cell_data[1].replace("-", "").strip()
@@ -1183,10 +1183,10 @@ def get_message_content_html(service, message_id):
                                 location = value
                                 break
 
-                    quantity = cell_data[2].replace("-", "").strip()
-                    quantity = int(quantity) if quantity.isdigit() else 1
-                    price = cell_data[3].replace("$", "").replace(",", "").strip()
-                    item = cell_data[1]
+                        quantity = cell_data[2].replace("-", "").strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = cell_data[3].replace("$", "").replace(",", "").strip()
+                        item = cell_data[1]
 
                     if len(cell_data) == 3:
                         quantity = cell_data[1].replace("-", "").strip()
@@ -2866,25 +2866,25 @@ def main():
     #         print(f"Error on item {email_plain_list}: {e}")
 
     query_html_lists = [
-                "john@americanacontainers.com after:2025/3/24",
-                "chris@americanacontainers.com after:2025/3/24",
-                "tine@americanacontainers.com after:2025/3/24",
-                "jason@americanacontainers.com after:2025/3/4",
-                "johannes@oztradingltd.com after:2025/3/18",
-                "steven.gao@cgkinternational.com after:2024/7/8",
-                "wayne.vandenburg@dutchcontainers.com after:2025/3/25",
-                "ryan@trident-containers.com after:2024/7/8",
-                "e4.mevtnhrict@gcc2011.com after:2025/3/17",
-                "ash@container-xchange.com after:2025/2/18",
-                "JAnguish@ism247.com after:2025/2/24",
-                "thomas@fulidacontainer.com after:2025/3/24",
-                # "magui.cheung@northatlanticcontainer.com after:2025/3/3",
-                # "laizel.yin@northatlanticcontainer.com after:2025/3/6",
-                "tom.terhorst@dutchcontainers.com after:2025/3/20",
-                "jenny@onsitestorage.com after:2025/3/25",
-                "sales1@kirin-trans.com after:2025/3/18",
-                "saquib.amiri@boxxport.com after:2025/3/19",
-                "henry@foursonslogistics.com after:2025/3/19"
+                # "john@americanacontainers.com after:2025/3/24",
+                # "chris@americanacontainers.com after:2025/3/24",
+                # "tine@americanacontainers.com after:2025/3/24",
+                # "jason@americanacontainers.com after:2025/3/4",
+                # "johannes@oztradingltd.com after:2025/3/18",
+                # "steven.gao@cgkinternational.com after:2024/7/8",
+                # "wayne.vandenburg@dutchcontainers.com after:2025/3/25",
+                # "ryan@trident-containers.com after:2024/7/8",
+                # "e4.mevtnhrict@gcc2011.com after:2025/3/17",
+                # "ash@container-xchange.com after:2025/2/18",
+                # "JAnguish@ism247.com after:2025/2/24",
+                # "thomas@fulidacontainer.com after:2025/3/24",
+                "magui.cheung@northatlanticcontainer.com after:2025/3/3",
+                "laizel.yin@northatlanticcontainer.com after:2025/3/6"
+                # "tom.terhorst@dutchcontainers.com after:2025/3/20",
+                # "jenny@onsitestorage.com after:2025/3/25",
+                # "sales1@kirin-trans.com after:2025/3/18",
+                # "saquib.amiri@boxxport.com after:2025/3/19",
+                # "henry@foursonslogistics.com after:2025/3/19"
             ]
 
     for query_list in query_html_lists:
@@ -2906,16 +2906,16 @@ def main():
 
         ]
 
-    for query_list in query_plain_lists:
-        try:
-            messages = get_messages(service, query=query_list)
-            if messages:
-                for message in messages:
-                    get_message_content_plain(service, message['id'])
-        except Exception as e:
-            print(f"Error on item {query_list}: {e}")
+    # for query_list in query_plain_lists:
+    #     try:
+    #         messages = get_messages(service, query=query_list)
+    #         if messages:
+    #             for message in messages:
+    #                 get_message_content_plain(service, message['id'])
+    #     except Exception as e:
+    #         print(f"Error on item {query_list}: {e}")
 
-    # query = "wayne.vandenburg@dutchcontainers.com after:2025/3/25"
+    # query = "magui.cheung@northatlanticcontainer.com before:2024/7/2"
     # messages = get_messages(service, query=query)
     # if messages:
     #     for message in messages:
