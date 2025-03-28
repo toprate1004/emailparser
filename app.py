@@ -13,7 +13,7 @@ CORS(app, resources={r"/download_csv": {"origins": "*"}})
 # Define the function to run once a day
 def daily_emailparser():
     emailparser.main()
-    
+
 # Configure APScheduler in Flask
 def start_scheduler():
     scheduler = BackgroundScheduler()
@@ -44,13 +44,21 @@ def get_container_data():
         return jsonify(container_data), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
+
+@app.route('/get_filtered_data', methods=['GET'])
+def get_container_filtered_data():
+    try:
+        container_data = emailparser.get_container_filtered_data()
+        return jsonify(container_data), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/export_csv', methods=['GET'])
 def export_container_csv():
     try:
         filename = "container_list.csv"
         emailparser.export_to_csv(filename)
-        
+
         return "CSV file was exported successfully!"
     except Exception as e:
         return jsonify({"error": str(e)}), 500

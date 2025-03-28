@@ -113,6 +113,42 @@ def get_container_data():
 
     return container_json_data
 
+def get_container_filtered_data():
+    # Connect to the MySQL database
+    host = "localhost"
+    user = "root"
+    password = os.getenv("MYSQL_PASSWORD")
+    database = "container"
+
+    # Create a connection
+    connection = create_connection(host, user, password, database)
+
+    try:
+        with connection.cursor() as cursor:
+            # SQL query to fetch data
+            fetch_query = "SELECT c.* FROM container c JOIN ( SELECT location, size, term, MIN(price) AS min_price FROM container GROUP BY location, size, term ) c2  ON c.location = c2.location AND c.size = c2.size AND c.term = c2.term AND c.price = c2.min_price GROUP BY c.location, c.size, c.price ORDER BY c.location, c.size"
+
+            cursor.execute(fetch_query)
+
+            # Fetch all results
+            container_data = cursor.fetchall()
+            container_json_data = [{"location": row[1], "quantity": row[2],
+                                    "size": row[3], "term": row[4],
+                                    "price": row[5], "feature": row[6],
+                                    "depot": row[7], "eta": row[8],
+                                    "provider": row[9], "vendor": row[10],
+                                    "received_date": row[11], "created_date": row[12]
+                                    } for row in container_data]
+
+    except Exception as e:
+        print("Error fetching data:", e)
+
+    # Close the connection
+    if connection:
+        connection.close()
+
+    return container_json_data
+
 def clear_container_data(email):
     # Connect to the MySQL database
     host = "localhost"
