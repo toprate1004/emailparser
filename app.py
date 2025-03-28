@@ -48,8 +48,8 @@ def get_container_data():
 @app.route('/get_filtered_data', methods=['GET'])
 def get_container_filtered_data():
     try:
-        container_data = emailparser.get_container_filtered_data()
-        return jsonify(container_data), 200
+        container_filtered_data = emailparser.get_container_filtered_data()
+        return jsonify(container_filtered_data), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
