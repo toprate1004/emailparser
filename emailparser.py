@@ -129,15 +129,20 @@ def get_container_filtered_data():
         with connection.cursor() as cursor:
             # SQL query to fetch data
             fetch_query = """
-                SELECT c.*
+                SELECT MIN(c.id) as id, c.location, c.quantity, c.size, c.term,
+                    c.price, c.feature, c.depot, c.eta, c.provider, c.vendor,
+                    c.received_date, c.created_date
                 FROM
                     container c
-                    JOIN ( SELECT location, size, term, MIN( price ) AS min_price FROM container GROUP BY location, size, term ) c2 ON c.location = c2.location
+                    JOIN (SELECT location, size, term, MIN(price) AS min_price
+                        FROM container
+                        GROUP BY location, size, term) c2
+                    ON c.location = c2.location
                     AND c.size = c2.size
                     AND c.term = c2.term
                     AND c.price = c2.min_price
                 GROUP BY
-                    c.location, c.size, c.price
+                    c.location, c.size, c.term, c.price
                 ORDER BY
                     c.location, c.size
             """
