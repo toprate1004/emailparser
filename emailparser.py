@@ -87,6 +87,7 @@ def get_container_data():
 
     # Create a connection
     connection = create_connection(host, user, password, database)
+    container_json_data = []
 
     try:
         with connection.cursor() as cursor:
@@ -122,6 +123,7 @@ def get_container_filtered_data():
 
     # Create a connection
     connection = create_connection(host, user, password, database)
+    container_json_data = []
 
     try:
         with connection.cursor() as cursor:
