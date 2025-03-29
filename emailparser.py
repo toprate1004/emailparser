@@ -2880,26 +2880,28 @@ def main():
     yesterday = current_datetime - timedelta(days=4)
     yesterday_str = yesterday.strftime("%Y/%m/%d")
 
-    for email_html_list in email_html_lists:
-        try:
-            query = f"from:{email_html_list} after:{yesterday_str}"
-            print(query)
-            messages = get_messages(service, query=query)
-            if messages:
-                for message in messages:
-                    get_message_content_html(service, message['id'])
-        except Exception as e:
-            print(f"Error on item {email_html_list}: {e}")
+    get_container_filtered_data()
 
-    for email_plain_list in email_plain_lists:
-        try:
-            query = f"from:{email_plain_list} after:{yesterday_str}"
-            messages = get_messages(service, query=query)
-            if messages:
-                for message in messages:
-                    get_message_content_plain(service, message['id'])
-        except Exception as e:
-            print(f"Error on item {email_plain_list}: {e}")
+    # for email_html_list in email_html_lists:
+    #     try:
+    #         query = f"from:{email_html_list} after:{yesterday_str}"
+    #         print(query)
+    #         messages = get_messages(service, query=query)
+    #         if messages:
+    #             for message in messages:
+    #                 get_message_content_html(service, message['id'])
+    #     except Exception as e:
+    #         print(f"Error on item {email_html_list}: {e}")
+
+    # for email_plain_list in email_plain_lists:
+    #     try:
+    #         query = f"from:{email_plain_list} after:{yesterday_str}"
+    #         messages = get_messages(service, query=query)
+    #         if messages:
+    #             for message in messages:
+    #                 get_message_content_plain(service, message['id'])
+    #     except Exception as e:
+    #         print(f"Error on item {email_plain_list}: {e}")
 
 if __name__ == '__main__':
     main()
