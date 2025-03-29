@@ -128,7 +128,19 @@ def get_container_filtered_data():
     try:
         with connection.cursor() as cursor:
             # SQL query to fetch data
-            fetch_query = "SELECT c.* FROM container c JOIN ( SELECT location, size, term, MIN(price) AS min_price FROM container GROUP BY location, size, term ) c2  ON c.location = c2.location AND c.size = c2.size AND c.term = c2.term AND c.price = c2.min_price GROUP BY c.location, c.size, c.price ORDER BY c.location, c.size"
+            fetch_query = """
+                SELECT c.*
+                FROM
+                    container c
+                    JOIN ( SELECT location, size, term, MIN( price ) AS min_price FROM container GROUP BY location, size, term ) c2 ON c.location = c2.location
+                    AND c.size = c2.size
+                    AND c.term = c2.term
+                    AND c.price = c2.min_price
+                GROUP BY
+                    c.location, c.size, c.price
+                ORDER BY
+                    c.location, c.size
+            """
 
             cursor.execute(fetch_query)
 
