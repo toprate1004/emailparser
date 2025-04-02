@@ -13,6 +13,10 @@ from googleapiclient.discovery import build
 from email import message_from_bytes
 from datetime import datetime, timedelta
 from pymysql import Error
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
 
 from dotenv import load_dotenv
 
@@ -71,12 +75,48 @@ def execute_query(connection, query):
         print(f"The error '{e}' occurred")
 
 def insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email, received_date, created_date):
-
+    """Insert container record and send email if price is lower than the lowest price in the database"""
     insert = f"""
     INSERT INTO container (size, quantity, term, location, price, feature, depot, ETA, provider, vendor, received_date, created_date)
     VALUES ('{size}', '{quantity}', '{term}', '{location}', '{price}', '{feature}', '{depot}', '{eta}', '{provider}', '{vendor_email}', '{received_date}', '{created_date}')
     """
     execute_query(connection, insert)
+
+    # Connect to the MySQL database
+    host = "localhost"
+    user = "root"
+    password = os.getenv("MYSQL_PASSWORD")
+    database = "container"
+
+    # Create a connection
+    connection = create_connection(host, user, password, database)
+
+    try:
+        with connection.cursor() as cursor:
+            # SQL query to fetch data
+            fetch_query = f"SELECT MIN(price) FROM container WHERE size = '{size}' and location = '{location}' and term = '{term}'"
+            cursor.execute(fetch_query)
+
+            # Fetch all results
+            container_data = cursor.fetchall()
+            min_price = container_data[0][0]
+
+            if min_price is None and price < min_price:
+                send_email(
+                    to_email='devtoprate1006@gmail.com',
+                    subject='Test Email',
+                    body="""
+                    This is a test email sent using Gmail API
+                    """
+                )
+
+    except Exception as e:
+        print("Error fetching data:", e)
+
+    # Close the connection
+    if connection:
+        connection.close()
+
 
 def get_container_data():
     # Connect to the MySQL database
@@ -254,8 +294,11 @@ def export_to_csv(filename):
     if connection:
         connection.close()
 
-# If modifying these SCOPES, delete the file token.json.
-SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+# If modifying these SCOPES, delete the file token.
+SCOPES = [
+        'https://www.googleapis.com/auth/gmail.readonly',  # For reading emails
+        'https://www.googleapis.com/auth/gmail.send'       # For sending emails
+    ]
 
 # Function authenticate_gmail() - Access gmail
 def authenticate_gmail():
@@ -2891,6 +2934,63 @@ def get_today_emails():
 
     print("\n")
     print("Email list:", email_data)
+
+def send_email(to_email, subject, body, attachments=None):
+    """
+    Send an email using Gmail API.
+
+    Args:
+        to_email (str): Recipient's email address
+        subject (str): Email subject
+        body (str): Email body content
+        attachments (list, optional): List of file paths to attach
+    """
+    try:
+        # Authenticate and build the Gmail service
+        service = authenticate_gmail()
+
+        # Create message container
+        message = MIMEMultipart()
+        message['to'] = to_email
+        message['subject'] = subject
+
+        # Add body
+        message.attach(MIMEText(body, 'plain'))
+
+        # Add attachments if any
+        if attachments:
+            for file_path in attachments:
+                with open(file_path, 'rb') as attachment:
+                    part = MIMEBase('application', 'octet-stream')
+                    part.set_payload(attachment.read())
+
+                # Encode the attachment
+                encoders.encode_base64(part)
+
+                # Add header
+                filename = os.path.basename(file_path)
+                part.add_header(
+                    'Content-Disposition',
+                    f'attachment; filename= {filename}'
+                )
+
+                message.attach(part)
+
+        # Encode the message
+        raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode('utf-8')
+
+        # Send the email
+        sent_message = service.users().messages().send(
+            userId='me',
+            body={'raw': raw_message}
+        ).execute()
+
+        print(f'Message Id: {sent_message["id"]}')
+        return True
+
+    except Exception as e:
+        print(f'An error occurred: {e}')
+        return False
 
 def main():
     # Authenticate and build the service
