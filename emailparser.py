@@ -76,20 +76,11 @@ def execute_query(connection, query):
 
 def insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email, received_date, created_date):
     """Insert container record and send email if price is lower than the lowest price in the database"""
-    insert = f"""
+    insert_query = f"""
     INSERT INTO container (size, quantity, term, location, price, feature, depot, ETA, provider, vendor, received_date, created_date)
     VALUES ('{size}', '{quantity}', '{term}', '{location}', '{price}', '{feature}', '{depot}', '{eta}', '{provider}', '{vendor_email}', '{received_date}', '{created_date}')
     """
-    execute_query(connection, insert)
-
-    # Connect to the MySQL database
-    host = "localhost"
-    user = "root"
-    password = os.getenv("MYSQL_PASSWORD")
-    database = "container"
-
-    # Create a connection
-    connection = create_connection(host, user, password, database)
+    execute_query(connection, insert_query)
 
     try:
         with connection.cursor() as cursor:
@@ -103,20 +94,27 @@ def insert_container_record(connection, size, quantity, term, location, price, f
 
             if min_price is None and price < min_price:
                 send_email(
-                    to_email='devtoprate1006@gmail.com',
-                    subject='Test Email',
-                    body="""
-                    This is a test email sent using Gmail API
+                    to_email="kyleandrewpittman@gmail.com",
+                    subject=f"{location} - Low Price {size} {term}",
+                    body=f"""
+                        New Low Price:  {size} {term} for ${price} from {provider} at {location} on {received_date}
+
+                        Location:       {location}
+                        Size:           {size}
+                        Term:           {term}
+                        Price:          ${price}
+                        Quantity:       {quantity}
+                        Feature:        {feature}
+                        Depot:          {depot}
+                        ETA:            {eta}
+                        Provider:       {provider}
+                        Vendor:         {vendor_email}
+                        Received Date:  {received_date}
                     """
                 )
 
     except Exception as e:
         print("Error fetching data:", e)
-
-    # Close the connection
-    if connection:
-        connection.close()
-
 
 def get_container_data():
     # Connect to the MySQL database
@@ -1613,31 +1611,60 @@ def get_message_content_html(service, message_id):
                 cell_data = [cell.get_text() for cell in cells]
 
                 try:
-                    location = cell_data[1].split(",")[0].upper().replace("\xa0", " ").replace("\n", "").strip()
-                    for key, value in location_data.items():
-                        if key == location:
-                            location = value
-                            break
+                    if len(cell_data) == 7:
+                        location = cell_data[1].split(",")[0].upper().replace("\xa0", " ").replace("\n", "").strip()
+                        for key, value in location_data.items():
+                            if key == location:
+                                location = value
+                                break
 
-                    size = cell_data[3].replace(" ", "").replace("'", "").replace("\n", "").upper()
-                    for key, value in size_data.items():
-                        if key == size:
-                            size = value
-                            break
+                        size = cell_data[3].replace(" ", "").replace("'", "").replace("\n", "").upper()
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
+                                break
 
-                    if "CW" in cell_data[0]:
-                        term = "CW"
-                        feature = ""
-                    else:
-                        term = "1Trip"
-                        feature = cell_data[0]
+                        if "RAL" in cell_data[0]:
+                            term = "1Trip"
+                            feature = cell_data[0]
+                        else:
+                            term = cell_data[0]
+                            feature = ""
 
-                    depot, eta = cell_data[2], cell_data[4]
-                    quantity = 1
-                    price = cell_data[5].replace("$", "").replace(",", "").replace("USD", "").strip()
+                        depot, eta = cell_data[2], cell_data[4]
+                        quantity = 1
+                        price = cell_data[5].replace("$", "").replace(",", "").replace("USD", "").strip()
 
-                    if price.isdigit() and int(price) > 0 and quantity > 0:
-                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+                        if price.isdigit() and int(price) > 0 and quantity > 0:
+                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                    if len(cell_data) == 8:
+                        location = cell_data[2].split(",")[0].upper().replace("\xa0", " ").replace("\n", "").strip()
+                        for key, value in location_data.items():
+                            if key == location:
+                                location = value
+                                break
+
+                        size = cell_data[0].replace(" ", "").replace("'", "").replace("\n", "").upper()
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
+                                break
+
+                        if "RAL" in cell_data[1]:
+                            term = "1Trip"
+                            feature = cell_data[1]
+                        else:
+                            term = cell_data[1]
+                            feature = ""
+
+                        depot, eta = cell_data[6], cell_data[3]
+                        quantity = cell_data[4].replace("\n", "").strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = cell_data[5].replace("$", "").replace(",", "").replace("USD", "").strip()
+
+                        if price.isdigit() and int(price) > 0 and quantity > 0:
+                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
 
                 except Exception as e:
                     print(f"Error on item {cell_data}: {e}")
@@ -3005,26 +3032,57 @@ def main():
     yesterday = current_datetime - timedelta(days=4)
     yesterday_str = yesterday.strftime("%Y/%m/%d")
 
-    for email_html_list in email_html_lists:
+    query_html_lists = [
+                # "john@americanacontainers.com after:2025/3/24",
+                # "chris@americanacontainers.com after:2025/3/24",
+                # "tine@americanacontainers.com after:2025/3/24",
+                # "jason@americanacontainers.com after:2025/3/26",
+                # "johannes@oztradingltd.com after:2025/3/18",
+                # "steven.gao@cgkinternational.com after:2024/7/8",
+                # "wayne.vandenburg@dutchcontainers.com after:2025/3/25",
+                # "ryan@trident-containers.com after:2024/7/8",
+                # "e4.mevtnhrict@gcc2011.com after:2025/3/17",
+                # "ash@container-xchange.com after:2025/2/18",
+                # "JAnguish@ism247.com after:2025/2/24",
+                # "thomas@fulidacontainer.com after:2025/3/24",
+                # "magui.cheung@northatlanticcontainer.com after:2025/3/3",
+                # "laizel.yin@northatlanticcontainer.com after:2025/3/6"
+                # "tom.terhorst@dutchcontainers.com after:2025/3/20",
+                # "jenny@onsitestorage.com after:2025/3/25",
+                "sales1@kirin-trans.com after:2025/3/31",
+                # "saquib.amiri@boxxport.com after:2025/3/19",
+                # "henry@foursonslogistics.com after:2025/3/19"
+            ]
+
+    for query_list in query_html_lists:
         try:
-            query = f"from:{email_html_list} after:{yesterday_str}"
-            print(query)
-            messages = get_messages(service, query=query)
+            messages = get_messages(service, query=query_list)
             if messages:
                 for message in messages:
                     get_message_content_html(service, message['id'])
         except Exception as e:
-            print(f"Error on item {email_html_list}: {e}")
+            print(f"Error on item {query_list}: {e}")
 
-    for email_plain_list in email_plain_lists:
-        try:
-            query = f"from:{email_plain_list} after:{yesterday_str}"
-            messages = get_messages(service, query=query)
-            if messages:
-                for message in messages:
-                    get_message_content_plain(service, message['id'])
-        except Exception as e:
-            print(f"Error on item {email_plain_list}: {e}")
+    # for email_html_list in email_html_lists:
+    #     try:
+    #         query = f"from:{email_html_list} after:{yesterday_str}"
+    #         print(query)
+    #         messages = get_messages(service, query=query)
+    #         if messages:
+    #             for message in messages:
+    #                 get_message_content_html(service, message['id'])
+    #     except Exception as e:
+    #         print(f"Error on item {email_html_list}: {e}")
+
+    # for email_plain_list in email_plain_lists:
+    #     try:
+    #         query = f"from:{email_plain_list} after:{yesterday_str}"
+    #         messages = get_messages(service, query=query)
+    #         if messages:
+    #             for message in messages:
+    #                 get_message_content_plain(service, message['id'])
+    #     except Exception as e:
+    #         print(f"Error on item {email_plain_list}: {e}")
 
 if __name__ == '__main__':
     main()
