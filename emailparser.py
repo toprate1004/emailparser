@@ -78,63 +78,68 @@ def execute_query(connection, query):
 
 def insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email, received_date, created_date):
     """Insert container record and send email if price is lower than the lowest price in the database"""
+#     try:
+#         with connection.cursor() as cursor:
+#             # SQL query to fetch data
+#             fetch_query = f"SELECT MIN(price) FROM container WHERE size = '{size}' and location = '{location}' and term = '{term}'"
+#             cursor.execute(fetch_query)
+
+#             # Fetch all results
+#             container_data = cursor.fetchall()
+#             min_price = container_data[0][0]
+
+#             if min_price is None or int(price) < int(min_price):
+                
+#                 send_email(
+#                     to_email="kyleandrewpittman@gmail.com",
+#                     subject=f"{location} - Low Price Container ({size} {term})",
+#                     body=f"""
+# <table>
+# <tr>
+# <td><b>New Low Price:</b></td>
+# <td><b>${price}</b> for {size} {term} at {location}</td>
+# </tr>
+# <tr><br></tr>
+# <tr>
+# <td><b>Location:</b></td>
+# <td>{location}</td>
+# </tr>
+# <tr>
+# <td><b>Size:</b></td>
+# <td>{size}</td>
+# </tr>
+# <tr>
+# <td><b>Term:</b></td>
+# <td>{term}</td>
+# </tr>
+# <tr>
+# <td><b>Price:</b></td>
+# <td>${price}</td>
+# </tr>
+# <tr>
+# <td><b>Provider:</b></td>
+# <td>{provider}</td>
+# </tr>
+# <tr>
+# <td><b>Received Date:</b></td>
+# <td>{received_date}</td>
+# </tr>
+# </table>
+#                     """
+#                 )
+
+#     except Exception as e:
+#         print("Error fetching data:", e)
+
     try:
-        with connection.cursor() as cursor:
-            # SQL query to fetch data
-            fetch_query = f"SELECT MIN(price) FROM container WHERE size = '{size}' and location = '{location}' and term = '{term}'"
-            cursor.execute(fetch_query)
-
-            # Fetch all results
-            container_data = cursor.fetchall()
-            min_price = container_data[0][0]
-
-            if min_price is None or int(price) < int(min_price):
-                send_email(
-                    to_email="kyleandrewpittman@gmail.com",
-                    subject=f"{location} - Low Price Container ({size} {term})",
-                    body=f"""
-<table>
-<tr>
-<td><b>New Low Price:</b></td>
-<td><b>${price}</b> for {size} {term} at {location}</td>
-</tr>
-<tr><br></tr>
-<tr>
-<td><b>Location:</b></td>
-<td>{location}</td>
-</tr>
-<tr>
-<td><b>Size:</b></td>
-<td>{size}</td>
-</tr>
-<tr>
-<td><b>Term:</b></td>
-<td>{term}</td>
-</tr>
-<tr>
-<td><b>Price:</b></td>
-<td>${price}</td>
-</tr>
-<tr>
-<td><b>Provider:</b></td>
-<td>{provider}</td>
-</tr>
-<tr>
-<td><b>Received Date:</b></td>
-<td>{received_date}</td>
-</tr>
-</table>
-                    """
-                )
-
+        insert_query = f"""
+        INSERT INTO container (size, quantity, term, location, price, feature, depot, ETA, provider, vendor, received_date, created_date)
+        VALUES ('{size}', '{quantity}', '{term}', '{location}', '{price}', '{feature}', '{depot}', '{eta}', '{provider}', '{vendor_email}', '{received_date}', '{created_date}')
+        """
+        execute_query(connection, insert_query)
+    
     except Exception as e:
-        print("Error fetching data:", e)
-
-    insert_query = f"""
-    INSERT INTO container (size, quantity, term, location, price, feature, depot, ETA, provider, vendor, received_date, created_date)
-    VALUES ('{size}', '{quantity}', '{term}', '{location}', '{price}', '{feature}', '{depot}', '{eta}', '{provider}', '{vendor_email}', '{received_date}', '{created_date}')
-    """
-    execute_query(connection, insert_query)
+        print(f"Error on item: {e}")
 
 def get_container_data():
     # Connect to the MySQL database
@@ -1814,6 +1819,78 @@ def get_message_content_html(service, message_id):
                     print(f"Error on item {cell_data}: {e}")
 
             return
+        
+        # ---------------  Parsing for billing@widecontainers.net (Aby Fowler, World Wide Containers) --------------- #
+        case "billing@widecontainers.net":
+            provider = "Aby Fowler, World Wide Containers"
+            clear_container_data(vendor_email[0])
+            for i in range(1, len(rows)):
+                cells = rows[i].find_all('td')
+                cell_data = [cell.get_text() for cell in cells]
+
+                try:
+                    if len(cell_data) == 6 and '$' in cell_data[3]:
+                        location = cell_data[0].upper().replace("\xa0", " ").replace("\n", "").strip()
+                        for key, value in location_data.items():
+                            if key == location:
+                                location = value
+                                break
+                        
+                        size = cell_data[2].replace(" ", "").replace("'", "").replace("\n", "").upper()
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
+                                break
+
+                        if "(" in cell_data[4] and ")" in cell_data[4]:
+                            term = cell_data[4].split(" (")[0].strip()
+                            feature = cell_data[4].split(" (")[1].split(")")[0].strip()
+                        else:
+                            term = cell_data[4].strip()
+                            feature = ""
+
+                        for key, value in term_data.items():
+                            if key in term:
+                                term = value
+                                break
+
+                        eta, feature = "", ""
+                        depot = cell_data[5]
+                        quantity = cell_data[1].replace(" ", "").replace("\n", "")
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = cell_data[3].replace("$", "").replace(",", "").strip()
+                    
+                    if len(cell_data) == 4:
+                        size = cell_data[1].replace(" ", "").replace("'", "").replace("\n", "").upper()
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
+                                break
+
+                        if "(" in cell_data[3] and ")" in cell_data[3]:
+                            term = cell_data[3].split(" (")[0].strip()
+                            feature = cell_data[3].split(" (")[1].split(")")[0].strip()
+                        else:
+                            term = cell_data[3].strip()
+                            feature = ""
+                        
+                        for key, value in term_data.items():
+                            if key in term:
+                                term = value
+                                break
+
+                        eta, feature = "", ""
+                        quantity = cell_data[0].replace(" ", "").replace("\n", "")
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = cell_data[2].replace("$", "").replace(",", "").strip()
+
+                    if price.isdigit() and int(price) > 0 and quantity > 0:
+                        insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                except Exception as e:
+                    print(f"Error on item {cell_data}: {e}")
+
+            return
 
         # # ---------------  Parsing for ryanchoi@muwon.com (Ryan Jongwon Choi, Muwon USA) --------------- #
         # case "ryanchoi@muwon.com":
@@ -2719,7 +2796,7 @@ def get_message_content_plain(service, message_id):
 
         # ---------------  Parsing for jenny@icc-solution.com (Jenny Roberts, International Container & Chassis Solution) --------------- #
         case "jenny@icc-solution.com":
-            clear_container_data(vendor_email[0])
+            # clear_container_data(vendor_email[0])
             provider = "Jenny Roberts, International Container & Chassis Solution"
             content_data = content.split("Regards,")[0].split("\n")
             for item in content_data:
@@ -2727,14 +2804,14 @@ def get_message_content_plain(service, message_id):
 
                 try:
                     if item.count('*') >= 2:
-                        location = item.replace("*", "").split(",")[0].upper().strip() if "," in item else item.replace("*", "").upper().strip()
+                        location = item.replace("*", "").replace(">", "").split(",")[0].upper().strip() if "," in item else item.replace("*", "").replace(">", "").upper().strip()
                         for key, value in location_data.items():
                             if key == location:
                                 location = value
                                 break
                     else:
                         feature, depot, eta = "", "", ""
-                        item = item.replace("X", "x")
+                        item = item.replace("X", "x").replace(">", "")
                         if "x" in item:
                             quantity = item.split("x")[0]
                             quantity = int(quantity) if quantity.isdigit() else 1
@@ -2841,7 +2918,56 @@ def get_message_content_plain(service, message_id):
                             location = item.split("(")[0].upper().strip()
                             depot = item.split("(")[1].split(")")[0]
                         else:
-                            location = item.upper().strip()
+                            location = item.split(",")[0].upper().strip()
+
+                        for key, value in location_data.items():
+                            if key == location:
+                                location = value
+                                break
+
+                    if "$" in item or "-" in item:
+                        size = item.split(") ")[1].split(" ")[0].replace("'", "").upper()
+                        for key, value in size_data.items():
+                            if key == size:
+                                size = value
+                                break
+
+                        feature, eta = "", ""
+
+                        if "CW" in item or "WWT" in item or "IICL" in item:
+                            terms = ["CW", "WWT", "IICL"]
+                            term = next((t for t in terms if t in item), None)
+
+                        if "ONE TRIP" in item or "New" in item or "NEW" in item:
+                            term = "1Trip"
+
+                        quantity = item.split("(")[1].split(")")[0].strip()
+                        quantity = int(quantity) if quantity.isdigit() else 1
+                        price = item.split("$")[1].replace(",", "").replace("EACH", "").strip()
+
+                        if price.isdigit() and int(price) > 0 and quantity > 0:
+                            insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email[0], received_date, created_date)
+
+                except Exception as e:
+                    print(f"Error on item {item}: {e}")
+
+            return
+
+        # ---------------  Parsing for charlie@panoceanicglobal.company (Charlie Reid, Pan Oceanic Global) --------------- #
+        case "charlie@panoceanicglobal.company":
+            clear_container_data(vendor_email[0])
+            provider = "Charlie Reid, Pan Oceanic Global"
+            content_data = content.split("\n")
+
+            for item in content_data:
+                item = item.replace("*", "")
+                try:
+                    if "$" not in item and "-" not in item:
+                        if "(" in item and ")" in item:
+                            location = item.split("(")[0].upper().strip()
+                            depot = item.split("(")[1].split(")")[0]
+                        else:
+                            location = item.split(",")[0].upper().strip()
 
                         for key, value in location_data.items():
                             if key == location:

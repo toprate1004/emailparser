@@ -10,3 +10,4 @@ pandas
 mysql-connector-python
 apscheduler
 flask-cors
+rich
