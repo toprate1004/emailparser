@@ -78,58 +78,57 @@ def execute_query(connection, query):
 
 def insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email, received_date, created_date):
     """Insert container record and send email if price is lower than the lowest price in the database"""
-#     try:
-#         with connection.cursor() as cursor:
-#             # SQL query to fetch data
-#             fetch_query = f"SELECT MIN(price) FROM container WHERE size = '{size}' and location = '{location}' and term = '{term}'"
-#             cursor.execute(fetch_query)
+    try:
+        with connection.cursor() as cursor:
+            # SQL query to fetch data
+            fetch_query = f"SELECT MIN(price) FROM container WHERE size = '{size}' and location = '{location}' and term = '{term}'"
+            cursor.execute(fetch_query)
 
-#             # Fetch all results
-#             container_data = cursor.fetchall()
-#             min_price = container_data[0][0]
+            # Fetch all results
+            container_data = cursor.fetchall()
+            min_price = container_data[0][0]
 
-#             if min_price is None or int(price) < int(min_price):
-                
-#                 send_email(
-#                     to_email="kyleandrewpittman@gmail.com",
-#                     subject=f"{location} - Low Price Container ({size} {term})",
-#                     body=f"""
-# <table>
-# <tr>
-# <td><b>New Low Price:</b></td>
-# <td><b>${price}</b> for {size} {term} at {location}</td>
-# </tr>
-# <tr><br></tr>
-# <tr>
-# <td><b>Location:</b></td>
-# <td>{location}</td>
-# </tr>
-# <tr>
-# <td><b>Size:</b></td>
-# <td>{size}</td>
-# </tr>
-# <tr>
-# <td><b>Term:</b></td>
-# <td>{term}</td>
-# </tr>
-# <tr>
-# <td><b>Price:</b></td>
-# <td>${price}</td>
-# </tr>
-# <tr>
-# <td><b>Provider:</b></td>
-# <td>{provider}</td>
-# </tr>
-# <tr>
-# <td><b>Received Date:</b></td>
-# <td>{received_date}</td>
-# </tr>
-# </table>
-#                     """
-#                 )
+            if int(price) < int(min_price):
+                send_email(
+                    to_email="kyleandrewpittman@gmail.com",
+                    subject=f"{location} - Low Price Container ({size} {term})",
+                    body=f"""
+<table>
+<tr>
+<td><b>New Low Price:</b></td>
+<td><b>${price}</b> for {size} {term} at {location}</td>
+</tr>
+<tr><br></tr>
+<tr>
+<td><b>Location:</b></td>
+<td>{location}</td>
+</tr>
+<tr>
+<td><b>Size:</b></td>
+<td>{size}</td>
+</tr>
+<tr>
+<td><b>Term:</b></td>
+<td>{term}</td>
+</tr>
+<tr>
+<td><b>Price:</b></td>
+<td>${price}</td>
+</tr>
+<tr>
+<td><b>Provider:</b></td>
+<td>{provider}</td>
+</tr>
+<tr>
+<td><b>Received Date:</b></td>
+<td>{received_date}</td>
+</tr>
+</table>
+                    """
+                )
 
-#     except Exception as e:
-#         print("Error fetching data:", e)
+    except Exception as e:
+        print("Error fetching data:", e)
 
     try:
         insert_query = f"""
