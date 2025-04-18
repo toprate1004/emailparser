@@ -2914,10 +2914,10 @@ def get_message_content_plain(service, message_id):
                 try:
                     if "$" not in item and "-" not in item:
                         if "(" in item and ")" in item:
-                            location = item.split("(")[0].upper().strip()
+                            location = item.split("(")[0].split(",")[0].upper().strip()
                             depot = item.split("(")[1].split(")")[0]
                         else:
-                            location = item.split(",")[0].upper().strip()
+                            location = item.split("[")[0].split(",")[0].upper().strip()
 
                         for key, value in location_data.items():
                             if key == location:
@@ -2963,10 +2963,10 @@ def get_message_content_plain(service, message_id):
                 try:
                     if "$" not in item and "-" not in item:
                         if "(" in item and ")" in item:
-                            location = item.split("(")[0].upper().strip()
+                            location = item.split("(")[0].split(",")[0].upper().strip()
                             depot = item.split("(")[1].split(")")[0]
                         else:
-                            location = item.split(",")[0].upper().strip()
+                            location = item.split("[")[0].split(",")[0].upper().strip()
 
                         for key, value in location_data.items():
                             if key == location:
