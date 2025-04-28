@@ -78,21 +78,23 @@ def execute_query(connection, query):
 
 def insert_container_record(connection, size, quantity, term, location, price, feature, depot, eta, provider, vendor_email, received_date, created_date):
     """Insert container record and send email if price is lower than the lowest price in the database"""
+    location_data = ["Montreal , QC", "Winnipeg, MB", "Vancouver, BC", "Toronto, ON", "Regina, SK", "Halifax, NS", "Edmonton, AB", "Saskatoon, SK"]
     try:
         with connection.cursor() as cursor:
-            # SQL query to fetch data
-            fetch_query = f"SELECT MIN(price) FROM container WHERE size = '{size}' and location = '{location}' and term = '{term}'"
-            cursor.execute(fetch_query)
+            if location not in location_data:
+                # SQL query to fetch data
+                fetch_query = f"SELECT MIN(price) FROM container WHERE size = '{size}' and location = '{location}' and term = '{term}'"
+                cursor.execute(fetch_query)
 
-            # Fetch all results
-            container_data = cursor.fetchall()
-            min_price = container_data[0][0]
+                # Fetch all results
+                container_data = cursor.fetchall()
+                min_price = container_data[0][0]
 
-            if int(price) < int(min_price):
-                send_email(
-                    to_email="kyleandrewpittman@gmail.com",
-                    subject=f"{location} - Low Price Container ({size} {term})",
-                    body=f"""
+                if int(price) < int(min_price):
+                    send_email(
+                        to_email="kyleandrewpittman@gmail.com",
+                        subject=f"{location} - Low Price Container ({size} {term})",
+                        body=f"""
 <table>
 <tr>
 <td><b>New Low Price:</b></td>
@@ -125,7 +127,7 @@ def insert_container_record(connection, size, quantity, term, location, price, f
 </tr>
 </table>
                     """
-                )
+                    )
 
     except Exception as e:
         print("Error fetching data:", e)
