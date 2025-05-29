@@ -2797,7 +2797,7 @@ def get_message_content_plain(service, message_id):
 
         # ---------------  Parsing for jenny@icc-solution.com (Jenny Roberts, International Container & Chassis Solution) --------------- #
         case "jenny@icc-solution.com":
-            # clear_container_data(vendor_email[0])
+            clear_container_data(vendor_email[0])
             provider = "Jenny Roberts, International Container & Chassis Solution"
             content_data = content.split("Regards,")[0].split("\n")
             for item in content_data:
