@@ -65,6 +65,47 @@ def create_connection(host_name, user_name, user_password, db_name):
 
     return connection
 
+# Function create_connection() - Connect to database
+def create_new_connection(host_name, user_name, user_password, db_name):
+    """Create a connection to the MySQL database."""
+    connection = None
+    try:
+        connection = pymysql.connect(
+            host=host_name,
+            user=user_name,
+            password=user_password,
+            database=db_name
+        )
+        print("Connection to MySQL DB successful")
+        with connection.cursor() as cursor:
+            # SQL query to create the table
+            create_table_query = """
+            CREATE TABLE IF NOT EXISTS container_min_price (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                location VARCHAR(255),
+                quantity INT(5),
+                size VARCHAR(255),
+                term VARCHAR(255),
+                price int(7),
+                feature VARCHAR(255),
+                depot VARCHAR(255),
+                ETA VARCHAR(255),
+                provider VARCHAR(255),
+                vendor VARCHAR(255),
+                received_date VARCHAR(255),
+                created_date VARCHAR(255)
+            );
+            """
+            cursor.execute(create_table_query)
+            print("Table 'container' created successfully!")
+
+        # Commit changes
+        connection.commit()
+    except Exception as e:
+        print(f"The error {str(e)} occurred")
+
+    return connection
+
 # Function execute_query() - Execute query
 def execute_query(connection, query):
     """Execute a single query."""
@@ -92,7 +133,7 @@ def insert_container_record(connection, size, quantity, term, location, price, f
 
 #                 if int(price) < int(min_price):
 #                     send_email(
-#                         to_email="kyleandrewpittman@gmail.com",
+#                         to_email="thecontainerdudes@gmail.com",
 #                         subject=f"{location} - Low Price Container ({size} {term})",
 #                         body=f"""
 # <table>
@@ -228,6 +269,76 @@ def get_container_filtered_data():
                                     "provider": row[9], "vendor": row[10],
                                     "received_date": row[11], "created_date": row[12]
                                     } for row in container_data]
+
+    except Exception as e:
+        print("Error fetching data:", e)
+
+    # Close the connection
+    if connection:
+        connection.close()
+
+    return container_json_data
+
+def get_container_filtered_data_temp():
+    # Connect to the MySQL database
+    host = "localhost"
+    user = "root"
+    password = os.getenv("MYSQL_PASSWORD")
+    database = "container"
+
+    # Create a connection
+    connection = create_new_connection(host, user, password, database)
+    container_json_data = []
+
+    try:
+        with connection.cursor() as cursor:
+            # SQL query to fetch data
+            fetch_query = """
+                SELECT c.id, c.location, c.quantity, c.size, c.term,
+                    c.price, c.feature, c.depot, c.eta, c.provider, c.vendor,
+                    c.received_date, c.created_date
+                FROM container c
+                INNER JOIN (
+                    SELECT location, size, term, MIN(price) AS min_price
+                    FROM container
+                    GROUP BY location, size, term
+                ) m ON c.location = m.location
+                    AND c.size = m.size
+                    AND c.term = m.term
+                    AND c.price = m.min_price
+                LEFT JOIN (
+                    SELECT MIN(id) AS min_id, location, size, term, price
+                    FROM container
+                    GROUP BY location, size, term, price
+                ) n ON c.location = n.location
+                    AND c.size = n.size
+                    AND c.term = n.term
+                    AND c.price = n.price
+                WHERE c.id = n.min_id
+                ORDER BY c.location, c.size
+            """
+
+            cursor.execute(fetch_query)
+
+            # Fetch all results
+            container_data = cursor.fetchall()
+            for row in container_data:
+                try:
+                    insert_query = f"""
+                    INSERT INTO container_min_price (size, quantity, term, location, price, feature, depot, ETA, provider, vendor, received_date, created_date)
+                    VALUES ('{row[3]}', '{row[2]}', '{row[4]}', '{row[1]}', '{row[5]}', '{row[6]}', '{row[7]}', '{row[8]}', '{row[9]}', '{row[10]}', '{row[11]}', '{row[12]}')
+                    """
+                    execute_query(connection, insert_query)
+                
+                except Exception as e:
+                    print(f"Error on item: {e}")
+            # container_json_data = [{"location": row[1], "quantity": row[2],
+            #                         "size": row[3], "term": row[4],
+            #                         "price": row[5], "feature": row[6],
+            #                         "depot": row[7], "eta": row[8],
+            #                         "provider": row[9], "vendor": row[10],
+            #                         "received_date": row[11], "created_date": row[12]
+            #                         } for row in container_data]
 
     except Exception as e:
         print("Error fetching data:", e)
@@ -3272,26 +3383,32 @@ def main():
     yesterday = current_datetime - timedelta(days=4)
     yesterday_str = yesterday.strftime("%Y/%m/%d")
 
-    for email_html_list in email_html_lists:
-        try:
-            query = f"from:{email_html_list} after:{yesterday_str}"
-            print(query)
-            messages = get_messages(service, query=query)
-            if messages:
-                for message in messages:
-                    get_message_content_html(service, message['id'])
-        except Exception as e:
-            print(f"Error on item {email_html_list}: {e}")
+    get_container_filtered_data_temp()
 
-    for email_plain_list in email_plain_lists:
-        try:
-            query = f"from:{email_plain_list} after:{yesterday_str}"
-            messages = get_messages(service, query=query)
-            if messages:
-                for message in messages:
-                    get_message_content_plain(service, message['id'])
-        except Exception as e:
-            print(f"Error on item {email_plain_list}: {e}")
+    # query = "from:sales1@kirin-trans.com after:2025/6/3"    
+    # messages = get_messages(service, query=query)
+    # for message in messages:
+    #     get_message_content_html(service, message['id'])
+
+    # for email_html_list in email_html_lists:
+    #     try:
+    #         query = f"from:{email_html_list} after:{yesterday_str}"
+    #         messages = get_messages(service, query=query)
+    #         if messages:
+    #             for message in messages:
+    #                 get_message_content_html(service, message['id'])
+    #     except Exception as e:
+    #         print(f"Error on item {email_html_list}: {e}")
+
+    # for email_plain_list in email_plain_lists:
+    #     try:
+    #         query = f"from:{email_plain_list} after:{yesterday_str}"
+    #         messages = get_messages(service, query=query)
+    #         if messages:
+    #             for message in messages:
+    #                 get_message_content_plain(service, message['id'])
+    #     except Exception as e:
+    #         print(f"Error on item {email_plain_list}: {e}")
 
 if __name__ == '__main__':
     main()
